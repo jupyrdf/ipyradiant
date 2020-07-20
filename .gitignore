@@ -4,8 +4,10 @@ __pycache__/
 .hypothesis/
 .idea/
 .ipynb_checkpoints/
+.mypy_cache/
 .pytest-cache/
 .vscode/
+.yarn-packages/
 *.egg-info/
 *.sqlite
 *.tgz
