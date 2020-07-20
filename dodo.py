@@ -1,6 +1,9 @@
 """ doit tasks for ipyradiant
 
-    Generally, you'll just want to `doit`. See `doit list` for more options.
+    Generally, you'll just want to `doit`, while `doit release` does pretty much
+    everything.
+
+    See `doit list` for more options.
 """
 import site
 import sys
@@ -14,6 +17,23 @@ DOIT_CONFIG = {
     "par_type": "thread",
     "default_tasks": ["binder"],
 }
+
+
+def task_binder():
+    """ get to a minimal interactive environment
+    """
+    return dict(
+        file_dep=[P.LAB_INDEX, P.EGG_LINK], actions=[["echo", "ready for binder"]]
+    )
+
+
+def task_release():
+    """ everything we'd need to do to release (except release)
+    """
+    return dict(
+        file_dep=[P.LAB_INDEX, P.EGG_LINK, OK.LINT],
+        actions=[["echo", "ready to release"]],
+    )
 
 
 def task_setup():
@@ -36,21 +56,60 @@ def task_setup():
 def task_lint():
     """ format all source files
     """
-    yield dict(name="isort", file_dep=P.ALL_PY, actions=[["isort", "-rc", *P.ALL_PY]])
-    yield dict(name="black", file_dep=P.ALL_PY, actions=[["black", *P.ALL_PY]])
-    yield dict(name="flake8", file_dep=P.ALL_PY, actions=[["flake8", *P.ALL_PY]])
-    yield dict(name="mypy", file_dep=P.ALL_PY_SRC, actions=[["mypy", *P.ALL_PY_SRC]])
-    yield dict(
-        name="pylint", file_dep=P.ALL_PYLINT, actions=[["pylint", *P.ALL_PYLINT]]
+
+    yield _ok(
+        dict(name="isort", file_dep=P.ALL_PY, actions=[["isort", "-rc", *P.ALL_PY]]),
+        OK.ISORT,
     )
-    yield dict(
-        name="prettier",
-        file_dep=[P.YARN_INTEGRITY, *P.ALL_PRETTIER],
-        actions=[[*P.JLPM, "lint:prettier"]],
+    yield _ok(
+        dict(
+            name="black", file_dep=[*P.ALL_PY, OK.ISORT], actions=[["black", *P.ALL_PY]]
+        ),
+        OK.BLACK,
+    )
+    yield _ok(
+        dict(
+            name="flake8",
+            file_dep=[*P.ALL_PY, OK.BLACK],
+            actions=[["flake8", *P.ALL_PY]],
+        ),
+        OK.FLAKE8,
+    )
+    yield _ok(
+        dict(
+            name="mypy",
+            file_dep=[*P.ALL_PY_SRC, OK.BLACK],
+            actions=[["mypy", *P.ALL_PY_SRC]],
+        ),
+        OK.MYPY,
+    )
+    yield _ok(
+        dict(
+            name="pylint",
+            file_dep=[*P.ALL_PYLINT, OK.BLACK],
+            actions=[["pylint", *P.ALL_PYLINT]],
+        ),
+        OK.PYLINT,
+    )
+    yield _ok(
+        dict(
+            name="prettier",
+            file_dep=[P.YARN_INTEGRITY, *P.ALL_PRETTIER],
+            actions=[[*P.JLPM, "lint:prettier"]],
+        ),
+        OK.PRETTIER,
+    )
+    yield _ok(
+        dict(
+            name="all",
+            actions=[["echo", "all ok"]],
+            file_dep=[OK.BLACK, OK.FLAKE8, OK.ISORT, OK.MYPY, OK.PRETTIER, OK.PYLINT],
+        ),
+        OK.LINT,
     )
 
 
-def task_lab():
+def task_lab_build():
     """ get lab up to running
     """
     exts = [
@@ -62,15 +121,7 @@ def task_lab():
         name="extensions",
         file_dep=[P.EXTENSIONS],
         actions=[
-            [*P.LAB_EXT, "list"],
             [*P.LAB_EXT, "install", "--debug", "--no-build", *exts],
-        ],
-        targets=[P.LAB_LOCK],
-    )
-    yield dict(
-        name="build",
-        file_dep=[P.LAB_LOCK],
-        actions=[
             [
                 "jupyter",
                 "lab",
@@ -78,16 +129,10 @@ def task_lab():
                 "--debug",
                 "--minimize=True",
                 "--dev-build=False",
-            ]
+            ],
         ],
         targets=[P.LAB_INDEX],
     )
-
-
-def task_binder():
-    """ get to a minimal interactive environment
-    """
-    return dict(file_dep=[P.LAB_INDEX, P.EGG_LINK], actions=[["echo", "ok"]])
 
 
 # pylint: disable=invalid-name,too-few-public-methods
@@ -98,6 +143,7 @@ class P:
     DODO = Path(__file__)
     HERE = DODO.parent
     POSTBUILD = HERE / "postBuild"
+    BUILD = HERE / "build"
 
     # tools
     PY = [Path(sys.executable)]
@@ -130,3 +176,26 @@ class P:
     LAB_LOCK = LAB_STAGING / "yarn.lock"
     LAB_STATIC = LAB_APP_DIR / "static"
     LAB_INDEX = LAB_STATIC / "index.html"
+
+
+class OK:
+    """ canary files for marking things as ok that don't have predictable outputs
+    """
+
+    PYLINT = P.BUILD / "pylint.ok"
+    BLACK = P.BUILD / "black.ok"
+    MYPY = P.BUILD / "mypy.ok"
+    ISORT = P.BUILD / "isort.ok"
+    FLAKE8 = P.BUILD / "flake8.ok"
+    PRETTIER = P.BUILD / "prettier.ok"
+    LINT = P.BUILD / "lint.ok"
+
+
+def _ok(task, ok):
+    task.setdefault("targets", []).append(ok)
+    task["actions"] = [
+        lambda: [ok.exists() and ok.unlink(), True][-1],
+        *task["actions"],
+        lambda: [ok.parent.mkdir(exist_ok=True), ok.write_text("ok"), True][-1],
+    ]
+    return task
