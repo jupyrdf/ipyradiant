@@ -1,10 +1,12 @@
 """ doit tasks for ipyradiant
 
-    Generally, you'll just want to `doit`, while `doit release` does pretty much
-    everything.
+    Generally, you'll just want to `doit`.
+
+    `doit release` does pretty much everything.
 
     See `doit list` for more options.
 """
+import re
 import site
 import sys
 from pathlib import Path
@@ -31,7 +33,7 @@ def task_release():
     """ everything we'd need to do to release (except release)
     """
     return dict(
-        file_dep=[P.LAB_INDEX, P.EGG_LINK, OK.LINT],
+        file_dep=[P.LAB_INDEX, P.EGG_LINK, B.LINT, B.WHEEL, B.SDIST],
         actions=[["echo", "ready to release"]],
     )
 
@@ -53,43 +55,54 @@ def task_setup():
     )
 
 
+def task_build():
+    """ build packages
+    """
+    yield dict(
+        name="py",
+        file_dep=[*P.ALL_PY_SRC, P.SETUP_CFG, P.SETUP_PY],
+        actions=[[*P.PY, "setup.py", "sdist"], [*P.PY, "setup.py", "bdist_wheel"]],
+        targets=[B.WHEEL, B.SDIST],
+    )
+
+
 def task_lint():
     """ format all source files
     """
 
     yield _ok(
         dict(name="isort", file_dep=P.ALL_PY, actions=[["isort", "-rc", *P.ALL_PY]]),
-        OK.ISORT,
+        B.ISORT,
     )
     yield _ok(
         dict(
-            name="black", file_dep=[*P.ALL_PY, OK.ISORT], actions=[["black", *P.ALL_PY]]
+            name="black", file_dep=[*P.ALL_PY, B.ISORT], actions=[["black", *P.ALL_PY]]
         ),
-        OK.BLACK,
+        B.BLACK,
     )
     yield _ok(
         dict(
             name="flake8",
-            file_dep=[*P.ALL_PY, OK.BLACK],
+            file_dep=[*P.ALL_PY, B.BLACK],
             actions=[["flake8", *P.ALL_PY]],
         ),
-        OK.FLAKE8,
+        B.FLAKE8,
     )
     yield _ok(
         dict(
             name="mypy",
-            file_dep=[*P.ALL_PY_SRC, OK.BLACK],
+            file_dep=[*P.ALL_PY_SRC, B.BLACK],
             actions=[["mypy", *P.ALL_PY_SRC]],
         ),
-        OK.MYPY,
+        B.MYPY,
     )
     yield _ok(
         dict(
             name="pylint",
-            file_dep=[*P.ALL_PYLINT, OK.BLACK],
+            file_dep=[*P.ALL_PYLINT, B.BLACK],
             actions=[["pylint", *P.ALL_PYLINT]],
         ),
-        OK.PYLINT,
+        B.PYLINT,
     )
     yield _ok(
         dict(
@@ -97,15 +110,15 @@ def task_lint():
             file_dep=[P.YARN_INTEGRITY, *P.ALL_PRETTIER],
             actions=[[*P.JLPM, "lint:prettier"]],
         ),
-        OK.PRETTIER,
+        B.PRETTIER,
     )
     yield _ok(
         dict(
             name="all",
             actions=[["echo", "all ok"]],
-            file_dep=[OK.BLACK, OK.FLAKE8, OK.ISORT, OK.MYPY, OK.PRETTIER, OK.PYLINT],
+            file_dep=[B.BLACK, B.FLAKE8, B.ISORT, B.MYPY, B.PRETTIER, B.PYLINT],
         ),
-        OK.LINT,
+        B.LINT,
     )
 
 
@@ -144,6 +157,7 @@ class P:
     HERE = DODO.parent
     POSTBUILD = HERE / "postBuild"
     BUILD = HERE / "build"
+    DIST = HERE / "dist"
 
     # tools
     PY = [Path(sys.executable)]
@@ -154,6 +168,9 @@ class P:
     JLPM = ["jlpm"]
     LAB_EXT = ["jupyter", "labextension"]
 
+    # top-level stuff
+    SETUP_PY = HERE / "setup.py"
+    SETUP_CFG = HERE / "setup.cfg"
     NODE_MODULES = HERE / "node_modules"
     PACKAGE = HERE / "package.json"
     YARN_INTEGRITY = NODE_MODULES / ".yarn-integrity"
@@ -162,8 +179,8 @@ class P:
     EXTENSIONS = HERE / "labextensions.txt"
 
     PY_SRC = HERE / "ipyradiant"
-    SETUP_PY = HERE / "setup.py"
-    SETUP_CFG = HERE / "setup.cfg"
+    VERSION_PY = PY_SRC / "_version.py"
+
     ALL_PY_SRC = [*PY_SRC.rglob("*.py")]
     ALL_PY = [DODO, POSTBUILD, *ALL_PY_SRC]
     ALL_PYLINT = [p for p in ALL_PY if p.name != "postBuild"]
@@ -178,7 +195,14 @@ class P:
     LAB_INDEX = LAB_STATIC / "index.html"
 
 
-class OK:
+class D:
+    """ data loaded from paths
+    """
+
+    PY_VERSION = re.findall(r'''__version__ = "(.*)"''', P.VERSION_PY.read_text())[0]
+
+
+class B:
     """ canary files for marking things as ok that don't have predictable outputs
     """
 
@@ -189,6 +213,8 @@ class OK:
     FLAKE8 = P.BUILD / "flake8.ok"
     PRETTIER = P.BUILD / "prettier.ok"
     LINT = P.BUILD / "lint.ok"
+    SDIST = P.DIST / f"ipyradiant-{D.PY_VERSION}.tar.gz"
+    WHEEL = P.DIST / f"ipyradiant-{D.PY_VERSION}-py3-none-any.whl"
 
 
 def _ok(task, ok):
