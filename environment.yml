@@ -1,0 +1,19 @@
+name: ipyradiant
+
+channels:
+  - conda-forge
+  - nodefaults
+
+dependencies:
+  - bqplot
+  - datashader
+  - ipycytoscape
+  - ipywidgets
+  - jupyter_bokeh
+  - jupyterlab ==2.2.0
+  - networkx
+  - nodejs >=12,<13.0.0a0
+  - pyld
+  - pyshacl
+  - python >=3.7,<3.8.0a0
+  - rdflib-jsonld

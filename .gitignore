@@ -1,1 +1,14 @@
-.idea/*
+__pycache__/
+.coverage/
+.hypothesis/
+.idea/
+.ipynb_checkpoints/
+.pytest-cache/
+.vscode/
+*.egg-info
+*.tgz
+build/
+dist/
+envs/
+lib/
+node_modules/

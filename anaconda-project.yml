@@ -1,0 +1,29 @@
+name: ipyradiant
+
+commands:
+  lab:
+    unix: &lab jupyter lab --no-browser --debug
+    windows: *lab
+
+  postBuild:
+    unix: &postBuild python postBuild
+    windows: *postBuild
+
+env_specs:
+  ipyradiant:
+    channels:
+      - conda-forge
+      - nodefaults
+    packages:
+      - bqplot
+      - datashader
+      - ipycytoscape
+      - ipywidgets
+      - jupyter_bokeh
+      - jupyterlab ==2.2.0
+      - networkx
+      - nodejs >=12,<13.0.0a0
+      - pyld
+      - pyshacl
+      - python >=3.7,<3.8.0a0
+      - rdflib-jsonld
