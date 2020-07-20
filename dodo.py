@@ -33,7 +33,7 @@ def task_release():
     """ everything we'd need to do to release (except release)
     """
     return dict(
-        file_dep=[P.LAB_INDEX, P.EGG_LINK, B.LINT, B.WHEEL, B.SDIST],
+        file_dep=[P.LAB_INDEX, P.EGG_LINK, B.LINT, B.WHEEL, B.CONDA_PACKAGE],
         actions=[["echo", "ready to release"]],
     )
 
@@ -60,9 +60,24 @@ def task_build():
     """
     yield dict(
         name="py",
-        file_dep=[*P.ALL_PY_SRC, P.SETUP_CFG, P.SETUP_PY],
+        file_dep=[*P.ALL_PY_SRC, P.SETUP_CFG, P.SETUP_PY, B.LINT],
         actions=[[*P.PY, "setup.py", "sdist"], [*P.PY, "setup.py", "bdist_wheel"]],
         targets=[B.WHEEL, B.SDIST],
+    )
+    yield dict(
+        name="conda",
+        file_dep=[B.SDIST, P.META_YAML],
+        actions=[
+            [
+                *P.CONDA_BUILD,
+                "--output-folder",
+                P.DIST_CONDA,
+                "-c",
+                "conda-forge",
+                P.RECIPE,
+            ]
+        ],
+        targets=[B.CONDA_PACKAGE],
     )
 
 
@@ -195,6 +210,7 @@ class P:
     POSTBUILD = HERE / "postBuild"
     BUILD = HERE / "build"
     DIST = HERE / "dist"
+    RECIPE = HERE / "conda.recipe"
 
     # tools
     PY = [Path(sys.executable)]
@@ -204,6 +220,7 @@ class P:
     PIP = [*PYM, "pip"]
     JLPM = ["jlpm"]
     LAB_EXT = ["jupyter", "labextension"]
+    CONDA_BUILD = ["conda", "build"]
 
     # top-level stuff
     SETUP_PY = HERE / "setup.py"
@@ -214,8 +231,9 @@ class P:
     YARN_LOCK = HERE / "yarn.lock"
     SCRIPTS = HERE / "scripts"
     EXTENSIONS = HERE / "labextensions.txt"
+    CI = HERE / ".github"
 
-    PY_SRC = HERE / "ipyradiant"
+    PY_SRC = HERE / "src" / "ipyradiant"
     VERSION_PY = PY_SRC / "_version.py"
 
     LAB_APP_DIR = Path(jupyterlab.commands.get_app_dir())
@@ -234,9 +252,13 @@ class P:
     ALL_PY_SRC = [*PY_SRC.rglob("*.py")]
     ALL_PY = [DODO, POSTBUILD, *ALL_PY_SRC, *EXAMPLE_PY, *SCRIPTS.rglob("*.py")]
     ALL_PYLINT = [p for p in ALL_PY if p.name != "postBuild"]
-    ALL_YML = [*HERE.glob("*.yml")]
+    ALL_YML = [*HERE.glob("*.yml"), *CI.rglob("*.yml")]
     ALL_JSON = [*HERE.glob("*.json")]
     ALL_PRETTIER = [*ALL_YML, *ALL_JSON]
+
+    # conda
+    META_YAML = RECIPE / "meta.yaml"
+    DIST_CONDA = DIST / "conda-bld"
 
 
 class D:
@@ -244,6 +266,7 @@ class D:
     """
 
     PY_VERSION = re.findall(r'''__version__ = "(.*)"''', P.VERSION_PY.read_text())[0]
+    CONDA_BUILD_NO = re.findall(r'''number: (\d+)''', P.META_YAML.read_text())[0]
 
 
 class B:
@@ -264,6 +287,7 @@ class B:
     EXAMPLE_HTML = [
         P.BUILD / p.name.replace(".ipynb", ".html") for p in P.EXAMPLE_IPYNB
     ]
+    CONDA_PACKAGE = P.DIST_CONDA / "noarch" / f"ipyradient-{D.PY_VERSION}-py_{D.CONDA_BUILD_NO}.tar.bz2"
 
 
 def _ok(task, ok):
