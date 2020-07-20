@@ -1,11 +1,13 @@
 __pycache__/
 .coverage/
+.doit*
 .hypothesis/
 .idea/
 .ipynb_checkpoints/
 .pytest-cache/
 .vscode/
 *.egg-info
+*.sqlite
 *.tgz
 build/
 dist/
