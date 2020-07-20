@@ -10,6 +10,6 @@
     "bootstrap": "jlpm deps && jlpm lint",
     "deps": "jlpm --prefer-offline --ignore-optional || jlpm --ignore-optional",
     "lint": "jlpm lint:prettier",
-    "lint:prettier": "prettier --write \"*.{yml,md}\""
+    "lint:prettier": "prettier --write \"*.{yml,md,json}\""
   }
 }
