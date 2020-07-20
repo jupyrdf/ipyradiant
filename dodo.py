@@ -199,6 +199,7 @@ def task_lab_build():
         targets=[P.LAB_INDEX],
     )
 
+
 # pylint: disable=invalid-name,too-few-public-methods
 class P:
     """ important paths
