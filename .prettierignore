@@ -1,0 +1,12 @@
+.eggs
+.history/
+.idea/
+.vscode/
+**/build
+**/lib
+**/node_modules
+**/static
+docs/_build
+docs/api
+envs/
+tests/**/coverage
