@@ -4,3 +4,4 @@
 bqplot
 jupyter-cytoscape
 @bokeh/jupyter_bokeh
+qgrid2
