@@ -266,7 +266,7 @@ class D:
     """
 
     PY_VERSION = re.findall(r'''__version__ = "(.*)"''', P.VERSION_PY.read_text())[0]
-    CONDA_BUILD_NO = re.findall(r'''number: (\d+)''', P.META_YAML.read_text())[0]
+    CONDA_BUILD_NO = re.findall(r"""number: (\d+)""", P.META_YAML.read_text())[0]
 
 
 class B:
@@ -287,7 +287,11 @@ class B:
     EXAMPLE_HTML = [
         P.BUILD / p.name.replace(".ipynb", ".html") for p in P.EXAMPLE_IPYNB
     ]
-    CONDA_PACKAGE = P.DIST_CONDA / "noarch" / f"ipyradient-{D.PY_VERSION}-py_{D.CONDA_BUILD_NO}.tar.bz2"
+    CONDA_PACKAGE = (
+        P.DIST_CONDA
+        / "noarch"
+        / f"ipyradient-{D.PY_VERSION}-py_{D.CONDA_BUILD_NO}.tar.bz2"
+    )
 
 
 def _ok(task, ok):
