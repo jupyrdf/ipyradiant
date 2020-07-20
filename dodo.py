@@ -199,7 +199,6 @@ def task_lab_build():
         targets=[P.LAB_INDEX],
     )
 
-
 # pylint: disable=invalid-name,too-few-public-methods
 class P:
     """ important paths
@@ -290,7 +289,7 @@ class B:
     CONDA_PACKAGE = (
         P.DIST_CONDA
         / "noarch"
-        / f"ipyradient-{D.PY_VERSION}-py_{D.CONDA_BUILD_NO}.tar.bz2"
+        / f"ipyradiant-{D.PY_VERSION}-py_{D.CONDA_BUILD_NO}.tar.bz2"
     )
 
 
