@@ -66,6 +66,26 @@ def task_build():
     )
 
 
+def task_test():
+    """ testing
+    """
+    yield dict(
+        name="nbsmoke",
+        file_dep=[*P.EXAMPLE_IPYNB],
+        actions=[
+            [
+                "jupyter",
+                "nbconvert",
+                "--output-dir",
+                P.DIST,
+                "--execute",
+                *P.EXAMPLE_IPYNB,
+            ]
+        ],
+        targets=B.EXAMPLE_HTML,
+    )
+
+
 def task_lint():
     """ format all source files
     """
@@ -114,9 +134,26 @@ def task_lint():
     )
     yield _ok(
         dict(
+            name="nblint",
+            file_dep=[*P.EXAMPLE_IPYNB],
+            actions=[[*P.PY, "scripts/nblint.py", *P.EXAMPLE_IPYNB]],
+            targets=[B.NBLINT_HASHES],
+        ),
+        B.NBLINT,
+    )
+    yield _ok(
+        dict(
             name="all",
             actions=[["echo", "all ok"]],
-            file_dep=[B.BLACK, B.FLAKE8, B.ISORT, B.MYPY, B.PRETTIER, B.PYLINT],
+            file_dep=[
+                B.BLACK,
+                B.FLAKE8,
+                B.ISORT,
+                B.MYPY,
+                B.PRETTIER,
+                B.PYLINT,
+                B.NBLINT,
+            ],
         ),
         B.LINT,
     )
@@ -175,24 +212,31 @@ class P:
     PACKAGE = HERE / "package.json"
     YARN_INTEGRITY = NODE_MODULES / ".yarn-integrity"
     YARN_LOCK = HERE / "yarn.lock"
-
+    SCRIPTS = HERE / "scripts"
     EXTENSIONS = HERE / "labextensions.txt"
 
     PY_SRC = HERE / "ipyradiant"
     VERSION_PY = PY_SRC / "_version.py"
-
-    ALL_PY_SRC = [*PY_SRC.rglob("*.py")]
-    ALL_PY = [DODO, POSTBUILD, *ALL_PY_SRC]
-    ALL_PYLINT = [p for p in ALL_PY if p.name != "postBuild"]
-    ALL_YML = [*HERE.glob("*.yml")]
-    ALL_JSON = [*HERE.glob("*.json")]
-    ALL_PRETTIER = [*ALL_YML, *ALL_JSON]
 
     LAB_APP_DIR = Path(jupyterlab.commands.get_app_dir())
     LAB_STAGING = LAB_APP_DIR / "staging"
     LAB_LOCK = LAB_STAGING / "yarn.lock"
     LAB_STATIC = LAB_APP_DIR / "static"
     LAB_INDEX = LAB_STATIC / "index.html"
+
+    # tests
+    EXAMPLES = HERE / "examples"
+    EXAMPLE_IPYNB = [
+        p for p in EXAMPLES.rglob("*.ipynb") if ".ipynb_checkpoints" not in str(p)
+    ]
+    EXAMPLE_PY = [*EXAMPLES.rglob("*.py")]
+
+    ALL_PY_SRC = [*PY_SRC.rglob("*.py")]
+    ALL_PY = [DODO, POSTBUILD, *ALL_PY_SRC, *EXAMPLE_PY, *SCRIPTS.rglob("*.py")]
+    ALL_PYLINT = [p for p in ALL_PY if p.name != "postBuild"]
+    ALL_YML = [*HERE.glob("*.yml")]
+    ALL_JSON = [*HERE.glob("*.json")]
+    ALL_PRETTIER = [*ALL_YML, *ALL_JSON]
 
 
 class D:
@@ -212,9 +256,14 @@ class B:
     ISORT = P.BUILD / "isort.ok"
     FLAKE8 = P.BUILD / "flake8.ok"
     PRETTIER = P.BUILD / "prettier.ok"
+    NBLINT = P.BUILD / "nblint.ok"
+    NBLINT_HASHES = P.BUILD / "nblint.hashes"
     LINT = P.BUILD / "lint.ok"
     SDIST = P.DIST / f"ipyradiant-{D.PY_VERSION}.tar.gz"
     WHEEL = P.DIST / f"ipyradiant-{D.PY_VERSION}-py3-none-any.whl"
+    EXAMPLE_HTML = [
+        P.BUILD / p.name.replace(".ipynb", ".html") for p in P.EXAMPLE_IPYNB
+    ]
 
 
 def _ok(task, ok):

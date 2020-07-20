@@ -1,21 +1,19 @@
-""" a small wrapper around qrid for a graph
+""" a Box wrapper around qgrid with a graph
 """
-# pylint: disable=no-self-use
+# pylint: disable=R0201,W1113
 import ipywidgets as W
+import qgrid
 import traitlets as T
 from pandas import DataFrame
-from qgrid import QgridWidget, show_grid
 from rdflib import Graph
 
 
 class QGRIDGraphWidget(W.Box):
-    """ A box which contains a qgrid
+    """ A qgrid for a graph
     """
 
-    # pylint: disable=keyword-arg-before-vararg
-
-    graph: Graph = T.Instance(Graph)
-    qgridw: QgridWidget = T.Instance(QgridWidget)
+    graph = T.Instance(Graph)
+    qgridw = T.Instance(qgrid.QgridWidget)
 
     def __init__(self, graph: Graph = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -25,10 +23,10 @@ class QGRIDGraphWidget(W.Box):
         self.children = [self.qgridw]
 
     @T.default("qgridw")
-    def make_default_qgridw(self) -> QgridWidget:
-        """ generate a default qgrid if not provided
+    def make_default_qgridw(self):
+        """ create a read-only qgrid
         """
-        qgridw = show_grid(
+        qgridw = qgrid.show_grid(
             DataFrame(),
             grid_options={"editable": False},
             column_options={"editable": False},
