@@ -25,10 +25,12 @@ env_specs:
       - isort <5
       - jupyter_bokeh
       - jupyterlab ==2.2.0
+      - mypy
       - networkx
       - nodejs >=12,<13.0.0a0
       - pyld
       - pylint
       - pyshacl
       - python >=3.7,<3.8.0a0
+      - qgrid
       - rdflib-jsonld

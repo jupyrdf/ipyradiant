@@ -5,7 +5,12 @@
 import sys
 from pathlib import Path
 
-DOIT_CONFIG = {"backend": "sqlite3", "verbosity": 2}
+DOIT_CONFIG = {
+    "backend": "sqlite3",
+    "verbosity": 2,
+    "par_type": "thread",
+    # "default_tasks": ["binder"]
+}
 
 
 def task_setup():
@@ -17,6 +22,11 @@ def task_setup():
         actions=[[*P.JLPM, "--prefer-offline", "--ignore-optional"]],
         targets=[P.YARN_INTEGRITY],
     )
+    yield dict(
+        name="py",
+        file_dep=[P.SETUP_PY, P.SETUP_CFG],
+        actions=[[*P.PIP, "install", "-e", ".", "--no-deps"], [*P.PIP, "check"]],
+    )
 
 
 def task_lint():
@@ -25,6 +35,7 @@ def task_lint():
     yield dict(name="isort", file_dep=P.ALL_PY, actions=[["isort", "-rc", *P.ALL_PY]])
     yield dict(name="black", file_dep=P.ALL_PY, actions=[["black", *P.ALL_PY]])
     yield dict(name="flake8", file_dep=P.ALL_PY, actions=[["flake8", *P.ALL_PY]])
+    yield dict(name="mypy", file_dep=P.ALL_PY_SRC, actions=[["mypy", *P.ALL_PY_SRC]])
     yield dict(name="pylint", file_dep=P.ALL_PY, actions=[["pylint", *P.ALL_PY]])
     yield dict(
         name="prettier",
@@ -43,7 +54,9 @@ class P:
     POSTBUILD = HERE / "postBuild"
 
     # tools
-    PY = Path(sys.executable)
+    PY = [Path(sys.executable)]
+    PYM = [*PY, "-m"]
+    PIP = [*PYM, "pip"]
     JLPM = ["jlpm"]
 
     NODE_MODULES = HERE / "node_modules"
@@ -51,7 +64,11 @@ class P:
     YARN_INTEGRITY = NODE_MODULES / ".yarn-integrity"
     YARN_LOCK = HERE / "yarn.lock"
 
-    ALL_PY = [DODO, POSTBUILD]
+    PY_SRC = HERE / "ipyradiant"
+    SETUP_PY = HERE / "setup.py"
+    SETUP_CFG = HERE / "setup.cfg"
+    ALL_PY_SRC = [*PY_SRC.rglob("*.py")]
+    ALL_PY = [DODO, POSTBUILD, *ALL_PY_SRC]
     ALL_YML = [*HERE.glob("*.yml")]
     ALL_JSON = [*HERE.glob("*.json")]
     ALL_PRETTIER = [*ALL_YML, *ALL_JSON]
