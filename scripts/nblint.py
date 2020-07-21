@@ -16,7 +16,7 @@ HERE = Path(__file__)
 NODE = shutil.which("node") or shutil.which("node.exe") or shutil.which("node.cmd")
 PRETTIER = [NODE, str(HERE.parent / "node_modules" / ".bin" / "prettier")]
 
-HASHES = HERE.parent / "build" / "nblint.hashes"
+HASHES = HERE.parent.parent / "build" / "nblint.hashes"
 
 
 def blacken(source):
