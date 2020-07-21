@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 import jupyterlab.commands
+from doit.tools import PythonInteractiveAction
 
 DOIT_CONFIG = {
     "backend": "sqlite3",
@@ -25,7 +26,8 @@ def task_binder():
     """ get to a minimal interactive environment
     """
     return dict(
-        file_dep=[P.LAB_INDEX, B.PIP_INSTALL_E], actions=[["echo", "ready for binder"]]
+        file_dep=[P.LAB_INDEX, B.PIP_INSTALL_E],
+        actions=[["echo", "ready to run JupyterLab with:\n\n\tdoit lab\n"]],
     )
 
 
@@ -208,6 +210,30 @@ def task_lab_build():
             _build,
         ],
         targets=[P.LAB_INDEX],
+    )
+
+
+def task_lab():
+    """ run JupyterLab "normally" (not watching sources)
+    """
+
+    def lab():
+        proc = subprocess.Popen(["jupyter", "lab", "--no-browser", "--debug"])
+        hard_stop = 0
+        while hard_stop < 2:
+            try:
+                proc.wait()
+            except KeyboardInterrupt:
+                hard_stop += 1
+
+        proc.terminate()
+        proc.terminate()
+        proc.wait()
+
+    return dict(
+        uptodate=[lambda: False],
+        file_dep=[P.LAB_INDEX],
+        actions=[PythonInteractiveAction(lab)],
     )
 
 

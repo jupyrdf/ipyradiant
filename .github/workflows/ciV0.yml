@@ -48,8 +48,8 @@ jobs:
 
       - if: ${{ !contains(matrix.os, 'windows') }}
         shell: bash -l {0}
-        run: doit -n4 release
+        run: doit -n4 release || doit release
 
       - if: ${{ contains(matrix.os, 'windows') }}
         shell: cmd /C CALL {0}
-        run: doit -n4 release
+        run: doit -n4 release || doit release

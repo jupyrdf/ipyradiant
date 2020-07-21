@@ -24,16 +24,16 @@ conda install anaconda-project
 ## Get To a Running Lab
 
 ```bash
-anaconda-project run doit
-anaconda-project run lab
+anaconda-project run doit lab
 ```
 
 - open the browser with the URL shown
 
-## Get ready for a release
+## Get Ready for a Release
 
-```
+```bash
 anaconda-project run doit release
 ```
 
 - fix the things that break, keep running until it completes
+- this won't actually release anything
