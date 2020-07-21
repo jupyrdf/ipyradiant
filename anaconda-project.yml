@@ -18,7 +18,7 @@ env_specs:
     channels:
       - conda-forge
       - msys2
-      - nodefaults
+      - anaconda
     packages:
       - black
       - bqplot
@@ -29,17 +29,16 @@ env_specs:
       - flake8
       - ipycytoscape
       - ipywidgets
-      - isort <5
+      - isort <5                 # presumably will be fixed soon
       - jupyter_bokeh
-      - jupyterlab ==2.2.0
+      - jupyterlab ==2.2.0       # not strictly neccessary, but avoids surprises
       - mypy
       - networkx
       - nodejs >=12,<13.0.0a0
-      - nomkl
-      - numpy <1.19.0a0
+      - numpy <1.19.0a0          # presently pinning due to unknown windows issue
       - pyld
       - pylint
       - pyshacl
-      - python >=3.7,<3.8.0a0
+      - python >=3.7,<3.8.0a0    # really just 36+, not using any py37 features
       - qgrid
       - rdflib-jsonld
