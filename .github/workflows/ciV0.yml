@@ -22,6 +22,22 @@ jobs:
           - windows-latest
     steps:
       - uses: actions/checkout@v2
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/conda_pkgs_dir
+          key: ${{ runner.os }}-conda-${{ hashFiles('anaconda-project-lock.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-conda-
+
+      - uses: actions/cache@v1
+        with:
+          path: .yarn-packages
+          key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            yarn-${{ runner.os }}-
+            yarn-
+
       - uses: goanpeca/setup-miniconda@v1.6.0
         with:
           activate-environment: ipyradiant
@@ -29,9 +45,11 @@ jobs:
           environment-file: environment.yml
           show-channel-urls: true
           use-only-tar-bz2: true
+
       - if: ${{ !contains(matrix.os, 'windows') }}
         shell: bash -l {0}
         run: doit -n4 release
+
       - if: ${{ contains(matrix.os, 'windows') }}
         shell: cmd /C CALL {0}
         run: doit -n4 release

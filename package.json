@@ -8,7 +8,7 @@
   },
   "scripts": {
     "bootstrap": "jlpm deps && jlpm lint",
-    "deps": "jlpm --prefer-offline --ignore-optional || jlpm --ignore-optional",
+    "deps": "jlpm --offline --ignore-optional || jlpm --prefer-offline --ignore-optional || jlpm --ignore-optional",
     "lint": "jlpm lint:prettier",
     "lint:prettier": "prettier --write \"*.{yml,md,json}\" \".github/**/*.yml\""
   }
