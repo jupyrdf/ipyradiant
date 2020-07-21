@@ -97,13 +97,13 @@ def task_test():
     """
     yield dict(
         name="nbsmoke",
-        file_dep=[*P.EXAMPLE_IPYNB],
+        file_dep=[*P.EXAMPLE_IPYNB, B.NBLINT],
         actions=[
             [
                 "jupyter",
                 "nbconvert",
                 "--output-dir",
-                P.DIST,
+                P.DIST_NBHTML,
                 "--execute",
                 *P.EXAMPLE_IPYNB,
             ]
@@ -290,7 +290,9 @@ class P:
         p for p in EXAMPLES.rglob("*.ipynb") if ".ipynb_checkpoints" not in str(p)
     ]
     EXAMPLE_PY = [*EXAMPLES.rglob("*.py")]
+    DIST_NBHTML = DIST / "nbsmoke"
 
+    # mostly linting
     ALL_PY_SRC = [*PY_SRC.rglob("*.py")]
     ALL_PY = [DODO, POSTBUILD, *ALL_PY_SRC, *EXAMPLE_PY, *SCRIPTS.rglob("*.py")]
     ALL_PYLINT = [p for p in ALL_PY if p.name != "postBuild"]
@@ -329,7 +331,7 @@ class B:
     SDIST = P.DIST / f"ipyradiant-{D.PY_VERSION}.tar.gz"
     WHEEL = P.DIST / f"ipyradiant-{D.PY_VERSION}-py3-none-any.whl"
     EXAMPLE_HTML = [
-        P.BUILD / p.name.replace(".ipynb", ".html") for p in P.EXAMPLE_IPYNB
+        P.DIST_NBHTML / p.name.replace(".ipynb", ".html") for p in P.EXAMPLE_IPYNB
     ]
     CONDA_PACKAGE = (
         P.DIST_CONDA
