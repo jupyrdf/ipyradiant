@@ -7,6 +7,7 @@
     See `doit list` for more options.
 """
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -183,11 +184,9 @@ def task_lab_build():
         for line in P.EXTENSIONS.read_text().strip().splitlines()
         if line and not line.startswith("#")
     ]
-    yield dict(
-        name="extensions",
-        file_dep=[P.EXTENSIONS],
-        actions=[
-            [*P.LAB_EXT, "install", "--debug", "--no-build", *exts],
+
+    def _build():
+        build_rc = subprocess.call(
             [
                 "jupyter",
                 "lab",
@@ -195,7 +194,18 @@ def task_lab_build():
                 "--debug",
                 "--minimize=True",
                 "--dev-build=False",
-            ],
+            ]
+        )
+
+        return build_rc == 0 or P.LAB_INDEX.exists()
+
+    yield dict(
+        name="extensions",
+        file_dep=[P.EXTENSIONS],
+        actions=[
+            ["jupyter", "lab", "clean", "--all"],
+            [*P.LAB_EXT, "install", "--debug", "--no-build", *exts],
+            _build,
         ],
         targets=[P.LAB_INDEX],
     )

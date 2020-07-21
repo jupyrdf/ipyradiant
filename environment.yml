@@ -21,6 +21,7 @@ dependencies:
   - networkx
   - nodejs >=12,<13.0.0a0
   - nomkl
+  - numpy <1.19.0a0
   - pyld
   - pylint
   - pyshacl
