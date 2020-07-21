@@ -7,7 +7,6 @@
     See `doit list` for more options.
 """
 import re
-import site
 import sys
 from pathlib import Path
 
@@ -25,7 +24,7 @@ def task_binder():
     """ get to a minimal interactive environment
     """
     return dict(
-        file_dep=[P.LAB_INDEX, P.EGG_LINK], actions=[["echo", "ready for binder"]]
+        file_dep=[P.LAB_INDEX, B.PIP_INSTALL_E], actions=[["echo", "ready for binder"]]
     )
 
 
@@ -33,7 +32,7 @@ def task_release():
     """ everything we'd need to do to release (except release)
     """
     return dict(
-        file_dep=[P.LAB_INDEX, P.EGG_LINK, B.LINT, B.WHEEL, B.CONDA_PACKAGE],
+        file_dep=[P.LAB_INDEX, B.PIP_INSTALL_E, B.LINT, B.WHEEL, B.CONDA_PACKAGE],
         actions=[["echo", "ready to release"]],
     )
 
@@ -47,11 +46,13 @@ def task_setup():
         actions=[[*P.JLPM, "--prefer-offline", "--ignore-optional"]],
         targets=[P.YARN_INTEGRITY],
     )
-    yield dict(
-        name="py",
-        file_dep=[P.SETUP_PY, P.SETUP_CFG],
-        actions=[[*P.PIP, "install", "-e", ".", "--no-deps"], [*P.PIP, "check"]],
-        targets=[P.EGG_LINK],
+    yield _ok(
+        dict(
+            name="py",
+            file_dep=[P.SETUP_PY, P.SETUP_CFG],
+            actions=[[*P.PIP, "install", "-e", ".", "--no-deps"], [*P.PIP, "check"]],
+        ),
+        B.PIP_INSTALL_E,
     )
 
 
@@ -214,8 +215,6 @@ class P:
 
     # tools
     PY = [Path(sys.executable)]
-    SITE_PKGS = Path(site.getsitepackages()[0])
-    EGG_LINK = SITE_PKGS / "ipyradiant.egg-link"
     PYM = [*PY, "-m"]
     PIP = [*PYM, "pip"]
     JLPM = ["jlpm"]
@@ -282,6 +281,7 @@ class B:
     NBLINT = P.BUILD / "nblint.ok"
     NBLINT_HASHES = P.BUILD / "nblint.hashes"
     LINT = P.BUILD / "lint.ok"
+    PIP_INSTALL_E = P.BUILD / "pip_install_e.ok"
     SDIST = P.DIST / f"ipyradiant-{D.PY_VERSION}.tar.gz"
     WHEEL = P.DIST / f"ipyradiant-{D.PY_VERSION}-py3-none-any.whl"
     EXAMPLE_HTML = [
