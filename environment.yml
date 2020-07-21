@@ -8,6 +8,7 @@ channels:
 dependencies:
   - black
   - bqplot
+  - conda
   - conda-build
   - datashader
   - doit
