@@ -22,8 +22,8 @@ env_specs:
     packages:
       - black
       - bqplot
-      - conda
-      - conda-build
+      - conda >=4.8.3,<4.9.0a0
+      - conda-build >=3.19.2,<3.20.0a0
       - datashader
       - doit
       - flake8

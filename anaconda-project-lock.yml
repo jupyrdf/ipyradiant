@@ -17,7 +17,7 @@ locking_enabled: true
 env_specs:
   ipyradiant:
     locked: true
-    env_spec_hash: aa9440db393c0527dac7e1ce444f51e9dc05d2e0
+    env_spec_hash: cc3d66cd8e442dc1f7722d4ac3261776b5a5e121
     platforms:
       - linux-64
       - osx-64
@@ -224,7 +224,7 @@ env_specs:
         - bzip2=1.0.8=h0b31af3_2
         - cffi=1.14.0=py37h356ff06_0
         - conda-package-handling=1.6.0=py37h9bfed18_2
-        - cryptography=2.9.2=py37he655712_0
+        - cryptography=3.0=py37h94e4008_0
         - cytoolz=0.10.1=py37h0b31af3_0
         - freetype=2.10.2=h8da9a1a_0
         - icu=64.2=h6de7cb9_1
@@ -289,7 +289,7 @@ env_specs:
         - cffi=1.14.0=py37ha419a9e_0
         - colorama=0.4.3=py_0
         - conda-package-handling=1.6.0=py37h702c6c1_2
-        - cryptography=2.9.2=py37h26f1ce3_0
+        - cryptography=3.0=py37h26f1ce3_0
         - cytoolz=0.10.1=py37hfa6e2cd_0
         - datashader=0.6.5=py_0
         - freetype=2.10.2=hd328e21_0
@@ -302,14 +302,11 @@ env_specs:
         - libiconv=1.15=hfa6e2cd_1006
         - liblapack=3.8.0=8_h8933c1f_netlib
         - liblief=0.10.1=ha925a31_0
-        - libllvm9=9.0.1=hde8ddfe_1
         - libpng=1.6.37=hfe6a214_1
         - libsodium=1.0.17=h2fa13f4_0
         - libtiff=4.1.0=h885aae3_6
         - libxml2=2.9.10=h5d81f1c_1
-        - llvm-tools=9.0.1=hde8ddfe_1
-        - llvmdev=9.0.1=hde8ddfe_1
-        - llvmlite=0.33.0=py37h8b575af_0
+        - llvmlite=0.33.0=py37h8b575af_1
         - lz4-c=1.9.2=h62dcd97_1
         - lzo=2.10=hfa6e2cd_1000
         - m2-msys2-runtime=2.5.0.17080.65c939c=3

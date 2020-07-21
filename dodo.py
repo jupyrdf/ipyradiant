@@ -261,7 +261,7 @@ class P:
     PIP = [*PYM, "pip"]
     JLPM = ["jlpm"]
     LAB_EXT = ["jupyter", "labextension"]
-    CONDA_BUILD = ["conda", "build"]
+    CONDA_BUILD = ["conda-build"]
     LAB = ["jupyter", "lab"]
 
     # top-level stuff
