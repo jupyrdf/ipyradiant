@@ -179,7 +179,7 @@ def task_lint():
 
 
 def task_lab_build():
-    """ get lab up to running
+    """ do a "production" build of lab
     """
     exts = [
         line.strip()
@@ -188,16 +188,21 @@ def task_lab_build():
     ]
 
     def _build():
-        build_rc = subprocess.call(
-            [
-                "jupyter",
-                "lab",
-                "build",
-                "--debug",
-                "--minimize=True",
-                "--dev-build=False",
-            ]
-        )
+        # pylint: disable=broad-except
+        build_rc = 1
+        try:
+            build_rc = subprocess.call(
+                [
+                    "jupyter",
+                    "lab",
+                    "build",
+                    "--debug",
+                    "--minimize=True",
+                    "--dev-build=False",
+                ]
+            )
+        except Exception as err:
+            print(f"Encountered an error, continuing:\n\t{err}\n", flush=True)
 
         return build_rc == 0 or P.LAB_INDEX.exists()
 
