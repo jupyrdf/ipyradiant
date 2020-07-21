@@ -53,4 +53,4 @@ jobs:
 
       - if: ${{ contains(matrix.os, 'windows') }}
         shell: cmd /C CALL {0}
-        run: doit -n4 release || doit release
+        run: call activate ipyradiant && doit -n4 release || doit release
