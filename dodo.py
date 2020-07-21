@@ -35,7 +35,14 @@ def task_release():
     """ everything we'd need to do to release (except release)
     """
     return dict(
-        file_dep=[P.LAB_INDEX, B.PIP_INSTALL_E, B.LINT, B.WHEEL, B.CONDA_PACKAGE],
+        file_dep=[
+            P.LAB_INDEX,
+            B.PIP_INSTALL_E,
+            B.LINT,
+            B.WHEEL,
+            B.CONDA_PACKAGE,
+            *B.EXAMPLE_HTML,
+        ],
         actions=[["echo", "ready to release"]],
     )
 
