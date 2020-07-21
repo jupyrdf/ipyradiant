@@ -1,6 +1,7 @@
 @echo on
 :: this is a nasty hack, and should not be needed
 
+call conda info --json
 call deactivate
 call C:\Miniconda\envs\ipyradiant\Scripts\activate
 call conda info --json
