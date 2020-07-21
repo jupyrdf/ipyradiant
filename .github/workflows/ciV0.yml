@@ -31,7 +31,7 @@ jobs:
           use-only-tar-bz2: true
       - if: ${{ !contains(matrix.os, 'windows') }}
         shell: bash -l {0}
-        run: doit release
+        run: doit -n4 release
       - if: ${{ contains(matrix.os, 'windows') }}
         shell: cmd /C CALL {0}
-        run: doit release
+        run: doit -n4 release
