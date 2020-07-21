@@ -40,5 +40,6 @@ about:
   home: https://github.com/zwelz3/ipyradiant
   license: BSD-3-Clause
   license_family: MIT
-  license_file: {{ dist }}/LICENSE
+  license_file: {{ dist }}/LICENSE  # [unix]
+  license_file: {{ dist }}\LICENSE  # [win]
   summary: Jupyter Widgets for working with RDF graphs
