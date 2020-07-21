@@ -8,7 +8,8 @@ package:
   version: {{ version }}
 
 source:
-  path: ../dist/{{ fname }}
+  - path: ../dist/{{ fname }}
+  - path: ../LICENSE
 
 build:
   noarch: python
@@ -16,8 +17,6 @@ build:
   script:
     - {{ PYTHON }} -c "__import__('tarfile').open('{{ fname }}').extractall()"
     - cd {{ dist }}
-    - cp LICENSE ..   # [unix]
-    - copy LICENSE ..  # [win]
     - {{ PYTHON }} -m pip install . -vv
 
 requirements:
