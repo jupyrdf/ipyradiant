@@ -192,14 +192,7 @@ def task_lab_build():
         build_rc = 1
         try:
             build_rc = subprocess.call(
-                [
-                    "jupyter",
-                    "lab",
-                    "build",
-                    "--debug",
-                    "--minimize=True",
-                    "--dev-build=False",
-                ]
+                [*P.LAB, "build", "--debug", "--minimize=True", "--dev-build=False"]
             )
         except Exception as err:
             print(f"Encountered an error, continuing:\n\t{err}\n", flush=True)
@@ -210,9 +203,10 @@ def task_lab_build():
         name="extensions",
         file_dep=[P.EXTENSIONS],
         actions=[
-            ["jupyter", "lab", "clean", "--all"],
+            [*P.LAB, "clean", "--all"],
             [*P.LAB_EXT, "install", "--debug", "--no-build", *exts],
             _build,
+            [*P.LAB_EXT, "list"],
         ],
         targets=[P.LAB_INDEX],
     )
@@ -223,7 +217,7 @@ def task_lab():
     """
 
     def lab():
-        proc = subprocess.Popen(["jupyter", "lab", "--no-browser", "--debug"])
+        proc = subprocess.Popen([*P.LAB, "--no-browser", "--debug"])
         hard_stop = 0
         while hard_stop < 2:
             try:
@@ -261,6 +255,7 @@ class P:
     JLPM = ["jlpm"]
     LAB_EXT = ["jupyter", "labextension"]
     CONDA_BUILD = ["conda", "build"]
+    LAB = ["jupyter", "lab"]
 
     # top-level stuff
     SETUP_PY = HERE / "setup.py"

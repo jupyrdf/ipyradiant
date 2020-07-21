@@ -15,7 +15,10 @@ build:
   number: 0
   script:
     - {{ PYTHON }} -c "__import__('tarfile').open('{{ fname }}').extractall()"
-    - cd {{ dist }} && {{ PYTHON }} -m pip install . -vv
+    - cd {{ dist }}
+    - cp LICENSE ..   # [unix]
+    - copy LICENSE ..  # [win]
+    - {{ PYTHON }} -m pip install . -vv
 
 requirements:
   host:
@@ -40,6 +43,5 @@ about:
   home: https://github.com/zwelz3/ipyradiant
   license: BSD-3-Clause
   license_family: MIT
-  license_file: {{ dist }}/LICENSE  # [unix]
-  license_file: {{ dist }}\LICENSE  # [win]
+  license_file: LICENSE
   summary: Jupyter Widgets for working with RDF graphs
