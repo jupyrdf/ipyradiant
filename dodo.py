@@ -253,7 +253,8 @@ class P:
     ALL_PYLINT = [p for p in ALL_PY if p.name != "postBuild"]
     ALL_YML = [*HERE.glob("*.yml"), *CI.rglob("*.yml")]
     ALL_JSON = [*HERE.glob("*.json")]
-    ALL_PRETTIER = [*ALL_YML, *ALL_JSON]
+    ALL_MD = [*HERE.glob("*.md")]
+    ALL_PRETTIER = [*ALL_YML, *ALL_JSON, *ALL_MD]
 
     # conda
     META_YAML = RECIPE / "meta.yaml"
