@@ -11,8 +11,13 @@ commands:
 
 env_specs:
   ipyradiant:
+    platforms:
+      - linux-64
+      - osx-64
+      - win-64
     channels:
       - conda-forge
+      - msys2
       - nodefaults
     packages:
       - black
@@ -29,6 +34,7 @@ env_specs:
       - mypy
       - networkx
       - nodejs >=12,<13.0.0a0
+      - nomkl
       - pyld
       - pylint
       - pyshacl

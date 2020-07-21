@@ -2,6 +2,7 @@ name: ipyradiant
 
 channels:
   - conda-forge
+  - msys2
   - nodefaults
 
 dependencies:
@@ -19,6 +20,7 @@ dependencies:
   - mypy
   - networkx
   - nodejs >=12,<13.0.0a0
+  - nomkl
   - pyld
   - pylint
   - pyshacl
