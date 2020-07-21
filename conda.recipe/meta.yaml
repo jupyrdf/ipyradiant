@@ -18,18 +18,17 @@ build:
     - {{ PYTHON }} -c "__import__('tarfile').open('{{ fname }}').extractall()"
     - cd {{ dist }}
     - {{ PYTHON }} -m pip install . -vv --no-deps
-    - {{ PYTHON }} -c "__import__('ipyradiant')"
 
 requirements:
   host:
-    - python
+    - python >=3.6
     - pip
   run:
     - ipywidgets
     - pandas
     - qgrid
     - rdflib
-    - python
+    - python >=3.6
 
 test:
   requires:
