@@ -47,7 +47,7 @@ PRETTIER = [NODE, str(NODE_MODULES / ".bin" / "prettier")]
 # env stuff
 OK_ENV = {env: BUILD / f"prep_{env}.ok" for env in ["build", "qa", "dev"]}
 FORCE_SERIAL_ENV_PREP = bool(
-    json.loads(os.environ.get("FORCE_SERIAL_ENV_PREP", "false"))
+    json.loads(os.environ.get("FORCE_SERIAL_ENV_PREP", "true"))
 )
 
 # python stuff
