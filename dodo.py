@@ -75,7 +75,7 @@ def task_build():
     yield dict(
         name="py",
         file_dep=[*P.ALL_PY_SRC, P.SETUP_CFG, P.SETUP_PY, P.OK_LINT],
-        actions=[[*P.APR_BUILD, *P.PY, "setup.py", "sdist"], [*P.PY, "setup.py", "bdist_wheel"]],
+        actions=[[*P.APR_BUILD, *P.PY, "setup.py", "sdist"], [*P.APR_BUILD, *P.PY, "setup.py", "bdist_wheel"]],
         targets=[P.WHEEL, P.SDIST],
     )
     yield dict(
@@ -195,7 +195,7 @@ def task_lab_build():
         build_rc = 1
         try:
             build_rc = subprocess.call(
-                [*P.LAB, "build", "--debug", "--minimize=True", "--dev-build=False"]
+                [*P.APR_DEV, *P.LAB, "build", "--debug", "--minimize=True", "--dev-build=False"]
             )
         except Exception as err:
             print(f"Encountered an error, continuing:\n\t{err}\n", flush=True)
@@ -206,10 +206,10 @@ def task_lab_build():
         name="extensions",
         file_dep=[P.EXTENSIONS],
         actions=[
-            [*P.LAB, "clean", "--all"],
-            [*P.LAB_EXT, "install", "--debug", "--no-build", *exts],
+            [*P.APR_DEV, *P.LAB, "clean", "--all"],
+            [*P.APR_DEV, *P.LAB_EXT, "install", "--debug", "--no-build", *exts],
             _build,
-            [*P.LAB_EXT, "list"],
+            [*P.APR_DEV, *P.LAB_EXT, "list"],
         ],
         targets=[P.LAB_INDEX],
     )
@@ -220,7 +220,7 @@ def task_lab():
     """
 
     def lab():
-        proc = subprocess.Popen([*P.LAB, "--no-browser", "--debug"])
+        proc = subprocess.Popen([*P.APR_DEV, *P.LAB, "--no-browser", "--debug"])
         hard_stop = 0
         while hard_stop < 2:
             try:
