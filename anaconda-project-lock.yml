@@ -299,7 +299,7 @@ env_specs:
       - zstd=1.4.5=h1f3a1b7_1
   qa:
     locked: true
-    env_spec_hash: 46ef4c4db7714017afb1ac23da724670e65e1351
+    env_spec_hash: a043d57ef4fece6b8cf2e643361a2c38488f520a
     platforms:
     - linux-64
     - osx-64
@@ -307,7 +307,6 @@ env_specs:
     packages:
       all:
       - appdirs=1.4.3=py_1
-      - astroid=2.4.2=py37hc8dfbb8_0
       - attrs=19.3.0=py_0
       - black=19.10b0=py_3
       - ca-certificates=2020.6.20=hecda079_0
@@ -327,7 +326,6 @@ env_specs:
       - pip=20.1.1=py_1
       - pycodestyle=2.6.0=pyh9f0ad1d_0
       - pyflakes=2.2.0=pyh9f0ad1d_0
-      - pylint=2.5.3=py37hc8dfbb8_0
       - python_abi=3.7=1_cp37m
       - setuptools=49.2.0=py37hc8dfbb8_0
       - six=1.15.0=pyh9f0ad1d_0
@@ -339,7 +337,6 @@ env_specs:
       - _libgcc_mutex=0.1=conda_forge
       - _openmp_mutex=4.5=0_gnu
       - icu=64.2=he1b5a44_1
-      - lazy-object-proxy=1.4.3=py37h8f50634_2
       - ld_impl_linux-64=2.34=h53a641e_7
       - libffi=3.2.1=he1b5a44_1007
       - libgcc-ng=9.2.0=h24d8f2e_2
@@ -356,12 +353,10 @@ env_specs:
       - sqlite=3.32.3=hcee41ef_1
       - tk=8.6.10=hed695b0_0
       - typed-ast=1.4.1=py37h516909a_0
-      - wrapt=1.11.2=py37h8f50634_0
       - xz=5.2.5=h516909a_1
       - zlib=1.2.11=h516909a_1006
       osx-64:
       - icu=64.2=h6de7cb9_1
-      - lazy-object-proxy=1.4.3=py37h9bfed18_2
       - libcxx=10.0.0=h1af66ff_2
       - libffi=3.2.1=h4a8c4bd_1007
       - libuv=1.34.0=h0b31af3_0
@@ -375,12 +370,9 @@ env_specs:
       - sqlite=3.32.3=h93121df_1
       - tk=8.6.10=hbbe82c9_0
       - typed-ast=1.4.1=py37h0b31af3_0
-      - wrapt=1.11.2=py37h9bfed18_0
       - xz=5.2.5=h0b31af3_1
       - zlib=1.2.11=h0b31af3_1006
       win-64:
-      - colorama=0.4.3=py_0
-      - lazy-object-proxy=1.4.3=py37h8055547_2
       - nodejs=12.16.1=0
       - openssl=1.1.1g=he774522_0
       - pyrsistent=0.16.0=py37h8055547_0
@@ -392,7 +384,6 @@ env_specs:
       - vc=14.1=h869be7e_1
       - vs2015_runtime=14.16.27012=h30e32a0_2
       - wincertstore=0.2=py37_1003
-      - wrapt=1.11.2=py37h8055547_0
   build:
     locked: true
     env_spec_hash: 17a40cd9a71e203697f2b6761ac9dbf31826c685

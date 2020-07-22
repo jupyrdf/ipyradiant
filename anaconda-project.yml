@@ -76,7 +76,7 @@ env_specs:
       - isort <5
       - nbformat
       - nodejs >=12,<13.0.0a0
-      - pylint
+      - pyflakes
       - python >=3.7,<3.8.0a0
 
 

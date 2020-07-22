@@ -1,8 +1,9 @@
 """ important project paths
 """
-
-from pathlib import Path
+import re
 import shutil
+import sys
+from pathlib import Path
 
 SCRIPTS = Path(__file__).parent.resolve()
 ROOT = SCRIPTS.parent
@@ -21,6 +22,7 @@ POSTBUILD = ROOT / "postBuild"
 BUILD = ROOT / "build"
 DIST = ROOT / "dist"
 RECIPE = ROOT / "conda.recipe"
+ENVS = ROOT / "envs"
 
 # tools
 PY = [Path(sys.executable)]
@@ -43,7 +45,7 @@ PY_SRC = ROOT / "src" / "ipyradiant"
 VERSION_PY = PY_SRC / "_version.py"
 
 # lab stuff
-LAB_APP_DIR = Path(jupyterlab.commands.get_app_dir())
+LAB_APP_DIR = ENVS / "dev/share/jupyter/lab"
 LAB_STAGING = LAB_APP_DIR / "staging"
 LAB_LOCK = LAB_STAGING / "yarn.lock"
 LAB_STATIC = LAB_APP_DIR / "static"
@@ -60,7 +62,6 @@ DIST_NBHTML = DIST / "nbsmoke"
 # mostly linting
 ALL_PY_SRC = [*PY_SRC.rglob("*.py")]
 ALL_PY = [DODO, POSTBUILD, *ALL_PY_SRC, *EXAMPLE_PY, *SCRIPTS.rglob("*.py")]
-ALL_PYLINT = [p for p in ALL_PY if p.name != "postBuild"]
 ALL_YML = [*ROOT.glob("*.yml"), *CI.rglob("*.yml")]
 ALL_JSON = [*ROOT.glob("*.json")]
 ALL_MD = [*ROOT.glob("*.md")]
@@ -76,10 +77,10 @@ OK_BLACK = BUILD / "black.ok"
 OK_FLAKE8 = BUILD / "flake8.ok"
 OK_ISORT = BUILD / "isort.ok"
 OK_LINT = BUILD / "lint.ok"
+OK_PYFLAKES = BUILD / "pyflakes.ok"
 OK_NBLINT = BUILD / "nblint.ok"
 OK_PIP_INSTALL_E = BUILD / "pip_install_e.ok"
 OK_PRETTIER = BUILD / "prettier.ok"
-OK_PYLINT = BUILD / "pylint.ok"
 
 # derived info
 PY_VERSION = re.findall(r'''__version__ = "(.*)"''', VERSION_PY.read_text())[0]
@@ -88,11 +89,7 @@ CONDA_BUILD_NO = re.findall(r"""number: (\d+)""", META_YAML.read_text())[0]
 # built artifacts
 SDIST = DIST / f"ipyradiant-{PY_VERSION}.tar.gz"
 WHEEL = DIST / f"ipyradiant-{PY_VERSION}-py3-none-any.whl"
-EXAMPLE_HTML = [
-    DIST_NBHTML / p.name.replace(".ipynb", ".html") for p in EXAMPLE_IPYNB
-]
+EXAMPLE_HTML = [DIST_NBHTML / p.name.replace(".ipynb", ".html") for p in EXAMPLE_IPYNB]
 CONDA_PACKAGE = (
-    DIST_CONDA
-    / "noarch"
-    / f"ipyradiant-{PY_VERSION}-py_{CONDA_BUILD_NO}.tar.bz2"
+    DIST_CONDA / "noarch" / f"ipyradiant-{PY_VERSION}-py_{CONDA_BUILD_NO}.tar.bz2"
 )

@@ -1,9 +1,9 @@
 """ a Box wrapper around qgrid with a graph
 """
-# pylint: disable=R0201,W1113
+import traitlets as T
+
 import ipywidgets as W
 import qgrid
-import traitlets as T
 from pandas import DataFrame
 from rdflib import Graph
 

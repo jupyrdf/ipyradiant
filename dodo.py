@@ -6,16 +6,10 @@
 
     See `doit list` for more options.
 """
-import re
 import subprocess
-import sys
-from pathlib import Path
-
-import jupyterlab.commands
-from doit.tools import PythonInteractiveAction
 
 import _scripts.project as P
-
+from doit.tools import PythonInteractiveAction
 
 DOIT_CONFIG = {
     "backend": "sqlite3",
@@ -29,7 +23,7 @@ def task_binder():
     """ get to a minimal interactive environment
     """
     return dict(
-        file_dep=[P.LAB_INDEX, P.PIP_INSTALL_E],
+        file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL_E],
         actions=[["echo", "ready to run JupyterLab with:\n\n\tdoit lab\n"]],
     )
 
@@ -40,7 +34,7 @@ def task_release():
     return dict(
         file_dep=[
             P.LAB_INDEX,
-            P.PIP_INSTALL_E,
+            P.OK_PIP_INSTALL_E,
             P.OK_LINT,
             P.WHEEL,
             P.CONDA_PACKAGE,
@@ -63,9 +57,12 @@ def task_setup():
         dict(
             name="py",
             file_dep=[P.SETUP_PY, P.SETUP_CFG],
-            actions=[[*P.APR_DEV, *P.PIP, "install", "-e", ".", "--no-deps"], [*P.APR_DEV, *P.PIP, "check"]],
+            actions=[
+                [*P.APR_DEV, *P.PIP, "install", "-e", ".", "--no-deps"],
+                [*P.APR_DEV, *P.PIP, "check"],
+            ],
         ),
-        P.PIP_INSTALL_E,
+        P.OK_PIP_INSTALL_E,
     )
 
 
@@ -75,7 +72,10 @@ def task_build():
     yield dict(
         name="py",
         file_dep=[*P.ALL_PY_SRC, P.SETUP_CFG, P.SETUP_PY, P.OK_LINT],
-        actions=[[*P.APR_BUILD, *P.PY, "setup.py", "sdist"], [*P.APR_BUILD, *P.PY, "setup.py", "bdist_wheel"]],
+        actions=[
+            [*P.APR_BUILD, *P.PY, "setup.py", "sdist"],
+            [*P.APR_BUILD, *P.PY, "setup.py", "bdist_wheel"],
+        ],
         targets=[P.WHEEL, P.SDIST],
     )
     yield dict(
@@ -122,12 +122,18 @@ def task_lint():
     """
 
     yield _ok(
-        dict(name="isort", file_dep=P.ALL_PY, actions=[[*P.APR_QA, "isort", "-rc", *P.ALL_PY]]),
+        dict(
+            name="isort",
+            file_dep=P.ALL_PY,
+            actions=[[*P.APR_QA, "isort", "-rc", *P.ALL_PY]],
+        ),
         P.OK_ISORT,
     )
     yield _ok(
         dict(
-            name="black", file_dep=[*P.ALL_PY, P.OK_ISORT], actions=[[*P.APR_QA, "black", *P.ALL_PY]]
+            name="black",
+            file_dep=[*P.ALL_PY, P.OK_ISORT],
+            actions=[[*P.APR_QA, "black", *P.ALL_PY]],
         ),
         P.OK_BLACK,
     )
@@ -141,11 +147,11 @@ def task_lint():
     )
     yield _ok(
         dict(
-            name="pylint",
-            file_dep=[*P.ALL_PYLINT, P.OK_BLACK],
-            actions=[[*P.APR_QA, "pylint", *P.ALL_PYLINT]],
+            name="pyflakes",
+            file_dep=[*P.ALL_PY, P.OK_BLACK],
+            actions=[[*P.APR_QA, "pyflakes", *P.ALL_PY]],
         ),
-        P.OK_PYLINT,
+        P.OK_PYFLAKES,
     )
     yield _ok(
         dict(
@@ -173,7 +179,7 @@ def task_lint():
                 P.OK_FLAKE8,
                 P.OK_ISORT,
                 P.OK_PRETTIER,
-                P.OK_PYLINT,
+                P.OK_PYFLAKES,
                 P.OK_NBLINT,
             ],
         ),
@@ -191,11 +197,17 @@ def task_lab_build():
     ]
 
     def _build():
-        # pylint: disable=broad-except
         build_rc = 1
         try:
             build_rc = subprocess.call(
-                [*P.APR_DEV, *P.LAB, "build", "--debug", "--minimize=True", "--dev-build=False"]
+                [
+                    *P.APR_DEV,
+                    *P.LAB,
+                    "build",
+                    "--debug",
+                    "--minimize=True",
+                    "--dev-build=False",
+                ]
             )
         except Exception as err:
             print(f"Encountered an error, continuing:\n\t{err}\n", flush=True)

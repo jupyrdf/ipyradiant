@@ -1,11 +1,11 @@
 """ the main query widget
 """
-# pylint: disable=C0103,C0115,C0116,C0116,R0201,R0901,W0511,W0613,W1113
 import re
+
+import traitlets as T
 
 import ipywidgets as W
 import qgrid
-import traitlets as T
 from pandas import DataFrame
 from rdflib import Graph, URIRef
 
