@@ -1,7 +1,5 @@
-# TODO: uncomment once we have something, if needed
-# .
+@bokeh/jupyter_bokeh
 @jupyter-widgets/jupyterlab-manager
 bqplot
 jupyter-cytoscape
-@bokeh/jupyter_bokeh
 qgrid2
