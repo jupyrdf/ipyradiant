@@ -1,10 +1,8 @@
 @echo on
-:: this is a nasty hack, and should not be needed
+:: this is a nasty hack, and should not be needed, but the env isn't _quite_ right
 
-call conda info --json
 call deactivate
-call C:\Miniconda\envs\ipyradiant\Scripts\activate
-call conda info --json
+call C:\Miniconda\envs\ipyradiant-base\Scripts\activate
 call doit -n4 release
 call doit release || goto :error
 

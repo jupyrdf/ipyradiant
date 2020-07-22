@@ -40,9 +40,9 @@ jobs:
 
       - uses: goanpeca/setup-miniconda@v1.6.0
         with:
-          activate-environment: ipyradiant
+          activate-environment: ipyradiant-base
           auto-activate-base: false
-          environment-file: environment.yml
+          environment-file: .ci/environment.yml
           show-channel-urls: true
           use-only-tar-bz2: true
 
