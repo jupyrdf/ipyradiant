@@ -1,11 +1,11 @@
 """ loading widgets
 """
-import os
-import tempfile
 
-import traitlets as T
+# pylint: disable=C0103,C0115,C0116,C0116,R0201,R0901,W0511,W0613
 
 import ipywidgets as W
+import traitlets as T
+
 from rdflib import BNode, Graph
 
 
@@ -52,7 +52,6 @@ class LoadBox(W.HBox):
 
     @T.observe("file_upload_value")
     def process_files(self, change):
-        # TODO simplify by using WXYZ HTML File Loader
         # TODO loader for files (not needed until support for >1 file)
         # size is in bytes
         file_graphs = {}
@@ -61,15 +60,9 @@ class LoadBox(W.HBox):
             assert file_name not in file_graphs
             file_graphs[file_name] = {}
             file_graphs[file_name]["metadata"] = data["metadata"]
-            # File write/load workaround (replace with WXYZ)
-            with tempfile.TemporaryFile(delete=False) as tf:
-                # TODO try else to ensure close?
-                tf.write(data["content"])
-                tf.close()
-                g = Graph().parse(tf.name, format="n3")
-                file_graphs[file_name]["graph"] = g
-                file_graphs[file_name]["metadata"]["length"] = len(g)
-                os.unlink(tf.name)
+            g = Graph().parse(data=data["content"], format="n3")
+            file_graphs[file_name]["graph"] = g
+            file_graphs[file_name]["metadata"]["length"] = len(g)
 
             # TODO combine graphs when multiple=True
             self.graph = g
