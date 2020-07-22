@@ -19,7 +19,6 @@ YARN_LOCK = ROOT / "yarn.lock"
 EXTENSIONS = ROOT / "labextensions.txt"
 CI = ROOT / ".github"
 DODO = ROOT / "dodo.py"
-POSTBUILD = ROOT / "postBuild"
 BUILD = ROOT / "build"
 DIST = ROOT / "dist"
 RECIPE = ROOT / "conda.recipe"
@@ -71,7 +70,7 @@ DIST_NBHTML = DIST / "nbsmoke"
 
 # mostly linting
 ALL_PY_SRC = [*PY_SRC.rglob("*.py")]
-ALL_PY = [DODO, POSTBUILD, *ALL_PY_SRC, *EXAMPLE_PY, *SCRIPTS.rglob("*.py")]
+ALL_PY = [DODO, *ALL_PY_SRC, *EXAMPLE_PY, *SCRIPTS.rglob("*.py")]
 ALL_YML = [*ROOT.glob("*.yml"), *CI.rglob("*.yml")]
 ALL_JSON = [*ROOT.glob("*.json")]
 ALL_MD = [*ROOT.glob("*.md")]
