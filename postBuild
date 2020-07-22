@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eux
+
+# prepare
+jupyter lab clean --all
+
+# python setup
+python -m pip install -e . --no-cache-dir --no-deps
+
+# lab
+jupyter labextension install $(cat labextensions.txt) --no-build --debug
+jupyter lab build --debug --dev-build=False --minimize=True
+
+# cleanup
+jupyter lab clean
+jlpm cache clean
+
+# see what we have
+jupyter labextension list
+jupyter serverextension list

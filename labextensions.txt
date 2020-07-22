@@ -1,0 +1,5 @@
+@bokeh/jupyter_bokeh
+@jupyter-widgets/jupyterlab-manager
+bqplot
+jupyter-cytoscape
+qgrid2

@@ -1,0 +1,22 @@
+name: ipyradiant
+
+channels:
+  - conda-forge
+  - msys2
+
+dependencies:
+  - bqplot
+  - datashader
+  - ipycytoscape
+  - ipywidgets
+  - jupyter_bokeh
+  - jupyterlab ==2.2.0
+  - networkx
+  - nodejs >=12,<13.0.0a0
+  - numpy
+  - pip
+  - pyld
+  - pyshacl
+  - python >=3.6 # underspecified so binder does whatever's clever
+  - qgrid
+  - rdflib-jsonld

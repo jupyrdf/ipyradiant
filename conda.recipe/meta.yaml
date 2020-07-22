@@ -1,0 +1,46 @@
+{% set name = "ipyradiant" %}
+{% set version = "0.1.0" %}
+{% set dist = name ~ "-" ~ version %}
+{% set fname = dist ~ ".tar.gz" %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  - path: ../dist/{{ fname }}
+  - path: ../LICENSE
+
+build:
+  noarch: python
+  number: 0
+  script:
+    - {{ PYTHON }} -c "__import__('tarfile').open('{{ fname }}').extractall()"
+    - cd {{ dist }}
+    - {{ PYTHON }} -m pip install . -vv --no-deps
+
+requirements:
+  host:
+    - python >=3.6
+    - pip
+  run:
+    - ipywidgets
+    - pandas
+    - qgrid
+    - rdflib
+    - python >=3.6
+
+test:
+  requires:
+    - pip
+  imports:
+    - ipyradiant
+  commands:
+    - python -m pip check
+
+about:
+  home: https://github.com/zwelz3/ipyradiant
+  license: BSD-3-Clause
+  license_family: MIT
+  license_file: LICENSE
+  summary: Jupyter Widgets for working with RDF graphs
