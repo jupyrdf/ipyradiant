@@ -133,7 +133,7 @@ def task_lint():
         dict(
             name="black",
             file_dep=[*P.ALL_PY, P.OK_ISORT],
-            actions=[[*P.APR_QA, "black", *P.ALL_PY]],
+            actions=[[*P.APR_QA, "black", "--quiet", *P.ALL_PY]],
         ),
         P.OK_BLACK,
     )
@@ -157,7 +157,7 @@ def task_lint():
         dict(
             name="prettier",
             file_dep=[P.YARN_INTEGRITY, *P.ALL_PRETTIER],
-            actions=[[*P.APR_QA, *P.JLPM, "lint:prettier"]],
+            actions=[[*P.APR_QA, "npm", "run", "lint:prettier"]],
         ),
         P.OK_PRETTIER,
     )
@@ -165,7 +165,7 @@ def task_lint():
         dict(
             name="nblint",
             file_dep=[*P.EXAMPLE_IPYNB],
-            actions=[[*P.APR_QA, *P.PY, "scripts/nblint.py", *P.EXAMPLE_IPYNB]],
+            actions=[[*P.APR_QA, *P.PYM, "_scripts.nblint", *P.EXAMPLE_IPYNB]],
             targets=[P.NBLINT_HASHES],
         ),
         P.OK_NBLINT,

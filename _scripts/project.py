@@ -2,7 +2,6 @@
 """
 import re
 import shutil
-import sys
 from pathlib import Path
 
 SCRIPTS = Path(__file__).parent.resolve()
@@ -25,10 +24,10 @@ RECIPE = ROOT / "conda.recipe"
 ENVS = ROOT / "envs"
 
 # tools
-PY = [Path(sys.executable)]
+PY = ["python"]
 PYM = [*PY, "-m"]
 PIP = [*PYM, "pip"]
-NODE = shutil.which("node") or shutil.which("node.exe") or shutil.which("node.cmd")
+NODE = [shutil.which("node") or shutil.which("node.exe") or shutil.which("node.cmd")]
 
 JLPM = ["jlpm"]
 LAB_EXT = ["jupyter", "labextension"]

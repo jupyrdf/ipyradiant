@@ -1,6 +1,7 @@
 """ a query constructor
 """
 import traitlets as T
+
 import ipywidgets as W
 
 from .query_form import QueryInput

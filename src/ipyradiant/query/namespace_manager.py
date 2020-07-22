@@ -1,6 +1,5 @@
 """ a namespace manager
 """
-# pylint: disable=C0103,C0115,C0116,C0116,R0201,R0901,W0511,W0613,R1710
 import re
 
 import traitlets as T
