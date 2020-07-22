@@ -1,7 +1,6 @@
 """ linter and formatter of notebooks
 """
 import json
-import shutil
 import subprocess
 import sys
 from hashlib import sha256
@@ -11,12 +10,7 @@ import black
 import isort
 import nbformat
 
-HERE = Path(__file__)
-
-NODE = shutil.which("node") or shutil.which("node.exe") or shutil.which("node.cmd")
-PRETTIER = [NODE, str(HERE.parent / "node_modules" / ".bin" / "prettier")]
-
-HASHES = HERE.parent.parent / "build" / "nblint.hashes"
+from . import project as P
 
 
 def blacken(source):
@@ -41,7 +35,7 @@ def nblint_one(nb_node):
                     map(
                         str,
                         [
-                            *PRETTIER,
+                            *P.PRETTIER,
                             "--stdin-filepath",
                             "foo.md",
                             "--prose-wrap",
@@ -92,8 +86,8 @@ def nblint(nb_paths):
     """
     nb_hashes = {}
 
-    if HASHES.exists():
-        nb_hashes = json.loads(HASHES.read_text())
+    if P.NBLINT_HASHES.exists():
+        nb_hashes = json.loads(P.NBLINT_HASHES.read_text())
 
     len_paths = len(nb_paths)
 
@@ -121,11 +115,11 @@ def nblint(nb_paths):
 
         nb_hashes[hash_key] = post_hash
 
-    HASHES.parent.mkdir(exist_ok=True, parents=True)
-    HASHES.write_text(json.dumps(nb_hashes, indent=2, sort_keys=True))
+    P.NBLINT_HASHES.parent.mkdir(exist_ok=True, parents=True)
+    P.NBLINT_HASHES.write_text(json.dumps(nb_hashes, indent=2, sort_keys=True))
 
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(nblint([Path(p) for p in sys.argv[1:]]))
+    sys.exit(nblint([Path(p) for p in sys.argv[1:]] or P.EXAMPLE_IPYNB))

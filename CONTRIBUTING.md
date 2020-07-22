@@ -15,16 +15,16 @@
 > as needed with the proper permissions.
 
 - install [Miniconda](https://docs.conda.io/en/latest/miniconda.html) (Python 3, 64-bit)
-- install `anaconda-project` into the `base` env
+- install `anaconda-project` and `doit` into the `base` env
 
 ```bash
-conda install anaconda-project
+conda install anaconda-project doit
 ```
 
 ## Get To a Running Lab
 
 ```bash
-anaconda-project run doit lab
+doit lab
 ```
 
 - open the browser with the URL shown
@@ -32,7 +32,7 @@ anaconda-project run doit lab
 ## Get Ready for a Release
 
 ```bash
-anaconda-project run doit release
+doit release
 ```
 
 - fix the things that break, keep running until it completes

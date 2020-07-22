@@ -3,28 +3,20 @@ name: ipyradiant
 channels:
   - conda-forge
   - msys2
-  - anaconda
 
 dependencies:
-  - black
   - bqplot
-  - conda >=4.8.3,<4.9.0a0
-  - conda-build >=3.19.2,<3.20.0a0
   - datashader
-  - doit
-  - flake8
   - ipycytoscape
   - ipywidgets
-  - isort <5                 # presumably will be fixed soon
   - jupyter_bokeh
-  - jupyterlab ==2.2.0       # not strictly neccessary, but avoids surprises
-  - mypy
+  - jupyterlab ==2.2.0
   - networkx
   - nodejs >=12,<13.0.0a0
-  - numpy <1.19.0a0          # presently pinning due to unknown windows issue
+  - numpy
+  - pip
   - pyld
-  - pylint
   - pyshacl
-  - python >=3.7,<3.8.0a0    # really just 36+, not using any py37 features
+  - python >=3.6
   - qgrid
   - rdflib-jsonld

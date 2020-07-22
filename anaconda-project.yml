@@ -11,6 +11,41 @@ commands:
 
 env_specs:
   ipyradiant:
+    description: minimal binder environment (from environment.yml)
+    channels:
+      - conda-forge
+      - msys2
+    packages:
+      - bqplot
+      - datashader
+      - ipycytoscape
+      - ipywidgets
+      - jupyter_bokeh
+      - jupyterlab ==2.2.0
+      - networkx
+      - nodejs >=12,<13.0.0a0
+      - numpy
+      - pip
+      - pyld
+      - pyshacl
+      - python >=3.6
+      - qgrid
+      - rdflib-jsonld
+
+  dev:
+    platforms:
+      - linux-64
+      - osx-64
+      - win-64
+    inherit_from:
+      - ipyradiant
+    packages:
+      - pytest
+      - pytest-cov
+      - python >=3.7,<3.8.0a0
+
+  build:
+    description: build tools
     platforms:
       - linux-64
       - osx-64
@@ -18,27 +53,31 @@ env_specs:
     channels:
       - conda-forge
       - msys2
-      - anaconda
+    packages:
+      - conda >=4.8.3,<4.9.0a0
+      - conda-build <3.19.0a0
+      - conda-verify
+      - pip
+      - python >=3.7,<3.8.0a0
+      - ripgrep
+
+  qa:
+    description: qa tools
+    platforms:
+      - linux-64
+      - osx-64
+      - win-64
+    channels:
+      - conda-forge
+      - msys2
     packages:
       - black
-      - bqplot
-      - conda >=4.8.3,<4.9.0a0
-      - conda-build >=3.19.2,<3.20.0a0
-      - datashader
-      - doit
       - flake8
-      - ipycytoscape
-      - ipywidgets
-      - isort <5                 # presumably will be fixed soon
-      - jupyter_bokeh
-      - jupyterlab ==2.2.0       # not strictly neccessary, but avoids surprises
-      - mypy
-      - networkx
+      - isort <5
+      - nbformat
       - nodejs >=12,<13.0.0a0
-      - numpy <1.19.0a0          # presently pinning due to unknown windows issue
-      - pyld
       - pylint
-      - pyshacl
-      - python >=3.7,<3.8.0a0    # really just 36+, not using any py37 features
-      - qgrid
-      - rdflib-jsonld
+      - python >=3.7,<3.8.0a0
+
+
+

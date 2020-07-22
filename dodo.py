@@ -14,6 +14,9 @@ from pathlib import Path
 import jupyterlab.commands
 from doit.tools import PythonInteractiveAction
 
+import _scripts.project as P
+
+
 DOIT_CONFIG = {
     "backend": "sqlite3",
     "verbosity": 2,
@@ -26,7 +29,7 @@ def task_binder():
     """ get to a minimal interactive environment
     """
     return dict(
-        file_dep=[P.LAB_INDEX, B.PIP_INSTALL_E],
+        file_dep=[P.LAB_INDEX, P.PIP_INSTALL_E],
         actions=[["echo", "ready to run JupyterLab with:\n\n\tdoit lab\n"]],
     )
 
@@ -37,11 +40,11 @@ def task_release():
     return dict(
         file_dep=[
             P.LAB_INDEX,
-            B.PIP_INSTALL_E,
-            B.LINT,
-            B.WHEEL,
-            B.CONDA_PACKAGE,
-            *B.EXAMPLE_HTML,
+            P.PIP_INSTALL_E,
+            P.OK_LINT,
+            P.WHEEL,
+            P.CONDA_PACKAGE,
+            *P.EXAMPLE_HTML,
         ],
         actions=[["echo", "ready to release"]],
     )
@@ -53,16 +56,16 @@ def task_setup():
     yield dict(
         name="js",
         file_dep=[P.YARN_LOCK, P.PACKAGE],
-        actions=[[*P.JLPM, "--prefer-offline", "--ignore-optional"]],
+        actions=[[*P.APR_DEV, *P.JLPM, "--prefer-offline", "--ignore-optional"]],
         targets=[P.YARN_INTEGRITY],
     )
     yield _ok(
         dict(
             name="py",
             file_dep=[P.SETUP_PY, P.SETUP_CFG],
-            actions=[[*P.PIP, "install", "-e", ".", "--no-deps"], [*P.PIP, "check"]],
+            actions=[[*P.APR_DEV, *P.PIP, "install", "-e", ".", "--no-deps"], [*P.APR_DEV, *P.PIP, "check"]],
         ),
-        B.PIP_INSTALL_E,
+        P.PIP_INSTALL_E,
     )
 
 
@@ -71,15 +74,16 @@ def task_build():
     """
     yield dict(
         name="py",
-        file_dep=[*P.ALL_PY_SRC, P.SETUP_CFG, P.SETUP_PY, B.LINT],
-        actions=[[*P.PY, "setup.py", "sdist"], [*P.PY, "setup.py", "bdist_wheel"]],
-        targets=[B.WHEEL, B.SDIST],
+        file_dep=[*P.ALL_PY_SRC, P.SETUP_CFG, P.SETUP_PY, P.OK_LINT],
+        actions=[[*P.APR_BUILD, *P.PY, "setup.py", "sdist"], [*P.PY, "setup.py", "bdist_wheel"]],
+        targets=[P.WHEEL, P.SDIST],
     )
     yield dict(
         name="conda",
-        file_dep=[B.SDIST, P.META_YAML],
+        file_dep=[P.SDIST, P.META_YAML],
         actions=[
             [
+                *P.APR_BUILD,
                 *P.CONDA_BUILD,
                 "--output-folder",
                 P.DIST_CONDA,
@@ -88,7 +92,7 @@ def task_build():
                 P.RECIPE,
             ]
         ],
-        targets=[B.CONDA_PACKAGE],
+        targets=[P.CONDA_PACKAGE],
     )
 
 
@@ -97,9 +101,10 @@ def task_test():
     """
     yield dict(
         name="nbsmoke",
-        file_dep=[*P.EXAMPLE_IPYNB, B.NBLINT],
+        file_dep=[*P.EXAMPLE_IPYNB, P.OK_NBLINT],
         actions=[
             [
+                *P.APR_DEV,
                 "jupyter",
                 "nbconvert",
                 "--output-dir",
@@ -108,7 +113,7 @@ def task_test():
                 *P.EXAMPLE_IPYNB,
             ]
         ],
-        targets=B.EXAMPLE_HTML,
+        targets=P.EXAMPLE_HTML,
     )
 
 
@@ -117,71 +122,62 @@ def task_lint():
     """
 
     yield _ok(
-        dict(name="isort", file_dep=P.ALL_PY, actions=[["isort", "-rc", *P.ALL_PY]]),
-        B.ISORT,
+        dict(name="isort", file_dep=P.ALL_PY, actions=[[*P.APR_QA, "isort", "-rc", *P.ALL_PY]]),
+        P.OK_ISORT,
     )
     yield _ok(
         dict(
-            name="black", file_dep=[*P.ALL_PY, B.ISORT], actions=[["black", *P.ALL_PY]]
+            name="black", file_dep=[*P.ALL_PY, P.OK_ISORT], actions=[[*P.APR_QA, "black", *P.ALL_PY]]
         ),
-        B.BLACK,
+        P.OK_BLACK,
     )
     yield _ok(
         dict(
             name="flake8",
-            file_dep=[*P.ALL_PY, B.BLACK],
-            actions=[["flake8", *P.ALL_PY]],
+            file_dep=[*P.ALL_PY, P.OK_BLACK],
+            actions=[[*P.APR_QA, "flake8", *P.ALL_PY]],
         ),
-        B.FLAKE8,
-    )
-    yield _ok(
-        dict(
-            name="mypy",
-            file_dep=[*P.ALL_PY_SRC, B.BLACK],
-            actions=[["mypy", *P.ALL_PY_SRC]],
-        ),
-        B.MYPY,
+        P.OK_FLAKE8,
     )
     yield _ok(
         dict(
             name="pylint",
-            file_dep=[*P.ALL_PYLINT, B.BLACK],
-            actions=[["pylint", *P.ALL_PYLINT]],
+            file_dep=[*P.ALL_PYLINT, P.OK_BLACK],
+            actions=[[*P.APR_QA, "pylint", *P.ALL_PYLINT]],
         ),
-        B.PYLINT,
+        P.OK_PYLINT,
     )
     yield _ok(
         dict(
             name="prettier",
             file_dep=[P.YARN_INTEGRITY, *P.ALL_PRETTIER],
-            actions=[[*P.JLPM, "lint:prettier"]],
+            actions=[[*P.APR_QA, *P.JLPM, "lint:prettier"]],
         ),
-        B.PRETTIER,
+        P.OK_PRETTIER,
     )
     yield _ok(
         dict(
             name="nblint",
             file_dep=[*P.EXAMPLE_IPYNB],
-            actions=[[*P.PY, "scripts/nblint.py", *P.EXAMPLE_IPYNB]],
-            targets=[B.NBLINT_HASHES],
+            actions=[[*P.APR_QA, *P.PY, "scripts/nblint.py", *P.EXAMPLE_IPYNB]],
+            targets=[P.NBLINT_HASHES],
         ),
-        B.NBLINT,
+        P.OK_NBLINT,
     )
     yield _ok(
         dict(
             name="all",
             actions=[["echo", "all ok"]],
             file_dep=[
-                B.BLACK,
-                B.FLAKE8,
-                B.ISORT,
-                B.MYPY,
-                B.PRETTIER,
-                B.PYLINT,
-                B.NBLINT,
+                P.OK_BLACK,
+                P.OK_FLAKE8,
+                P.OK_ISORT,
+                P.OK_PRETTIER,
+                P.OK_PYLINT,
+                P.OK_NBLINT,
             ],
         ),
-        B.LINT,
+        P.OK_LINT,
     )
 
 
@@ -240,103 +236,6 @@ def task_lab():
         uptodate=[lambda: False],
         file_dep=[P.LAB_INDEX],
         actions=[PythonInteractiveAction(lab)],
-    )
-
-
-# pylint: disable=invalid-name,too-few-public-methods
-class P:
-    """ important paths
-    """
-
-    DODO = Path(__file__)
-    HERE = DODO.parent
-    POSTBUILD = HERE / "postBuild"
-    BUILD = HERE / "build"
-    DIST = HERE / "dist"
-    RECIPE = HERE / "conda.recipe"
-
-    # tools
-    PY = [Path(sys.executable)]
-    PYM = [*PY, "-m"]
-    PIP = [*PYM, "pip"]
-    JLPM = ["jlpm"]
-    LAB_EXT = ["jupyter", "labextension"]
-    CONDA_BUILD = ["conda-build"]
-    LAB = ["jupyter", "lab"]
-
-    # top-level stuff
-    SETUP_PY = HERE / "setup.py"
-    SETUP_CFG = HERE / "setup.cfg"
-    NODE_MODULES = HERE / "node_modules"
-    PACKAGE = HERE / "package.json"
-    YARN_INTEGRITY = NODE_MODULES / ".yarn-integrity"
-    YARN_LOCK = HERE / "yarn.lock"
-    SCRIPTS = HERE / "scripts"
-    EXTENSIONS = HERE / "labextensions.txt"
-    CI = HERE / ".github"
-
-    PY_SRC = HERE / "src" / "ipyradiant"
-    VERSION_PY = PY_SRC / "_version.py"
-
-    LAB_APP_DIR = Path(jupyterlab.commands.get_app_dir())
-    LAB_STAGING = LAB_APP_DIR / "staging"
-    LAB_LOCK = LAB_STAGING / "yarn.lock"
-    LAB_STATIC = LAB_APP_DIR / "static"
-    LAB_INDEX = LAB_STATIC / "index.html"
-
-    # tests
-    EXAMPLES = HERE / "examples"
-    EXAMPLE_IPYNB = [
-        p for p in EXAMPLES.rglob("*.ipynb") if ".ipynb_checkpoints" not in str(p)
-    ]
-    EXAMPLE_PY = [*EXAMPLES.rglob("*.py")]
-    DIST_NBHTML = DIST / "nbsmoke"
-
-    # mostly linting
-    ALL_PY_SRC = [*PY_SRC.rglob("*.py")]
-    ALL_PY = [DODO, POSTBUILD, *ALL_PY_SRC, *EXAMPLE_PY, *SCRIPTS.rglob("*.py")]
-    ALL_PYLINT = [p for p in ALL_PY if p.name != "postBuild"]
-    ALL_YML = [*HERE.glob("*.yml"), *CI.rglob("*.yml")]
-    ALL_JSON = [*HERE.glob("*.json")]
-    ALL_MD = [*HERE.glob("*.md")]
-    ALL_PRETTIER = [*ALL_YML, *ALL_JSON, *ALL_MD]
-
-    # conda
-    META_YAML = RECIPE / "meta.yaml"
-    DIST_CONDA = DIST / "conda-bld"
-
-
-class D:
-    """ data loaded from paths
-    """
-
-    PY_VERSION = re.findall(r'''__version__ = "(.*)"''', P.VERSION_PY.read_text())[0]
-    CONDA_BUILD_NO = re.findall(r"""number: (\d+)""", P.META_YAML.read_text())[0]
-
-
-class B:
-    """ canary files for marking things as ok that don't have predictable outputs
-    """
-
-    PYLINT = P.BUILD / "pylint.ok"
-    BLACK = P.BUILD / "black.ok"
-    MYPY = P.BUILD / "mypy.ok"
-    ISORT = P.BUILD / "isort.ok"
-    FLAKE8 = P.BUILD / "flake8.ok"
-    PRETTIER = P.BUILD / "prettier.ok"
-    NBLINT = P.BUILD / "nblint.ok"
-    NBLINT_HASHES = P.BUILD / "nblint.hashes"
-    LINT = P.BUILD / "lint.ok"
-    PIP_INSTALL_E = P.BUILD / "pip_install_e.ok"
-    SDIST = P.DIST / f"ipyradiant-{D.PY_VERSION}.tar.gz"
-    WHEEL = P.DIST / f"ipyradiant-{D.PY_VERSION}-py3-none-any.whl"
-    EXAMPLE_HTML = [
-        P.DIST_NBHTML / p.name.replace(".ipynb", ".html") for p in P.EXAMPLE_IPYNB
-    ]
-    CONDA_PACKAGE = (
-        P.DIST_CONDA
-        / "noarch"
-        / f"ipyradiant-{D.PY_VERSION}-py_{D.CONDA_BUILD_NO}.tar.bz2"
     )
 
 
