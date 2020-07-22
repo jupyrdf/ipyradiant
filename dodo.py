@@ -28,6 +28,20 @@ def task_binder():
     )
 
 
+def task_env():
+    """ prepare project envs
+    """
+    envs = ["dev", "build", "qa"]
+    for i, env in enumerate(envs):
+        file_dep = [P.PROJ_LOCK]
+        if P.FORCE_SERIAL_ENV_PREP and i:
+            file_dep += [P.OK_ENV[envs[i - 1]]]
+        yield _ok(
+            dict(name=env, file_dep=file_dep, actions=[[*P.AP_PREP, env]]),
+            P.OK_ENV[env],
+        )
+
+
 def task_release():
     """ everything we'd need to do to release (except release)
     """
@@ -49,14 +63,14 @@ def task_setup():
     """
     yield dict(
         name="js",
-        file_dep=[P.YARN_LOCK, P.PACKAGE],
+        file_dep=[P.YARN_LOCK, P.PACKAGE, P.OK_ENV["dev"]],
         actions=[[*P.APR_DEV, *P.JLPM, "--prefer-offline", "--ignore-optional"]],
         targets=[P.YARN_INTEGRITY],
     )
     yield _ok(
         dict(
             name="py",
-            file_dep=[P.SETUP_PY, P.SETUP_CFG],
+            file_dep=[P.SETUP_PY, P.SETUP_CFG, P.OK_ENV["dev"]],
             actions=[
                 [*P.APR_DEV, *P.PIP, "install", "-e", ".", "--no-deps"],
                 [*P.APR_DEV, *P.PIP, "check"],
@@ -71,7 +85,7 @@ def task_build():
     """
     yield dict(
         name="py",
-        file_dep=[*P.ALL_PY_SRC, P.SETUP_CFG, P.SETUP_PY, P.OK_LINT],
+        file_dep=[*P.ALL_PY_SRC, P.SETUP_CFG, P.SETUP_PY, P.OK_LINT, P.OK_ENV["build"]],
         actions=[
             [*P.APR_BUILD, *P.PY, "setup.py", "sdist"],
             [*P.APR_BUILD, *P.PY, "setup.py", "bdist_wheel"],
@@ -101,7 +115,7 @@ def task_test():
     """
     yield dict(
         name="nbsmoke",
-        file_dep=[*P.EXAMPLE_IPYNB, P.OK_NBLINT],
+        file_dep=[*P.EXAMPLE_IPYNB, P.OK_NBLINT, P.OK_ENV["dev"]],
         actions=[
             [
                 *P.APR_DEV,
@@ -124,7 +138,7 @@ def task_lint():
     yield _ok(
         dict(
             name="isort",
-            file_dep=P.ALL_PY,
+            file_dep=[*P.ALL_PY, P.OK_ENV["qa"]],
             actions=[[*P.APR_QA, "isort", "-rc", *P.ALL_PY]],
         ),
         P.OK_ISORT,
@@ -156,7 +170,7 @@ def task_lint():
     yield _ok(
         dict(
             name="prettier",
-            file_dep=[P.YARN_INTEGRITY, *P.ALL_PRETTIER],
+            file_dep=[P.YARN_INTEGRITY, *P.ALL_PRETTIER, P.OK_ENV["qa"]],
             actions=[[*P.APR_QA, "npm", "run", "lint:prettier"]],
         ),
         P.OK_PRETTIER,
@@ -164,7 +178,7 @@ def task_lint():
     yield _ok(
         dict(
             name="nblint",
-            file_dep=[*P.EXAMPLE_IPYNB],
+            file_dep=[*P.EXAMPLE_IPYNB, P.OK_ENV["qa"]],
             actions=[[*P.APR_QA, *P.PYM, "_scripts.nblint", *P.EXAMPLE_IPYNB]],
             targets=[P.NBLINT_HASHES],
         ),
@@ -216,7 +230,7 @@ def task_lab_build():
 
     yield dict(
         name="extensions",
-        file_dep=[P.EXTENSIONS],
+        file_dep=[P.EXTENSIONS, P.OK_ENV["dev"]],
         actions=[
             [*P.APR_DEV, *P.LAB, "clean", "--all"],
             [*P.APR_DEV, *P.LAB_EXT, "install", "--debug", "--no-build", *exts],

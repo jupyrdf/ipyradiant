@@ -1,5 +1,7 @@
 """ important project paths
 """
+import json
+import os
 import re
 import shutil
 from pathlib import Path
@@ -22,6 +24,7 @@ BUILD = ROOT / "build"
 DIST = ROOT / "dist"
 RECIPE = ROOT / "conda.recipe"
 ENVS = ROOT / "envs"
+PROJ_LOCK = ROOT / "anaconda-project-lock.yml"
 
 # tools
 PY = ["python"]
@@ -33,11 +36,19 @@ JLPM = ["jlpm"]
 LAB_EXT = ["jupyter", "labextension"]
 CONDA_BUILD = ["conda-build"]
 LAB = ["jupyter", "lab"]
-APR = ["anaconda-project", "run", "--env-spec"]
+AP = ["anaconda-project"]
+AP_PREP = [*AP, "prepare", "--env-spec"]
+APR = [*AP, "run", "--env-spec"]
 APR_DEV = [*APR, "dev"]
 APR_BUILD = [*APR, "build"]
 APR_QA = [*APR, "qa"]
 PRETTIER = [NODE, str(NODE_MODULES / ".bin" / "prettier")]
+
+# env stuff
+OK_ENV = {env: BUILD / f"prep_{env}.ok" for env in ["build", "qa", "dev"]}
+FORCE_SERIAL_ENV_PREP = bool(
+    json.loads(os.environ.get("FORCE_SERIAL_ENV_PREP", "false"))
+)
 
 # python stuff
 PY_SRC = ROOT / "src" / "ipyradiant"

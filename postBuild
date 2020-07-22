@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
 """ perform a development install of ipyradiant
 """
-__import__("subprocess").call(["doit", "binder"])
+import os
+import subprocess
+import sys
+
+if __name__ == "__main__":
+    os.environ["FORCE_SERIAL_ENV_PREP"] = "false"
+    sys.exit(subprocess.call(["doit", "binder"]))
