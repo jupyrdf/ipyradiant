@@ -1,10 +1,18 @@
 """ important project paths
+
+    this should not import anything not in py36+ stdlib, or any local paths
 """
 import json
 import os
+import platform
 import re
 import shutil
 from pathlib import Path
+
+PLATFORM = os.environ.get("FAKE_PLATFORM", platform.system())
+WIN = PLATFORM == "Windows"
+OSX = PLATFORM == "Darwin"
+UNIX = not WIN
 
 SCRIPTS = Path(__file__).parent.resolve()
 ROOT = SCRIPTS.parent
@@ -81,6 +89,7 @@ META_YAML = RECIPE / "meta.yaml"
 DIST_CONDA = DIST / "conda-bld"
 
 # built files
+OK_PREFLIGHT = BUILD / "preflight.ok"
 NBLINT_HASHES = BUILD / "nblint.hashes"
 OK_BLACK = BUILD / "black.ok"
 OK_FLAKE8 = BUILD / "flake8.ok"

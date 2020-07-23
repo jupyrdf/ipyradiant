@@ -20,3 +20,4 @@ dependencies:
   - python >=3.6 # underspecified so binder does whatever's clever
   - qgrid
   - rdflib-jsonld
+  - requests_cache

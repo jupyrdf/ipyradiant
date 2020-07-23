@@ -18,7 +18,7 @@
 - install `anaconda-project` and `doit` into the `base` env
 
 ```bash
-conda install anaconda-project doit
+conda install anaconda-project=0.84 doit=0.32
 ```
 
 ## Get To a Running Lab

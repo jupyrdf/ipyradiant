@@ -19,6 +19,19 @@ DOIT_CONFIG = {
 }
 
 
+def task_preflight():
+    """ ensure a sane development environment
+    """
+
+    return _ok(
+        dict(
+            file_dep=[P.DODO, P.PROJ_LOCK],
+            actions=[["python", "-m", "_scripts.preflight"]],
+        ),
+        P.OK_PREFLIGHT,
+    )
+
+
 def task_binder():
     """ get to a minimal interactive environment
     """
@@ -33,7 +46,7 @@ def task_env():
     """
     envs = ["dev", "build", "qa"]
     for i, env in enumerate(envs):
-        file_dep = [P.PROJ_LOCK]
+        file_dep = [P.PROJ_LOCK, P.OK_PREFLIGHT]
         if P.FORCE_SERIAL_ENV_PREP and i:
             file_dep += [P.OK_ENV[envs[i - 1]]]
         yield _ok(
@@ -115,7 +128,7 @@ def task_test():
     """
     yield dict(
         name="nbsmoke",
-        file_dep=[*P.EXAMPLE_IPYNB, P.OK_NBLINT, P.OK_ENV["dev"]],
+        file_dep=[*P.EXAMPLE_IPYNB, P.OK_NBLINT, P.OK_ENV["dev"], P.OK_PIP_INSTALL_E],
         actions=[
             [
                 *P.APR_DEV,
@@ -260,7 +273,7 @@ def task_lab():
 
     return dict(
         uptodate=[lambda: False],
-        file_dep=[P.LAB_INDEX],
+        file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL_E],
         actions=[PythonInteractiveAction(lab)],
     )
 
