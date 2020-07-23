@@ -22,15 +22,37 @@ DOIT_CONFIG = {
 def task_preflight():
     """ ensure a sane development environment
     """
+    file_dep = [P.PROJ_LOCK, P.SCRIPTS / "preflight.py"]
 
-    actions = [["python", "-m", "_scripts.preflight"]]
+    yield _ok(
+        dict(
+            name="conda",
+            file_dep=file_dep,
+            actions=(
+                [["echo", "skipping preflight, hope you know what you're doing!"]]
+                if P.SKIP_PREFLIGHT
+                else [["python", "-m", "_scripts.preflight", "conda"]]
+            ),
+        ),
+        P.OK_PREFLIGHT_CONDA,
+    )
 
-    if P.SKIP_PREFLIGHT:
-        actions = [["echo", "skipping preflight, hope you know what you're doing!"]]
+    yield _ok(
+        dict(
+            name="kernel",
+            file_dep=[*file_dep, P.OK_ENV["dev"]],
+            actions=[[*P.APR_DEV, "python", "-m", "_scripts.preflight", "kernel"]],
+        ),
+        P.OK_PREFLIGHT_KERNEL,
+    )
 
-    return _ok(
-        dict(file_dep=[P.PROJ_LOCK, P.SCRIPTS / "preflight.py"], actions=actions,),
-        P.OK_PREFLIGHT,
+    yield _ok(
+        dict(
+            name="lab",
+            file_dep=[*file_dep, P.LAB_INDEX, P.OK_ENV["dev"]],
+            actions=[[*P.APR_DEV, "python", "-m", "_scripts.preflight", "lab"]],
+        ),
+        P.OK_PREFLIGHT_LAB,
     )
 
 
@@ -38,7 +60,12 @@ def task_binder():
     """ get to a minimal interactive environment
     """
     return dict(
-        file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL_E],
+        file_dep=[
+            P.LAB_INDEX,
+            P.OK_PIP_INSTALL_E,
+            P.OK_PREFLIGHT_KERNEL,
+            P.OK_PREFLIGHT_LAB,
+        ],
         actions=[["echo", "ready to run JupyterLab with:\n\n\tdoit lab\n"]],
     )
 
@@ -48,7 +75,7 @@ def task_env():
     """
     envs = ["dev", "build", "qa"]
     for i, env in enumerate(envs):
-        file_dep = [P.PROJ_LOCK, P.OK_PREFLIGHT]
+        file_dep = [P.PROJ_LOCK, P.OK_PREFLIGHT_CONDA]
         if P.FORCE_SERIAL_ENV_PREP and i:
             file_dep += [P.OK_ENV[envs[i - 1]]]
         yield _ok(
@@ -130,7 +157,13 @@ def task_test():
     """
     yield dict(
         name="nbsmoke",
-        file_dep=[*P.EXAMPLE_IPYNB, P.OK_NBLINT, P.OK_ENV["dev"], P.OK_PIP_INSTALL_E],
+        file_dep=[
+            *P.EXAMPLE_IPYNB,
+            P.OK_NBLINT,
+            P.OK_ENV["dev"],
+            P.OK_PIP_INSTALL_E,
+            P.OK_PREFLIGHT_KERNEL,
+        ],
         actions=[
             [
                 *P.APR_DEV,
@@ -275,7 +308,7 @@ def task_lab():
 
     return dict(
         uptodate=[lambda: False],
-        file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL_E],
+        file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL_E, P.OK_PREFLIGHT_LAB],
         actions=[PythonInteractiveAction(lab)],
     )
 

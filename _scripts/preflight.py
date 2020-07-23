@@ -1,13 +1,14 @@
 """ ensure the development environment is sane
 
-    this should run in the outermost environment, e.g. `base`
+    be careful about imports here:
 """
+import json
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
-
-from ruamel_yaml import safe_dump
+from pprint import pprint
 
 from . import project as P
 
@@ -18,6 +19,7 @@ ROOT_RECOMMEND = (
 MC3_RECOMMEND = "c:\\mc3" if P.WIN else os.path.expanduser("~/mc3")
 ARBITRARY_PATH_LENGTH = 32 if P.WIN else 64
 NOT_DEFINED = "!NOT DEFINED!"
+DEFAULT_KERNEL_NAME = "python3"
 
 
 def check_path(path, name=None, message=None, check_len=False):
@@ -59,7 +61,10 @@ def check_drives(path_a, path_b, message):
     return []
 
 
-def preflight():
+def preflight_conda():
+    """ this should only run from the `base` env
+    """
+
     conda_prefix = os.environ.get("CONDA_PREFIX", NOT_DEFINED)
     errors = [
         *check_path(
@@ -85,10 +90,56 @@ def preflight():
     ]
 
     if errors:
-        print(safe_dump(errors, default_flow_style=False))
+        pprint(errors)
 
     return len(errors)
 
 
+def preflight_kernel():
+    """ this should only run from the `dev` env
+    """
+    raw = subprocess.check_output(["jupyter", "kernelspec", "list", "--json"])
+    specs = json.loads(raw.decode("utf-8"))["kernelspecs"]
+
+    default_kernel = specs.get(DEFAULT_KERNEL_NAME)
+
+    if default_kernel is None:
+        print(f"The {DEFAULT_KERNEL_NAME} kernel is not available at all!")
+        return 1
+
+    spec_py = default_kernel["spec"]["argv"][0]
+
+    pprint(spec_py)
+
+    if Path(spec_py).resolve() != Path(sys.executable).resolve():
+        print(f"The {DEFAULT_KERNEL_NAME} does not use {sys.executable}!")
+        return 2
+
+    return 0
+
+
+def preflight_lab():
+    """ this should only run from the `dev` env
+    """
+    raw = subprocess.check_call(["jupyter", "labextension", "list"]).decode("utf-8")
+    if "Build recommended" in raw:
+        print(f"Something is not right with the lab build: {raw}")
+        return 1
+
+    return 0
+
+
+def preflight(stage):
+    if stage == "conda":
+        return preflight_conda()
+    elif stage == "kernel":
+        return preflight_kernel()
+    elif stage == "lab":
+        return preflight_lab()
+
+    print(f"Don't know how to preflight: {stage}")
+    return 1
+
+
 if __name__ == "__main__":
-    sys.exit(preflight())
+    sys.exit(preflight(sys.argv[1]))

@@ -92,7 +92,9 @@ META_YAML = RECIPE / "meta.yaml"
 DIST_CONDA = DIST / "conda-bld"
 
 # built files
-OK_PREFLIGHT = BUILD / "preflight.ok"
+OK_PREFLIGHT_CONDA = BUILD / "preflight.conda.ok"
+OK_PREFLIGHT_KERNEL = BUILD / "preflight.kernel.ok"
+OK_PREFLIGHT_LAB = BUILD / "preflight.lab.ok"
 NBLINT_HASHES = BUILD / "nblint.hashes"
 OK_BLACK = BUILD / "black.ok"
 OK_FLAKE8 = BUILD / "flake8.ok"
