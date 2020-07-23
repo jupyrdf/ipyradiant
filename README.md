@@ -1,6 +1,8 @@
 # ipyradiant
 
 [![Binder][]][binder-link]
+![build](https://github.com/zwelz3/ipyradiant/workflows/.github/workflows/ciV0.yml/badge.svg)
+
 
 Jupyter Widgets for RDF graph interaction, querying, and visualization in JupyterLab and
 the Jupyter notebook.
