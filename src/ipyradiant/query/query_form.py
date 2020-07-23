@@ -35,10 +35,7 @@ class QueryHeader(W.HBox):
         return header
 
     def make_default_construct_header(self):
-        header = W.Textarea(
-            placeholder="?s ?p ?o .",
-            # layout={"width": "80%"}
-        )
+        header = W.Textarea(placeholder="{\n\t?s ?p ?o .\n}")
         T.link((header, "value"), (self, "header_value"))
         return header
 
@@ -72,12 +69,12 @@ class QueryBody(W.HBox):
 
     @T.default("label")
     def make_default_label(self):
-        label = W.Label(value="WHERE:")
+        label = W.Label(value="WHERE")
         return label
 
     @T.default("body")
     def make_default_body(self):
-        body = W.Textarea(placeholder="?s ?p ?o .")
+        body = W.Textarea(placeholder="{\n\t?s ?p ?o .\n}")
         T.link((body, "value"), (self, "body_value"))
         return body
 

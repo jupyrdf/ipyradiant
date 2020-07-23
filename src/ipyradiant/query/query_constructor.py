@@ -9,9 +9,7 @@ from .query_form import QueryInput
 # TODO improve
 query_template = """{}
 {}
-WHERE {{
-    {}
-}}
+WHERE {}
 {}
 {}
 """
@@ -86,8 +84,8 @@ class QueryConstructor(W.HBox):
             header_str = query_type
         elif query_type == "CONSTRUCT":
             if query_line == "":
-                query_line = "?s ?p ?o"
-            header_str = "CONSTRUCT {\n" + query_line + "\n}"
+                query_line = "{?s ?p ?o}"
+            header_str = f"{query_type} {query_line}"
         else:
             with self.log:
                 raise ValueError(f"Unexpected query type: {query_type}")
