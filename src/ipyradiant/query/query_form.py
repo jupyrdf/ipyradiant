@@ -28,7 +28,7 @@ class QueryHeader(W.HBox):
 
     def make_default_select_header(self):
         header = W.Text(
-            placeholder="?s ?p ?o",
+            placeholder="*",
             # layout={"width":"80%"},
         )
         T.link((header, "value"), (self, "header_value"))

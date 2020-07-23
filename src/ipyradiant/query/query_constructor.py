@@ -85,6 +85,8 @@ class QueryConstructor(W.HBox):
         elif query_type == "ASK":
             header_str = query_type
         elif query_type == "CONSTRUCT":
+            if query_line == "":
+                query_line = "?s ?p ?o"
             header_str = "CONSTRUCT {\n" + query_line + "\n}"
         else:
             with self.log:
