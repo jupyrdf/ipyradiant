@@ -98,20 +98,23 @@ def preflight_conda():
 def preflight_kernel():
     """ this should only run from the `dev` env
     """
+    print("Checking kernel list...", flush=True)
     raw = subprocess.check_output(["jupyter", "kernelspec", "list", "--json"])
     specs = json.loads(raw.decode("utf-8"))["kernelspecs"]
 
+    print(f"Checking {DEFAULT_KERNEL_NAME}...", flush=True)
     default_kernel = specs.get(DEFAULT_KERNEL_NAME)
 
     if default_kernel is None:
         print(f"The {DEFAULT_KERNEL_NAME} kernel is not available at all!")
         return 1
 
+    print(f"Checking {DEFAULT_KERNEL_NAME} python...", flush=True)
+
     spec_py = default_kernel["spec"]["argv"][0]
 
-    pprint(spec_py)
-
     if Path(spec_py).resolve() != Path(sys.executable).resolve():
+        pprint(spec_py)
         print(f"The {DEFAULT_KERNEL_NAME} does not use {sys.executable}!")
         return 2
 
@@ -121,7 +124,8 @@ def preflight_kernel():
 def preflight_lab():
     """ this should only run from the `dev` env
     """
-    raw = subprocess.check_call(["jupyter", "labextension", "list"]).decode("utf-8")
+    print("Checking lab build status...", flush=True)
+    raw = subprocess.check_output(["jupyter", "labextension", "list"]).decode("utf-8")
     if "Build recommended" in raw:
         print(f"Something is not right with the lab build: {raw}")
         return 1
