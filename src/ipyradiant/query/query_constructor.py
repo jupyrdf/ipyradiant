@@ -31,7 +31,7 @@ class QueryConstructor(W.HBox):
     # traits from children
     namespaces = T.Unicode()
     query_type = T.Unicode(default_value="SELECT")
-    query_line = T.Any()
+    query_line = T.Unicode(allow_none=True)
     query_body = T.Unicode()
     limit_value = T.Int()
     limit_enabled = T.Bool()

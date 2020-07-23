@@ -65,7 +65,7 @@ class QueryWidget(W.VBox):
             DataFrame(),
             grid_options={"editable": False},
             column_options={"editable": False},
-            column_definitions={'index': {'width': "20"}}
+            column_definitions={"index": {"width": "20"}},
         )
         return qgridw
 

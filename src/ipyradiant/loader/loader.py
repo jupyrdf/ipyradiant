@@ -3,9 +3,9 @@
 
 # pylint: disable=C0103,C0115,C0116,C0116,R0201,R0901,W0511,W0613
 
-import ipywidgets as W
 import traitlets as T
 
+import ipywidgets as W
 from rdflib import BNode, Graph
 
 
