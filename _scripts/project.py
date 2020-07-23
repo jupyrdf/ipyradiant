@@ -14,6 +14,9 @@ WIN = PLATFORM == "Windows"
 OSX = PLATFORM == "Darwin"
 UNIX = not WIN
 
+# CI jank
+SKIP_PREFLIGHT = bool(json.loads(os.environ.get("SKIP_PREFLIGHT", "false")))
+
 SCRIPTS = Path(__file__).parent.resolve()
 ROOT = SCRIPTS.parent
 

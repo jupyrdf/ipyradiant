@@ -23,11 +23,13 @@ def task_preflight():
     """ ensure a sane development environment
     """
 
+    actions = [["python", "-m", "_scripts.preflight"]]
+
+    if P.SKIP_PREFLIGHT:
+        actions = [["echo", "skipping preflight, hope you know what you're doing!"]]
+
     return _ok(
-        dict(
-            file_dep=[P.PROJ_LOCK, P.SCRIPTS / "preflight.py"],
-            actions=[["python", "-m", "_scripts.preflight"]],
-        ),
+        dict(file_dep=[P.PROJ_LOCK, P.SCRIPTS / "preflight.py"], actions=actions,),
         P.OK_PREFLIGHT,
     )
 
