@@ -13,12 +13,28 @@
 > basically anything in the output of `jupyter --paths` that quacks like being in your
 > HOME/AppData/whatever is fair game, and can safely be deleted. They will be recreated
 > as needed with the proper permissions.
+>
+> `doit` will cowardly refuse to do anything if some of the above are not met
 
 - install [Miniconda](https://docs.conda.io/en/latest/miniconda.html) (Python 3, 64-bit)
 - install `anaconda-project` and `doit` into the `base` env
 
-```bash
+```bat
 conda install anaconda-project=0.84 doit=0.32
+```
+
+or, use the same base environment as CI:
+
+```bat
+:: windows
+conda env update .ci\environment.yml
+c:\mc3\envs\ipyradiant-base\Scripts\activate
+```
+
+```bash
+# unix
+conda env update .ci/environment.yml
+source ~/mc3/envs/ipyradiant-base/bin/activate
 ```
 
 ## Get To a Running Lab

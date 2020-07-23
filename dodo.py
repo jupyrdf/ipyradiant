@@ -25,7 +25,7 @@ def task_preflight():
 
     return _ok(
         dict(
-            file_dep=[P.DODO, P.PROJ_LOCK],
+            file_dep=[P.PROJ_LOCK, P.SCRIPTS / "preflight.py"],
             actions=[["python", "-m", "_scripts.preflight"]],
         ),
         P.OK_PREFLIGHT,
