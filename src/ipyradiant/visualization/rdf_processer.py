@@ -28,8 +28,6 @@ class CytoscapeGraph:
         self.nodes = {}
         self.edges = []
 
-        self.include_unlabeled = include_unlabeled
-
         self._build()
 
     def rdf_to_dataframe(self, rdf_graph):
@@ -42,7 +40,6 @@ class CytoscapeGraph:
     def _get_base_graph_data(self):
         """Collect cytoscape graph data from the DataFrame."""
         df = self.df
-        df.columns = ["s", "p", "o"] + list(df.columns[3:])
 
         # collect uris & edges
         element_set = set()
@@ -85,6 +82,3 @@ class CytoscapeGraph:
         """Creates the actual cytoscape object."""
         self.cytoscapeobj = ipycytoscape.CytoscapeWidget()
         self.cytoscapeobj.graph.add_graph_from_json(self.cytoscape_json_data,directed=True)
-
-    # def isolate_node(self,node):
-    #     df_with_node_as_subj = self.df["s" == node]
