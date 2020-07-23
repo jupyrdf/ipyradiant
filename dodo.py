@@ -115,7 +115,7 @@ def task_test():
     """
     yield dict(
         name="nbsmoke",
-        file_dep=[*P.EXAMPLE_IPYNB, P.OK_NBLINT, P.OK_ENV["dev"]],
+        file_dep=[*P.EXAMPLE_IPYNB, P.OK_NBLINT, P.OK_PIP_INSTALL_E, P.OK_ENV["dev"]],
         actions=[
             [
                 *P.APR_DEV,
@@ -260,7 +260,7 @@ def task_lab():
 
     return dict(
         uptodate=[lambda: False],
-        file_dep=[P.LAB_INDEX],
+        file_dep=[P.OK_PIP_INSTALL_E, P.LAB_INDEX],
         actions=[PythonInteractiveAction(lab)],
     )
 
