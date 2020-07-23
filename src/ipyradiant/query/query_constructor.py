@@ -10,8 +10,6 @@ from .query_form import QueryInput
 query_template = """{}
 {}
 WHERE {}
-{}
-{}
 """
 
 
@@ -31,9 +29,6 @@ class QueryConstructor(W.HBox):
     query_type = T.Unicode(default_value="SELECT")
     query_line = T.Unicode(allow_none=True)
     query_body = T.Unicode()
-    limit_value = T.Int()
-    limit_enabled = T.Bool()
-    offset_value = T.Int()
 
     log = W.Output()
 
@@ -46,40 +41,28 @@ class QueryConstructor(W.HBox):
         T.link((self.query_input.header, "dropdown_value"), (self, "query_type"))
         T.link((self.query_input.header, "header_value"), (self, "query_line"))
         T.link((self.query_input.body.body, "value"), (self, "query_body"))
-        T.link((self.query_input.lim_and_off.limit, "value"), (self, "limit_value"))
-        T.link((self.query_input.lim_and_off, "limit_enabled"), (self, "limit_enabled"))
-        T.link((self.query_input.lim_and_off.offset, "value"), (self, "offset_value"))
 
         self.children = tuple([self.query_input, self.formatted_query])
 
+    @log.capture()
     def build_query(self):
         # get values TODO improve
         namespaces = self.namespaces
         query_type = self.query_type
         query_line = self.query_line
         query_body = self.query_body or self.query_input.body.body.placeholder
-        limit = self.limit_value if self.limit_enabled else None
-        offset = self.offset_value
 
         # update query_body
         query_body = "\t\n".join(
             query_body.split("\n")
         )  # TODO this isn't actually formatting properly
 
-        # placeholder strings
         header_str = ""
-        limit_str = ""
-        offset_str = ""
-
         # TODO move these to module vars
         if query_type in {"SELECT", "SELECT DISTINCT"}:
             if query_line == "":
                 query_line = "*"
             header_str = f"{query_type} {query_line}"
-            if limit is not None:
-                limit_str = f"LIMIT {limit}"
-            if offset > 0:
-                offset_str = f"OFFSET {offset}"
         elif query_type == "ASK":
             header_str = query_type
         elif query_type == "CONSTRUCT":
@@ -91,7 +74,7 @@ class QueryConstructor(W.HBox):
                 raise ValueError(f"Unexpected query type: {query_type}")
 
         return query_template.format(
-            namespaces, header_str, query_body, limit_str, offset_str
+            namespaces, header_str, query_body,
         )
 
     @T.default("formatted_query")
@@ -107,9 +90,6 @@ class QueryConstructor(W.HBox):
         "query_type",
         "query_line",
         "query_body",
-        "limit_value",
-        "limit_enabled",
-        "offset_value",
     )
     def update_query(self, change):
         self.formatted_query.value = self.build_query()

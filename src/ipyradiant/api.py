@@ -12,6 +12,7 @@ class RadiantObject(W.Tab):
     graph_id = T.Instance(BNode)
     load_widget = T.Instance(LoadWidget)
     query_widget = T.Instance(QueryWidget)
+    log = W.Output()
 
     def __init__(self, graph: Graph = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
