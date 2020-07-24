@@ -16,6 +16,7 @@ UNIX = not WIN
 # CI jank
 SKIP_PREFLIGHT = bool(json.loads(os.environ.get("SKIP_PREFLIGHT", "false")))
 SKIP_DRAWIO = bool(json.loads(os.environ.get("SKIP_DRAWIO", "false")))
+SKIP_SUBMODULES = SKIP_DRAWIO
 
 SCRIPTS = Path(__file__).parent.resolve()
 ROOT = SCRIPTS.parent
@@ -122,5 +123,5 @@ CONDA_PACKAGE = (
 if not SKIP_DRAWIO:
     DRAWIO = VENDOR / "jupyterlab-drawio"
     DRAWIO_PKG_JSON = DRAWIO / "package.json"
-    DRAWIO_VERSION = json.loads(DRAWIO_PKG_JSON.read_text())["version"]
+    DRAWIO_VERSION = "0.7.0"
     DRAWIO_TARBALL = DRAWIO / f"jupyterlab-drawio-{DRAWIO_VERSION}.tgz"

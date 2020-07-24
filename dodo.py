@@ -9,7 +9,7 @@
 import subprocess
 
 import _scripts.project as P
-from doit.tools import PythonInteractiveAction
+from doit.tools import PythonInteractiveAction, result_dep
 
 DOIT_CONFIG = {
     "backend": "sqlite3",
@@ -17,6 +17,22 @@ DOIT_CONFIG = {
     "par_type": "thread",
     "default_tasks": ["binder"],
 }
+
+if not P.SKIP_SUBMODULES:
+
+    def task_submodules():
+        """ ensure submodules are available
+        """
+
+        def _uptodate():
+            subs = (
+                subprocess.check_output(["git", "submodule"])
+                .decode("utf-8")
+                .splitlines()
+            )
+            return any(subs, lambda x: x.startswith("-"))
+
+        return dict(actions=[["git", "submodule", "update", "--init", "--recursive"]])
 
 
 def task_preflight():
@@ -26,6 +42,7 @@ def task_preflight():
 
     yield _ok(
         dict(
+            uptodate=[] if P.SKIP_SUBMODULES else [result_dep("submodules")],
             name="conda",
             file_dep=file_dep,
             actions=(
@@ -125,7 +142,8 @@ def task_setup():
     if not P.SKIP_DRAWIO:
         yield dict(
             name="drawio",
-            file_dep=[P.DRAWIO_PKG_JSON],
+            uptodate=[result_dep("submodules")],
+            file_dep=[P.DRAWIO_PKG_JSON, P.OK_ENV["dev"]],
             actions=[[*P.APR_DEV, "drawio"]],
             targets=[P.DRAWIO_TARBALL],
         )
