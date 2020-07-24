@@ -15,6 +15,8 @@ UNIX = not WIN
 
 # CI jank
 SKIP_PREFLIGHT = bool(json.loads(os.environ.get("SKIP_PREFLIGHT", "false")))
+SKIP_DRAWIO = bool(json.loads(os.environ.get("SKIP_DRAWIO", "false")))
+SKIP_SUBMODULES = SKIP_DRAWIO
 
 SCRIPTS = Path(__file__).parent.resolve()
 ROOT = SCRIPTS.parent
@@ -34,6 +36,7 @@ DIST = ROOT / "dist"
 RECIPE = ROOT / "conda.recipe"
 ENVS = ROOT / "envs"
 PROJ_LOCK = ROOT / "anaconda-project-lock.yml"
+VENDOR = ROOT / "vendor"
 
 # tools
 PY = ["python"]
@@ -41,6 +44,7 @@ PYM = [*PY, "-m"]
 PIP = [*PYM, "pip"]
 
 JLPM = ["jlpm"]
+JLPM_INSTALL = [*JLPM, "--ignore-optional", "--prefer-offline"]
 LAB_EXT = ["jupyter", "labextension"]
 CONDA_BUILD = ["conda-build"]
 LAB = ["jupyter", "lab"]
@@ -114,3 +118,10 @@ EXAMPLE_HTML = [DIST_NBHTML / p.name.replace(".ipynb", ".html") for p in EXAMPLE
 CONDA_PACKAGE = (
     DIST_CONDA / "noarch" / f"ipyradiant-{PY_VERSION}-py_{CONDA_BUILD_NO}.tar.bz2"
 )
+
+# vendor stuff
+if not SKIP_DRAWIO:
+    DRAWIO = VENDOR / "jupyterlab-drawio"
+    DRAWIO_PKG_JSON = DRAWIO / "package.json"
+    DRAWIO_VERSION = "0.7.0"
+    DRAWIO_TARBALL = DRAWIO / f"jupyterlab-drawio-{DRAWIO_VERSION}.tgz"

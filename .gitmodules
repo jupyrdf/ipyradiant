@@ -1,0 +1,3 @@
+[submodule "vendor/jupyterlab-drawio"]
+	path = vendor/jupyterlab-drawio
+	url = https://github.com/bollwyvl/jupyterlab-drawio.git

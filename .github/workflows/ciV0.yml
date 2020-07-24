@@ -8,6 +8,8 @@ on:
 
 env:
   PYTHONUNBUFFERED: 1
+  SKIP_PREFLIGHT: 1
+  SKIP_DRAWIO: 1
 
 jobs:
   ci:
