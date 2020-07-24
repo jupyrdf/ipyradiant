@@ -80,7 +80,7 @@ class QueryBody(W.HBox):
 
 
 class LinkedLimitOffset(W.VBox):
-    max_len = T.Int(allow_none=True)
+    max_len = T.Int(default_value=10)
     limit = T.Instance(W.IntSlider)
     limit_check = T.Instance(W.Checkbox)
     limit_box = T.Instance(W.HBox)
@@ -91,10 +91,6 @@ class LinkedLimitOffset(W.VBox):
         super().__init__(*args, **kwargs)
         self.max_len = kwargs.get("max_len", 10)
         self.children = tuple([self.limit_box, self.offset])
-
-    @T.default("max_len")
-    def make_default_max_len(self):
-        return 10
 
     @T.default("limit")
     def make_default_limit(self):
