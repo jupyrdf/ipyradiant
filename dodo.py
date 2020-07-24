@@ -103,12 +103,6 @@ def task_release():
 def task_setup():
     """ perform all setup activities
     """
-    yield dict(
-        name="js",
-        file_dep=[P.YARN_LOCK, P.PACKAGE, P.OK_ENV["dev"]],
-        actions=[[*P.APR_DEV, *P.JLPM, "--prefer-offline", "--ignore-optional"]],
-        targets=[P.YARN_INTEGRITY],
-    )
     yield _ok(
         dict(
             name="py",
@@ -120,6 +114,21 @@ def task_setup():
         ),
         P.OK_PIP_INSTALL_E,
     )
+
+    yield dict(
+        name="js",
+        file_dep=[P.YARN_LOCK, P.PACKAGE, P.OK_ENV["dev"]],
+        actions=[[*P.APR_DEV, *P.JLPM_INSTALL]],
+        targets=[P.YARN_INTEGRITY],
+    )
+
+    if not P.SKIP_DRAWIO:
+        yield dict(
+            name="drawio",
+            file_dep=[P.DRAWIO_PKG_JSON],
+            actions=[[*P.APR_DEV, "drawio"]],
+            targets=[P.DRAWIO_TARBALL],
+        )
 
 
 def task_build():
@@ -258,6 +267,9 @@ def task_lab_build():
         if line and not line.startswith("#")
     ]
 
+    if not P.SKIP_DRAWIO:
+        exts += [P.DRAWIO_TARBALL]
+
     def _build():
         build_rc = 1
         try:
@@ -276,9 +288,14 @@ def task_lab_build():
 
         return build_rc == 0 or P.LAB_INDEX.exists()
 
+    file_dep = [P.EXTENSIONS, P.OK_ENV["dev"]]
+
+    if not P.SKIP_DRAWIO:
+        file_dep += [P.DRAWIO_TARBALL]
+
     yield dict(
         name="extensions",
-        file_dep=[P.EXTENSIONS, P.OK_ENV["dev"]],
+        file_dep=file_dep,
         actions=[
             [*P.APR_DEV, *P.LAB, "clean", "--all"],
             [*P.APR_DEV, *P.LAB_EXT, "install", "--debug", "--no-build", *exts],
