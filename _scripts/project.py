@@ -119,7 +119,8 @@ CONDA_PACKAGE = (
 )
 
 # vendor stuff
-DRAWIO = VENDOR / "jupyterlab-drawio"
-DRAWIO_PKG_JSON = DRAWIO / "package.json"
-DRAWIO_VERSION = json.loads(DRAWIO_PKG_JSON.read_text())["version"]
-DRAWIO_TARBALL = DRAWIO / f"jupyterlab-drawio-{DRAWIO_VERSION}.tgz"
+if not SKIP_DRAWIO:
+    DRAWIO = VENDOR / "jupyterlab-drawio"
+    DRAWIO_PKG_JSON = DRAWIO / "package.json"
+    DRAWIO_VERSION = json.loads(DRAWIO_PKG_JSON.read_text())["version"]
+    DRAWIO_TARBALL = DRAWIO / f"jupyterlab-drawio-{DRAWIO_VERSION}.tgz"
