@@ -1,10 +1,20 @@
 """ important project paths
+
+    this should not import anything not in py36+ stdlib, or any local paths
 """
 import json
 import os
+import platform
 import re
-import shutil
 from pathlib import Path
+
+PLATFORM = os.environ.get("FAKE_PLATFORM", platform.system())
+WIN = PLATFORM == "Windows"
+OSX = PLATFORM == "Darwin"
+UNIX = not WIN
+
+# CI jank
+SKIP_PREFLIGHT = bool(json.loads(os.environ.get("SKIP_PREFLIGHT", "false")))
 
 SCRIPTS = Path(__file__).parent.resolve()
 ROOT = SCRIPTS.parent
@@ -29,7 +39,6 @@ PROJ_LOCK = ROOT / "anaconda-project-lock.yml"
 PY = ["python"]
 PYM = [*PY, "-m"]
 PIP = [*PYM, "pip"]
-NODE = [shutil.which("node") or shutil.which("node.exe") or shutil.which("node.cmd")]
 
 JLPM = ["jlpm"]
 LAB_EXT = ["jupyter", "labextension"]
@@ -41,7 +50,7 @@ APR = [*AP, "run", "--env-spec"]
 APR_DEV = [*APR, "dev"]
 APR_BUILD = [*APR, "build"]
 APR_QA = [*APR, "qa"]
-PRETTIER = [NODE, str(NODE_MODULES / ".bin" / "prettier")]
+PRETTIER = [str(NODE_MODULES / ".bin" / "prettier")]
 
 # env stuff
 OK_ENV = {env: BUILD / f"prep_{env}.ok" for env in ["build", "qa", "dev"]}
@@ -81,6 +90,9 @@ META_YAML = RECIPE / "meta.yaml"
 DIST_CONDA = DIST / "conda-bld"
 
 # built files
+OK_PREFLIGHT_CONDA = BUILD / "preflight.conda.ok"
+OK_PREFLIGHT_KERNEL = BUILD / "preflight.kernel.ok"
+OK_PREFLIGHT_LAB = BUILD / "preflight.lab.ok"
 NBLINT_HASHES = BUILD / "nblint.hashes"
 OK_BLACK = BUILD / "black.ok"
 OK_FLAKE8 = BUILD / "flake8.ok"
