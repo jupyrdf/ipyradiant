@@ -1,6 +1,7 @@
 """ linter and formatter of notebooks
 """
 import json
+import shutil
 import subprocess
 import sys
 from hashlib import sha256
@@ -11,6 +12,8 @@ import isort
 import nbformat
 
 from . import project as P
+
+NODE = [shutil.which("node") or shutil.which("node.exe") or shutil.which("node.cmd")]
 
 
 def blacken(source):
@@ -35,6 +38,7 @@ def nblint_one(nb_node):
                     map(
                         str,
                         [
+                            *NODE,
                             *P.PRETTIER,
                             "--stdin-filepath",
                             "foo.md",

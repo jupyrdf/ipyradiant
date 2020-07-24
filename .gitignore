@@ -9,10 +9,11 @@ __pycache__/
 .yarn-packages/
 *.egg-info/
 *.sqlite
+*.sqlite
 *.tgz
 build/
 dist/
 envs/
+examples/**/*.html
 lib/
 node_modules/
-examples/**/*.html
