@@ -22,6 +22,8 @@ class QueryWidget(W.VBox):
       - process longer (via path edges) namespaces first (most reductive to least reductive)
       - error displays or output panel
     """
+    # namespace pattern
+    NS_PATTERN = re.compile(r"PREFIX ([\w]*): <(.+)>")
 
     graph = T.Instance(Graph)
     run_button = T.Instance(W.Button)
@@ -33,18 +35,13 @@ class QueryWidget(W.VBox):
         if graph is not None:
             self.graph = graph
         self.query_constructor = QueryConstructor()
-        self.lim_and_off = self.query_constructor.query_input.lim_and_off
-        self.lim_and_off.max_len = len(self.graph)
-
         self.children = [self.query_constructor, self.run_button, self.qgridw]
 
     @log.capture(clear_output=True)
     def run_query(self, button):
         # Get all namespaces from the widget string
-        NS_PATTERN = re.compile(r"PREFIX ([\w]*): <(.+)>")
-        namespaces = NS_PATTERN.findall(self.query_constructor.namespaces)
+        namespaces = self.NS_PATTERN.findall(self.query_constructor.namespaces)
 
-        # Construct the query string
         res = self.graph.query(
             self.query_constructor.formatted_query.value, initNs=dict(namespaces)
         )
@@ -65,6 +62,7 @@ class QueryWidget(W.VBox):
             DataFrame(),
             grid_options={"editable": False},
             column_options={"editable": False},
+            column_definitions={"index": {"width": "20"}},
         )
         return qgridw
 

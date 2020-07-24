@@ -39,7 +39,7 @@ test:
     - python -m pip check
 
 about:
-  home: https://github.com/zwelz3/ipyradiant
+  home: https://github.com/jupyrdf/ipyradiant
   license: BSD-3-Clause
   license_family: MIT
   license_file: LICENSE

@@ -1,12 +1,10 @@
 """ loading widgets
 """
-import os
-import tempfile
-
 import traitlets as T
 
 import ipywidgets as W
 from rdflib import BNode, Graph
+from rdflib.util import SUFFIX_FORMAT_MAP, guess_format
 
 
 def get_n_subjects(graph: Graph):
@@ -18,6 +16,7 @@ def get_n_predicates(graph: Graph):
 
 
 class LoadBox(W.HBox):
+    formats = ",".join(["." + ext for ext in SUFFIX_FORMAT_MAP.keys()])
     graph = T.Instance(Graph)
     graph_id = T.Instance(BNode)
     label = T.Instance(W.Label)
@@ -40,19 +39,17 @@ class LoadBox(W.HBox):
 
     @T.default("label")
     def make_default_label(self):
-        label = W.Label(value="Click to load graph file (.ttl):")
+        label = W.Label(value="Click to load file:")
         return label
 
     @T.default("file_upload")
     def make_default_file_upload(self):
-        file_upload = W.FileUpload(
-            accept=".ttl", multiple=False  # TODO support multiple
-        )
+        # TODO support multiple files
+        file_upload = W.FileUpload(accept=self.formats, multiple=False)
         return file_upload
 
     @T.observe("file_upload_value")
     def process_files(self, change):
-        # TODO simplify by using WXYZ HTML File Loader
         # TODO loader for files (not needed until support for >1 file)
         # size is in bytes
         file_graphs = {}
@@ -61,15 +58,12 @@ class LoadBox(W.HBox):
             assert file_name not in file_graphs
             file_graphs[file_name] = {}
             file_graphs[file_name]["metadata"] = data["metadata"]
-            # File write/load workaround (replace with WXYZ)
-            with tempfile.TemporaryFile(delete=False) as tf:
-                # TODO try else to ensure close?
-                tf.write(data["content"])
-                tf.close()
-                g = Graph().parse(tf.name, format="n3")
-                file_graphs[file_name]["graph"] = g
-                file_graphs[file_name]["metadata"]["length"] = len(g)
-                os.unlink(tf.name)
+            file_format = guess_format(file_name)
+            if file_format is None:
+                raise ValueError("Unknown file format.")
+            g = Graph().parse(data=data["content"], format=file_format)
+            file_graphs[file_name]["graph"] = g
+            file_graphs[file_name]["metadata"]["length"] = len(g)
 
             # TODO combine graphs when multiple=True
             self.graph = g
