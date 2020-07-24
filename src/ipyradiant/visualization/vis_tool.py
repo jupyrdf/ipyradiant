@@ -9,13 +9,13 @@ import ipycytoscape
 from .rdf_processer import CytoscapeGraph
 import ipywidgets as ipyw
 
-
+#testing
 class RDFVisualization(ipyw.GridBox):
     '''
     This is a class that will take an rdflib.graph.Graph object as a parameter
     and output a visualization tab to go along with the ipyradiant widget.
     '''
-
+    graph = trt.Instance(Graph, allow_none=True)
     cyto_widget = trt.Instance(ipycytoscape.CytoscapeWidget)
     nodes = trt.List()
     node_selector = trt.Instance(ipyw.Dropdown)
@@ -23,6 +23,24 @@ class RDFVisualization(ipyw.GridBox):
     click_output_box = trt.Instance(ipyw.VBox)
     node_selector_box = trt.Instance(ipyw.VBox)
     selected_node = trt.Unicode(allow_none=True)
+    toggle_selection = trt.Instance(ipyw.ToggleButtons)
+    selected_view_mode = trt.Unicode(allow_none=True)
+    cyto_widget_box = trt.Instance(ipyw.VBox)
+
+    @trt.default('cyto_widget_box')
+    def _make_cyto_widget_box(self):
+        return ipyw.VBox()
+
+    @trt.default('toggle_selection')
+    def _make_toggle_selection(self):
+        toggle_selector = ipyw.ToggleButtons(
+            options = ['full graph','subgraph'],
+            disabled= False,
+            value = 'full graph'
+        )
+        trt.link((toggle_selector,'value'),(self,'selected_view_mode'))
+        return toggle_selector
+
 
     @trt.default('node_selector')
     def _make_node_selector(self):
@@ -31,6 +49,7 @@ class RDFVisualization(ipyw.GridBox):
         )
         trt.link((selector,'value'),(self,'selected_node'))
         return selector
+
     @trt.default('click_output')
     def _make_click_output(self):
         return ipyw.Output()
@@ -46,6 +65,10 @@ class RDFVisualization(ipyw.GridBox):
     @trt.default('node_selector_box')
     def _make_node_selector_box(self):
         return ipyw.VBox()
+
+    @trt.default('cyto_widget')
+    def _make_cyto_widget(self):
+        return ipycytoscape.CytoscapeWidget()
 
     default_edge={
         'selector': 'edge',
@@ -64,7 +87,7 @@ class RDFVisualization(ipyw.GridBox):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        rdf_graph = kwargs['rdf_graph']
+        rdf_graph = kwargs.get('rdf_graph',None)
         post_process_rdf = CytoscapeGraph(rdf_graph)
         self.cyto_widget = post_process_rdf.cytoscapeobj
         self.nodes = list(post_process_rdf.nodes.keys())
@@ -81,9 +104,10 @@ class RDFVisualization(ipyw.GridBox):
 
     def build_ui(self):
         self.click_output_box.children = [self.output_title,self.click_output]
+        self.cyto_widget_box.children = [self.toggle_selection,self.cyto_widget]
         #commenting this out for now- can add back in later (just need to add it to self.children)
         #self.node_selector_box.children = [self.node_selector_title,self.node_selector]
-        self.children = [self.cyto_widget, self.click_output_box]
+        self.children = [self.cyto_widget_box, self.click_output_box]
 
 
     #commenting this out for now too- can add back in if we want node selector capabilities.

@@ -27,6 +27,7 @@ class QueryWidget(W.VBox):
     run_button = T.Instance(W.Button)
     log = W.Output(layout={"border": "1px solid black"})
     qgridw = T.Instance(qgrid.QgridWidget)
+    current_dataframe = T.Instance(DataFrame)
 
     def __init__(self, graph: Graph = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -48,6 +49,7 @@ class QueryWidget(W.VBox):
         res = self.graph.query(
             self.query_constructor.formatted_query.value, initNs=dict(namespaces)
         )
+        self.current_dataframe = DataFrame(list(res))
         collapsed_data = DataFrame(list(res))
         for ii, row in collapsed_data.iterrows():
             for jj, cell in enumerate(row):
