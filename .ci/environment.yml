@@ -2,10 +2,10 @@ name: ipyradiant-base
 
 channels:
   - conda-forge
-  - nodefaults
+  - defaults
 
 dependencies:
-  - python >=3.7,<3.8
+  - anaconda-project =0.8.4
   - conda >=4.8,<4.9
-  - anaconda-project
-  - doit
+  - doit =0.32
+  - python >=3.7,<3.8
