@@ -28,17 +28,14 @@ class QueryHeader(W.HBox):
 
     def make_default_select_header(self):
         header = W.Text(
-            placeholder="?s ?p ?o",
+            placeholder="*",
             # layout={"width":"80%"},
         )
         T.link((header, "value"), (self, "header_value"))
         return header
 
     def make_default_construct_header(self):
-        header = W.Textarea(
-            placeholder="?s ?p ?o .",
-            # layout={"width": "80%"}
-        )
+        header = W.Textarea(placeholder="{\n\t?s ?p ?o .\n}")
         T.link((header, "value"), (self, "header_value"))
         return header
 
@@ -72,18 +69,18 @@ class QueryBody(W.HBox):
 
     @T.default("label")
     def make_default_label(self):
-        label = W.Label(value="WHERE:")
+        label = W.Label(value="WHERE")
         return label
 
     @T.default("body")
     def make_default_body(self):
-        body = W.Textarea(placeholder="?s ?p ?o .")
+        body = W.Textarea(placeholder="{\n\t?s ?p ?o .\n}")
         T.link((body, "value"), (self, "body_value"))
         return body
 
 
 class LinkedLimitOffset(W.VBox):
-    max_len = T.Int()
+    max_len = T.Int(default_value=10)
     limit = T.Instance(W.IntSlider)
     limit_check = T.Instance(W.Checkbox)
     limit_box = T.Instance(W.HBox)
@@ -153,14 +150,12 @@ class QueryInput(W.VBox):
     namespaces = T.Instance(W.VBox)
     header = T.Instance(W.HBox)
     body = T.Instance(W.HBox)
-    lim_and_off = T.Instance(W.VBox)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.namespaces = NamespaceManager()
         self.header = QueryHeader()
         self.body = QueryBody()
-        self.lim_and_off = LinkedLimitOffset()
         self.children = tuple(
-            [self.namespaces, self.header, self.body, self.lim_and_off]
+            [self.namespaces, self.header, self.body]
         )

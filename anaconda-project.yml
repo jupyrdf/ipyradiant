@@ -9,6 +9,12 @@ commands:
     unix: &postBuild python postBuild
     windows: *postBuild
 
+  drawio:
+    unix: &drawio >-
+      cd vendor/jupyterlab-drawio && git submodule update --init && jlpm
+      --ignore-optional && jlpm clean && jlpm build && npm pack
+    windows: *drawio
+
 env_specs:
   ipyradiant:
     description: minimal binder environment (from environment.yml)

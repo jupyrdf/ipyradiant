@@ -9,7 +9,7 @@
 import subprocess
 
 import _scripts.project as P
-from doit.tools import PythonInteractiveAction
+from doit.tools import PythonInteractiveAction, result_dep
 
 DOIT_CONFIG = {
     "backend": "sqlite3",
@@ -17,6 +17,22 @@ DOIT_CONFIG = {
     "par_type": "thread",
     "default_tasks": ["binder"],
 }
+
+if not P.SKIP_SUBMODULES:
+
+    def task_submodules():
+        """ ensure submodules are available
+        """
+
+        def _uptodate():
+            subs = (
+                subprocess.check_output(["git", "submodule"])
+                .decode("utf-8")
+                .splitlines()
+            )
+            return any(subs, lambda x: x.startswith("-"))
+
+        return dict(actions=[["git", "submodule", "update", "--init", "--recursive"]])
 
 
 def task_preflight():
@@ -26,6 +42,7 @@ def task_preflight():
 
     yield _ok(
         dict(
+            uptodate=[] if P.SKIP_SUBMODULES else [result_dep("submodules")],
             name="conda",
             file_dep=file_dep,
             actions=(
@@ -103,12 +120,6 @@ def task_release():
 def task_setup():
     """ perform all setup activities
     """
-    yield dict(
-        name="js",
-        file_dep=[P.YARN_LOCK, P.PACKAGE, P.OK_ENV["dev"]],
-        actions=[[*P.APR_DEV, *P.JLPM, "--prefer-offline", "--ignore-optional"]],
-        targets=[P.YARN_INTEGRITY],
-    )
     yield _ok(
         dict(
             name="py",
@@ -120,6 +131,22 @@ def task_setup():
         ),
         P.OK_PIP_INSTALL_E,
     )
+
+    yield dict(
+        name="js",
+        file_dep=[P.YARN_LOCK, P.PACKAGE, P.OK_ENV["dev"]],
+        actions=[[*P.APR_DEV, *P.JLPM_INSTALL]],
+        targets=[P.YARN_INTEGRITY],
+    )
+
+    if not P.SKIP_DRAWIO:
+        yield dict(
+            name="drawio",
+            uptodate=[result_dep("submodules")],
+            file_dep=[P.DRAWIO_PKG_JSON, P.OK_ENV["dev"]],
+            actions=[[*P.APR_DEV, "drawio"]],
+            targets=[P.DRAWIO_TARBALL],
+        )
 
 
 def task_build():
@@ -258,6 +285,9 @@ def task_lab_build():
         if line and not line.startswith("#")
     ]
 
+    if not P.SKIP_DRAWIO:
+        exts += [P.DRAWIO_TARBALL]
+
     def _build():
         build_rc = 1
         try:
@@ -276,9 +306,14 @@ def task_lab_build():
 
         return build_rc == 0 or P.LAB_INDEX.exists()
 
+    file_dep = [P.EXTENSIONS, P.OK_ENV["dev"]]
+
+    if not P.SKIP_DRAWIO:
+        file_dep += [P.DRAWIO_TARBALL]
+
     yield dict(
         name="extensions",
-        file_dep=[P.EXTENSIONS, P.OK_ENV["dev"]],
+        file_dep=file_dep,
         actions=[
             [*P.APR_DEV, *P.LAB, "clean", "--all"],
             [*P.APR_DEV, *P.LAB_EXT, "install", "--debug", "--no-build", *exts],
