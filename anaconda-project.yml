@@ -8,6 +8,10 @@ commands:
     unix: &lab jupyter lab --no-browser --debug
     windows: *lab
 
+  lab:build:
+    unix: &labBuild jupyter lab --build --minimize=True -dev-build=False
+    windows: *labBuild
+
   postBuild:
     unix: &postBuild python postBuild
     windows: *postBuild

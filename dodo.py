@@ -294,29 +294,24 @@ def task_lab_build():
 
     def _build():
         build_rc = 1
+
         try:
-            build_rc = subprocess.call(
-                [
-                    *P.APR_DEV,
-                    *P.LAB,
-                    "build",
-                    "--debug",
-                    "--minimize=True",
-                    "--dev-build=False",
-                ]
-            )
+            build_rc = subprocess.call([*P.APR_DEV, "lab:build"])
         except Exception as err:
+            print(f"Unexpected error: \n{err}\n", flush=True)
+
+        if build_rc != 0 and P.LAB_BUILD_WAIT_SEC:
             print(
-                f"Encountered an error, will wait {P.LAB_BUILD_WAIT_SEC}s:\n\t{err}\n",
-                flush=True,
+                f"Waiting {P.LAB_BUILD_WAIT_SEC}s...", flush=True,
             )
             waited = 0
-            while not P.LAB_INDEX.exists() and waited < P.LAB_BUILD_WAIT_SEC:
+            while build_rc and waited < P.LAB_BUILD_WAIT_SEC:
                 time.sleep(30)
                 waited += 30
                 print(f"Waited {waited} of {P.LAB_BUILD_WAIT_SEC}", flush=True)
+                build_rc = int(not P.LAB_INDEX.exists())
 
-        return build_rc == 0 or P.LAB_INDEX.exists()
+        return build_rc == 0
 
     file_dep = [P.EXTENSIONS, P.OK_ENV["dev"]]
 
