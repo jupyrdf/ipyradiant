@@ -49,7 +49,7 @@ def task_preflight():
             name="conda",
             file_dep=file_dep,
             actions=(
-                [["echo", "skipping preflight, hope you know what you're doing!"]]
+                [_echo_ok("skipping preflight, hope you know what you're doing!")]
                 if P.SKIP_CONDA_PREFLIGHT
                 else [["python", "-m", "_scripts.preflight", "conda"]]
             ),
@@ -86,7 +86,7 @@ def task_binder():
             P.OK_PREFLIGHT_KERNEL,
             P.OK_PREFLIGHT_LAB,
         ],
-        actions=[["echo", "ready to run JupyterLab with:\n\n\tdoit lab\n"]],
+        actions=[_echo_ok("ready to run JupyterLab with:\n\n\tdoit lab\n")],
     )
 
 
@@ -116,7 +116,7 @@ def task_release():
             P.CONDA_PACKAGE,
             *P.EXAMPLE_HTML,
         ],
-        actions=[["echo", "ready to release"]],
+        actions=[_echo_ok("ready to release")],
     )
 
 
@@ -265,7 +265,7 @@ def task_lint():
     yield _ok(
         dict(
             name="all",
-            actions=[["echo", "all ok"]],
+            actions=[_echo_ok("all ok")],
             file_dep=[
                 P.OK_BLACK,
                 P.OK_FLAKE8,
@@ -349,6 +349,14 @@ def task_lab():
         file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL_E, P.OK_PREFLIGHT_LAB],
         actions=[PythonInteractiveAction(lab)],
     )
+
+
+def _echo_ok(msg):
+    def _echo():
+        print(msg, flush=True)
+        return True
+
+    return _echo
 
 
 def _ok(task, ok):
