@@ -8,6 +8,7 @@
 """
 import os
 import subprocess
+import time
 
 import _scripts.project as P
 from doit.tools import PythonInteractiveAction, result_dep
@@ -305,7 +306,15 @@ def task_lab_build():
                 ]
             )
         except Exception as err:
-            print(f"Encountered an error, continuing:\n\t{err}\n", flush=True)
+            print(
+                f"Encountered an error, will wait {P.LAB_BUILD_WAIT_SEC}s:\n\t{err}\n",
+                flush=True,
+            )
+            waited = 0
+            while not P.LAB_INDEX.exists() and waited < P.LAB_BUILD_WAIT_SEC:
+                time.sleep(30)
+                waited += 30
+                print(f"Waited {waited} of {P.LAB_BUILD_WAIT_SEC}", flush=True)
 
         return build_rc == 0 or P.LAB_INDEX.exists()
 

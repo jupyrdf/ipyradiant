@@ -18,6 +18,9 @@ SKIP_CONDA_PREFLIGHT = bool(json.loads(os.environ.get("SKIP_CONDA_PREFLIGHT", "f
 SKIP_DRAWIO = bool(json.loads(os.environ.get("SKIP_DRAWIO", "false")))
 SKIP_SUBMODULES = SKIP_DRAWIO
 
+# Windows vs nodejs jank
+LAB_BUILD_WAIT_SEC = 600 if WIN else 0
+
 SCRIPTS = Path(__file__).parent.resolve()
 ROOT = SCRIPTS.parent
 
