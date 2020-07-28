@@ -23,29 +23,6 @@ commands:
     windows: *drawio
 
 env_specs:
-  ipyradiant:
-    description: minimal binder environment (from environment.yml)
-    channels:
-      - conda-forge
-      - msys2
-    packages:
-      - bqplot
-      - datashader
-      - ipycytoscape
-      - ipywidgets
-      - jupyter_bokeh
-      - jupyterlab ==2.2.0
-      - networkx
-      - nodejs >=12,<13.0.0a0
-      - numpy
-      - pip
-      - pyld
-      - pyshacl
-      - python >=3.6
-      - qgrid
-      - rdflib-jsonld
-      - requests_cache
-
   dev:
     platforms:
       - linux-64
@@ -92,3 +69,26 @@ env_specs:
       - nodejs >=12,<13.0.0a0
       - pyflakes
       - python >=3.7,<3.8.0a0
+
+  ipyradiant:
+    description: minimal binder environment (from environment.yml)
+    channels:
+      - conda-forge
+      - msys2
+    packages:
+      - bqplot
+      - datashader
+      - ipycytoscape
+      - ipywidgets
+      - jupyter_bokeh
+      - jupyterlab ==2.2.0
+      - networkx
+      - nodejs >=12,<13.0.0a0
+      - numpy
+      - pip
+      - pyld
+      - pyshacl
+      - python >=3.6
+      - qgrid
+      - rdflib-jsonld
+      - requests_cache
