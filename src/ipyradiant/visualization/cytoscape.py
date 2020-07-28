@@ -1,5 +1,7 @@
 from pathlib import Path
+
 import traitlets as T
+
 import ipywidgets as W
 from ipycytoscape import CytoscapeWidget
 from rdflib import Graph, Literal, URIRef
@@ -79,7 +81,7 @@ class CytoscapeVisualization(W.GridBox):
         for node in list(self.cyto_widget.graph.nodes):
             self.cyto_widget.graph.remove_node(node)
         if len(self.cyto_widget.graph.nodes) != 0:
-            with log:
+            with self.log:
                 print("Unexpected number of nodes remaining after graph cleared.")
         # assert not self.cyto_widget.graph.nodes, "Unexpected number of nodes remaining after graph cleared."
         new_json = self.build_cytoscape_json(change.new)
