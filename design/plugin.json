@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "jupyter.lab.setting-icon-label": "Drawio",
+  "jupyter.lab.setting-icon": "drawio:drawio",
+  "title": "Drawio",
+  "description": "Drawio settings.",
+  "type": "object",
+  "properties": {
+    "drawioExportDemo": {
+      "properties": {
+        "url": {
+          "description": "URL for (local) drawio-export server https://github.com/jgraph/draw-image-export2",
+          "type": "string",
+          "default": "./drawio-export-demo"
+        },
+        "params": {
+          "type": "object"}
+      }
+    },
+    "drawioUrlParams": {
+      "description": "URL parameters for the drawio iframe https://desk.draw.io/support/solutions/articles/16000042546-supported-url-parameters",
+      "type": "object",
+      "default": {
+        "gapi": 0,
+        "gl": 0,
+        "noExitBtn": 1,
+        "noSaveBtn": 1,
+        "od": 0,
+        "stealth": 1,
+        "tr": 0,
+        "ui": "min"
+      }
+    },
+    "drawioConfig": {
+      "description": "Configuration options sent to each drawio editor. https://desk.draw.io/support/solutions/articles/16000058316",
+      "type": "object",
+      "default": {
+        "compressXml": false,
+        "showStartScreen": false,
+        "override": true
+      }
+    }
+  }
+}

@@ -156,6 +156,4 @@ class QueryInput(W.VBox):
         self.namespaces = NamespaceManager()
         self.header = QueryHeader()
         self.body = QueryBody()
-        self.children = tuple(
-            [self.namespaces, self.header, self.body]
-        )
+        self.children = tuple([self.namespaces, self.header, self.body])

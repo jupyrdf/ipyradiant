@@ -22,6 +22,7 @@ class QueryWidget(W.VBox):
       - process longer (via path edges) namespaces first (most reductive to least reductive)
       - error displays or output panel
     """
+
     # namespace pattern
     NS_PATTERN = re.compile(r"PREFIX ([\w]*): <(.+)>")
 

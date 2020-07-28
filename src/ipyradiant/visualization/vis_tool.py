@@ -1,19 +1,14 @@
-import os
-import textwrap
 from pathlib import Path
-from rdflib import URIRef, Literal, Graph, BNode
+
 import traitlets as T
-from rdflib.namespace import RDF
-from pandas import DataFrame
+
 import ipywidgets as W
-from ipycytoscape import MutableDict, CytoscapeWidget
-
-default_edge = {"selector": "edge", "css": {"line-color": "blue"}}
-
-default_node = {"selector": "node", "css": {"background-color": "grey"}}
+from ipycytoscape import CytoscapeWidget
+from rdflib import Graph, Literal, URIRef
+from rdflib.namespace import RDF
 
 
-class RDFVisualization(W.GridBox):
+class CytoscapeVisualization(W.GridBox):
     graph = T.Instance(Graph, allow_none=True)
     cyto_widget = T.Instance(CytoscapeWidget, allow_none=True)
     nodes = T.List()
@@ -23,10 +18,17 @@ class RDFVisualization(W.GridBox):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        self.edge_color = kwargs.get("edge_color", "pink")
+        self.node_color = kwargs.get("node_color", "grey")
         self.output_title = W.HTML("<h3>Output from Clicks</h3>")
-        self.layout = W.Layout(grid_template_columns="60% 40%", height="500px")
         self.click_output_box.children = [self.output_title, self.click_output]
+
+        self.default_edge = {"selector": "edge", "css": {"line-color": self.edge_color}}
+        self.default_node = {
+            "selector": "node",
+            "css": {"background-color": self.node_color},
+        }
+
         self.children = [self.cyto_widget, self.click_output_box]
 
     @T.default("click_output")
@@ -50,7 +52,7 @@ class RDFVisualization(W.GridBox):
         cyto_widget = CytoscapeWidget()
         cyto_widget.on("node", "click", self.log_node_clicks)
         cyto_widget.on("edge", "click", self.log_edge_clicks)
-        cyto_widget.set_style([default_node, default_edge])
+        cyto_widget.set_style([self.default_node, self.default_edge])
         return cyto_widget
 
     def log_node_clicks(self, node):
@@ -60,7 +62,7 @@ class RDFVisualization(W.GridBox):
 
     def log_edge_clicks(self, edge):
         with self.click_output:
-            print(f"edge clicked:")
+            print("edge clicked:")
             print(f'edge source: {edge["data"]["source"]}')
             print(f'edge target: {edge["data"]["target"]}')
             print("-------------------------------")
@@ -71,44 +73,42 @@ class RDFVisualization(W.GridBox):
         # remove old nodes (which removed other links, e.g. edges)
         for node in list(self.cyto_widget.graph.nodes):
             self.cyto_widget.graph.remove_node(node)
-        assert len(self.cyto_widget.graph.nodes) == 0, "OHNO"
-        new_json = build_cytoscape_json(change.new)
+        assert (
+            len(self.cyto_widget.graph.nodes) == 0
+        ), "Unexpected number of nodes remaining after graph cleared."
+        new_json = self.build_cytoscape_json(change.new)
         self.cyto_widget.graph.add_graph_from_json(new_json, directed=True)
 
+    # # TODO:
+    # Why are there missing edges, etc in the graph and why does it look wrong
+    # do we want the check for object not being literal ???
 
-# # TODO:
-# Why are there missing edges, etc in the graph and why does it look wrong
-# do we want the check for object not being literal ???
+    def build_cytoscape_json(self, graph: Graph):
+        # collect uris & edges
+        element_set = set()
+        edges = []
+        for i, (s, p, o) in enumerate(graph):
+            if p != RDF.type:
+                if isinstance(s, URIRef):
+                    element_set.add(s)
+                if isinstance(o, URIRef):
+                    element_set.add(o)
+                if not isinstance(o, Literal):
+                    edges.append({"source": s, "target": o, "label": Path(p).name})
+            # edges.append(
+            #     {"source":s, "target":o, "label":f"{Path(p).name}",}
+            # )
 
+        # create nodes
+        nodes = {}
+        for uri in element_set:
+            pathed_node = Path(uri)
+            nodes[uri] = {
+                "id": uri,
+                "name": f"{pathed_node.parent.name} {pathed_node.name}",
+            }
 
-def build_cytoscape_json(graph: Graph):
-    # collect uris & edges
-    element_set = set()
-    edges = []
-    for i, (s, p, o) in enumerate(graph):
-        if p != RDF.type:
-            if isinstance(s, URIRef):
-                element_set.add(s)
-            if isinstance(o, URIRef):
-                element_set.add(o)
-            if not isinstance(o, Literal):
-                edges.append(
-                    {"source": s, "target": o, "label": f"{Path(p).name}",}
-                )
-        # edges.append(
-        #     {"source":s, "target":o, "label":f"{Path(p).name}",}
-        # )
-
-    # create nodes
-    nodes = {}
-    for uri in element_set:
-        pathed_node = Path(uri)
-        nodes[uri] = {
-            "id": uri,
-            "name": f"{pathed_node.parent.name} {pathed_node.name}",
+        return {
+            "nodes": [{"data": v} for v in nodes.values()],
+            "edges": [{"data": v} for v in edges],
         }
-
-    return {
-        "nodes": [{"data": v} for v in nodes.values()],
-        "edges": [{"data": v} for v in edges],
-    }
