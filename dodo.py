@@ -7,9 +7,12 @@
     See `doit list` for more options.
 """
 import subprocess
+import os
 
 import _scripts.project as P
 from doit.tools import PythonInteractiveAction, result_dep
+
+os.environ["PYTHONIOENCODING"] = "utf-8"
 
 DOIT_CONFIG = {
     "backend": "sqlite3",
