@@ -24,6 +24,7 @@ requirements:
     - python >=3.6
     - pip
   run:
+    - ipycytoscape >=1.0.3
     - ipywidgets
     - pandas
     - qgrid
