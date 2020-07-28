@@ -253,7 +253,7 @@ def task_lint():
     yield _ok(
         dict(
             name="nblint",
-            file_dep=[*P.EXAMPLE_IPYNB, P.OK_ENV["qa"]],
+            file_dep=[P.YARN_INTEGRITY, *P.EXAMPLE_IPYNB, P.OK_ENV["qa"]],
             actions=[[*P.APR_QA, *P.PYM, "_scripts.nblint", *P.EXAMPLE_IPYNB]],
             targets=[P.NBLINT_HASHES],
         ),

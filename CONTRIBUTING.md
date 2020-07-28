@@ -20,20 +20,20 @@
 - install `anaconda-project` and `doit` into the `base` env
 
 ```bat
-conda install anaconda-project=0.84 doit=0.32
+conda install anaconda-project=0.8.4 doit=0.32
 ```
 
 or, use the same base environment as CI:
 
 ```bat
 :: windows
-conda env update .ci\environment.yml
+conda env update --file .ci\environment.yml
 c:\mc3\envs\ipyradiant-base\Scripts\activate
 ```
 
 ```bash
 # unix
-conda env update .ci/environment.yml
+conda env update --file .ci/environment.yml
 source ~/mc3/envs/ipyradiant-base/bin/activate
 ```
 
