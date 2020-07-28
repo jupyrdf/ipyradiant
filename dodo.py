@@ -6,8 +6,9 @@
 
     See `doit list` for more options.
 """
-import subprocess
 import shutil
+import subprocess
+
 import _scripts.project as P
 from doit.tools import PythonInteractiveAction, result_dep
 

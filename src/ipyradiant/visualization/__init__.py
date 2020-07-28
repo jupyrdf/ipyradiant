@@ -1,4 +1,4 @@
 """vis widgets
 """
-__all__ = ["RDFVisualization"]
+__all__ = ["CytoscapeVisualization"]
 from .vis_tool import CytoscapeVisualization
