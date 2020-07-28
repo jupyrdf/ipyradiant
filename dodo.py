@@ -50,7 +50,7 @@ def task_preflight():
             file_dep=file_dep,
             actions=(
                 [["echo", "skipping preflight, hope you know what you're doing!"]]
-                if P.SKIP_PREFLIGHT
+                if P.SKIP_CONDA_PREFLIGHT
                 else [["python", "-m", "_scripts.preflight", "conda"]]
             ),
         ),

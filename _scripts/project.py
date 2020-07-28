@@ -14,7 +14,7 @@ OSX = PLATFORM == "Darwin"
 UNIX = not WIN
 
 # CI jank
-SKIP_PREFLIGHT = bool(json.loads(os.environ.get("SKIP_PREFLIGHT", "false")))
+SKIP_CONDA_PREFLIGHT = bool(json.loads(os.environ.get("SKIP_CONDA_PREFLIGHT", "false")))
 SKIP_DRAWIO = bool(json.loads(os.environ.get("SKIP_DRAWIO", "false")))
 SKIP_SUBMODULES = SKIP_DRAWIO
 
