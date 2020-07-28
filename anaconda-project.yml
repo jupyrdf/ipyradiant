@@ -1,5 +1,8 @@
 name: ipyradiant
 
+variables:
+  PYTHONIOENCODING: utf-8
+
 commands:
   lab:
     unix: &lab jupyter lab --no-browser --debug
