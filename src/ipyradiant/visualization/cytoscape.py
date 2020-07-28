@@ -1,7 +1,5 @@
 from pathlib import Path
-
 import traitlets as T
-
 import ipywidgets as W
 from ipycytoscape import CytoscapeWidget
 from rdflib import Graph, Literal, URIRef
@@ -14,7 +12,8 @@ class CytoscapeVisualization(W.GridBox):
     nodes = T.List()
     click_output = T.Instance(W.Output)
     click_output_box = T.Instance(W.VBox)
-    selected_node = T.Unicode(allow_none=True)
+    show_outputs = T.Bool(False)
+    log = W.Output(layout={"border": "1px solid black"})
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -29,6 +28,12 @@ class CytoscapeVisualization(W.GridBox):
             "css": {"background-color": self.node_color},
         }
 
+        T.dlink(
+            (self, "show_outputs"),
+            (self.click_output_box.layout, "visibility"),
+            lambda x: "visible" if x else "hidden",
+        )
+        self.layout = W.Layout(flex_flow="row wrap")
         self.children = [self.cyto_widget, self.click_output_box]
 
     @T.default("click_output")
@@ -73,9 +78,10 @@ class CytoscapeVisualization(W.GridBox):
         # remove old nodes (which removed other links, e.g. edges)
         for node in list(self.cyto_widget.graph.nodes):
             self.cyto_widget.graph.remove_node(node)
-        assert (
-            len(self.cyto_widget.graph.nodes) == 0
-        ), "Unexpected number of nodes remaining after graph cleared."
+        if len(self.cyto_widget.graph.nodes) != 0:
+            with log:
+                print("Unexpected number of nodes remaining after graph cleared.")
+        # assert not self.cyto_widget.graph.nodes, "Unexpected number of nodes remaining after graph cleared."
         new_json = self.build_cytoscape_json(change.new)
         self.cyto_widget.graph.add_graph_from_json(new_json, directed=True)
 
