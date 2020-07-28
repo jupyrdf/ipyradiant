@@ -292,6 +292,11 @@ def task_lab_build():
     if not P.SKIP_DRAWIO:
         exts += [P.DRAWIO_TARBALL]
 
+    def _clean():
+        subprocess.call([*P.APR_DEV, *P.LAB, "clean", "--all"])
+
+        return True
+
     def _build():
         build_rc = 1
 
@@ -322,7 +327,7 @@ def task_lab_build():
         name="extensions",
         file_dep=file_dep,
         actions=[
-            [*P.APR_DEV, *P.LAB, "clean", "--all"],
+            _clean,
             [*P.APR_DEV, *P.LAB_EXT, "install", "--debug", "--no-build", *exts],
             _build,
             [*P.APR_DEV, *P.LAB_EXT, "list"],
