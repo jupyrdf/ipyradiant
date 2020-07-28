@@ -29,8 +29,9 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-conda-${{ hashFiles('anaconda-project-lock.yml') }}
+          key: ${{ runner.os }}-conda-ci-${{ hashFiles('anaconda-project-lock.yml') }}
           restore-keys: |
+            ${{ runner.os }}-conda-ci-
             ${{ runner.os }}-conda-
 
       - uses: actions/cache@v1
@@ -73,8 +74,9 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-conda-${{ hashFiles('anaconda-project-lock.yml') }}
+          key: ${{ runner.os }}-conda-ui-${{ hashFiles('anaconda-project-lock.yml') }}
           restore-keys: |
+            ${{ runner.os }}-conda-ui-
             ${{ runner.os }}-conda-
 
       - uses: actions/cache@v1
