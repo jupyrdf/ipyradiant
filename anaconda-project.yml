@@ -9,7 +9,7 @@ commands:
     windows: *lab
 
   lab:build:
-    unix: &labBuild jupyter lab --build --minimize=True -dev-build=False
+    unix: &labBuild jupyter lab build --minimize=True -dev-build=False
     windows: *labBuild
 
   postBuild:
