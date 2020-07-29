@@ -128,3 +128,4 @@ if not SKIP_DRAWIO:
     DRAWIO_PKG_JSON = DRAWIO / "package.json"
     DRAWIO_VERSION = "0.7.0"
     DRAWIO_TARBALL = DRAWIO / f"jupyterlab-drawio-{DRAWIO_VERSION}.tgz"
+    DRAWIO_LAB_STATIC = LAB_STATIC / "node_modules" / "jupyterlab-drawio"
