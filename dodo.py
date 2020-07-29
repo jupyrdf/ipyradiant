@@ -314,6 +314,12 @@ def task_lab_build():
         file_dep=file_dep,
         actions=[
             _clean,
+            [
+                *P.APR_DEV,
+                *P.LAB_EXT,
+                "disable",
+                "@jupyterlab/extension-manager-extension",
+            ],
             [*P.APR_DEV, *P.LAB_EXT, "install", "--debug", "--no-build", *exts],
             _build,
             [*P.APR_DEV, *P.LAB_EXT, "list"],
