@@ -297,6 +297,7 @@ def task_lab_build():
         exts += [P.DRAWIO_TARBALL]
 
     def _clean():
+        subprocess.call([*P.APR_DEV, "jlpm", "cache", "clean"])
         subprocess.call([*P.APR_DEV, *P.LAB, "clean", "--all"])
 
         return True
