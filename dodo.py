@@ -32,7 +32,7 @@ if not P.SKIP_SUBMODULES:
         )
 
         def _clean():
-            if any(subs, lambda x: x.startswith("-")) and P.DRAWIO.exists():
+            if any([x.startswith("-") for x in subs]) and P.DRAWIO.exists():
                 shutil.rmtree(P.DRAWIO)
 
         return dict(
