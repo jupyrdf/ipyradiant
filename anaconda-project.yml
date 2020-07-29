@@ -5,22 +5,24 @@ variables:
 
 commands:
   lab:
+    description: start lab
     unix: &lab jupyter lab --no-browser --debug
     windows: *lab
+    env_spec: dev
 
   lab:build:
+    description: build jupyterlab
     unix: &labBuild jupyter lab build --minimize=True --dev-build=False
     windows: *labBuild
-
-  postBuild:
-    unix: &postBuild python postBuild
-    windows: *postBuild
+    env_spec: dev
 
   drawio:
+    description: build the vendored jupyterlab-drawio with SVG, notebook support
     unix: &drawio >-
       cd vendor/jupyterlab-drawio && git submodule update --init && jlpm
       --ignore-optional && jlpm clean && jlpm build && npm pack
     windows: *drawio
+    env_spec: dev
 
 env_specs:
   dev:
