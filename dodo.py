@@ -11,7 +11,7 @@ import subprocess
 import time
 
 import _scripts.project as P
-from doit.tools import PythonInteractiveAction, result_dep
+from doit.tools import PythonInteractiveAction, config_changed, result_dep
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
 
@@ -36,7 +36,10 @@ if not P.SKIP_SUBMODULES:
             )
             return any(subs, lambda x: x.startswith("-"))
 
-        return dict(actions=[["git", "submodule", "update", "--init", "--recursive"]])
+        return dict(
+            uptodate=[config_changed({"subs": _uptodate})],
+            actions=[["git", "submodule", "update", "--init", "--recursive"]],
+        )
 
 
 def task_preflight():
@@ -341,16 +344,15 @@ def task_lab():
     """
 
     def lab():
-        proc = subprocess.Popen([*P.APR_DEV, *P.LAB, "--no-browser", "--debug"])
-        hard_stop = 0
-        while hard_stop < 2:
-            try:
-                proc.wait()
-            except KeyboardInterrupt:
-                hard_stop += 1
+        proc = subprocess.Popen([*P.APR_DEV, "lab"], stdin=subprocess.PIPE)
 
-        proc.terminate()
-        proc.terminate()
+        try:
+            proc.wait()
+        except KeyboardInterrupt:
+            print("attempting to stop lab, you may want to check your process monitor")
+            proc.terminate()
+            proc.communicate(b"y\n")
+
         proc.wait()
 
     return dict(
