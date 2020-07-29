@@ -27,17 +27,12 @@ if not P.SKIP_SUBMODULES:
     def task_submodules():
         """ ensure submodules are available
         """
-
-        def _uptodate():
-            subs = (
-                subprocess.check_output(["git", "submodule"])
-                .decode("utf-8")
-                .splitlines()
-            )
-            return any(subs, lambda x: x.startswith("-"))
+        subs = (
+            subprocess.check_output(["git", "submodule"]).decode("utf-8").splitlines()
+        )
 
         return dict(
-            uptodate=[config_changed({"subs": _uptodate})],
+            uptodate=[config_changed({"subs": subs})],
             actions=[["git", "submodule", "update", "--init", "--recursive"]],
         )
 
