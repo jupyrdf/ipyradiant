@@ -83,7 +83,7 @@ env_specs:
       - ipycytoscape
       - ipywidgets
       - jupyter_bokeh
-      - jupyterlab ==2.2.0
+      - jupyterlab ==2.2.2
       - networkx
       - nodejs >=12,<13.0.0a0
       - numpy
