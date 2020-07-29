@@ -32,6 +32,8 @@ if not P.SKIP_SUBMODULES:
         )
 
         def _clean():
+            """ clean drawio, as it gets patched in-place
+            """
             if any([x.startswith("-") for x in subs]) and P.DRAWIO.exists():
                 shutil.rmtree(P.DRAWIO)
 
