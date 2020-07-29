@@ -7,6 +7,7 @@
     See `doit list` for more options.
 """
 import os
+import shutil
 import subprocess
 import time
 
@@ -31,9 +32,13 @@ if not P.SKIP_SUBMODULES:
             subprocess.check_output(["git", "submodule"]).decode("utf-8").splitlines()
         )
 
+        def _clean():
+            if any(subs, lambda x: x.startswith("-")) and P.DRAWIO.exists():
+                shutil.rmtree(P.DRAWIO)
+
         return dict(
             uptodate=[config_changed({"subs": subs})],
-            actions=[["git", "submodule", "update", "--init", "--recursive"]],
+            actions=[_clean, ["git", "submodule", "update", "--init", "--recursive"]],
         )
 
 
