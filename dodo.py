@@ -9,7 +9,6 @@
 import os
 import shutil
 import subprocess
-import time
 
 import _scripts.project as P
 from doit.tools import PythonInteractiveAction, config_changed, result_dep
@@ -301,25 +300,7 @@ def task_lab_build():
         return True
 
     def _build():
-        build_rc = 1
-
-        try:
-            build_rc = subprocess.call([*P.APR_DEV, "lab:build"])
-        except Exception as err:
-            print(f"Unexpected error: \n{err}\n", flush=True)
-
-        if build_rc != 0 and P.LAB_BUILD_WAIT_SEC:
-            print(
-                f"Waiting {P.LAB_BUILD_WAIT_SEC}s...", flush=True,
-            )
-            waited = 0
-            while build_rc and waited < P.LAB_BUILD_WAIT_SEC:
-                time.sleep(30)
-                waited += 30
-                print(f"Waited {waited} of {P.LAB_BUILD_WAIT_SEC}", flush=True)
-                build_rc = int(not P.LAB_INDEX.exists())
-
-        return build_rc == 0
+        return subprocess.call([*P.APR_DEV, "lab:build"]) == 0
 
     file_dep = [P.EXTENSIONS, P.OK_ENV["dev"]]
 
