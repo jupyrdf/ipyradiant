@@ -8,16 +8,19 @@ import platform
 import re
 from pathlib import Path
 
+# platform
 PLATFORM = os.environ.get("FAKE_PLATFORM", platform.system())
 WIN = PLATFORM == "Windows"
 OSX = PLATFORM == "Darwin"
 UNIX = not WIN
 
 # CI jank
-SKIP_PREFLIGHT = bool(json.loads(os.environ.get("SKIP_PREFLIGHT", "false")))
+SKIP_CONDA_PREFLIGHT = bool(json.loads(os.environ.get("SKIP_CONDA_PREFLIGHT", "false")))
 SKIP_DRAWIO = bool(json.loads(os.environ.get("SKIP_DRAWIO", "false")))
 SKIP_SUBMODULES = SKIP_DRAWIO
 
+
+# find root
 SCRIPTS = Path(__file__).parent.resolve()
 ROOT = SCRIPTS.parent
 
@@ -122,6 +125,8 @@ CONDA_PACKAGE = (
 # vendor stuff
 if not SKIP_DRAWIO:
     DRAWIO = VENDOR / "jupyterlab-drawio"
+    DRAWIO_INTEGRITY = DRAWIO / "node_modules" / ".yarn-integrity"
     DRAWIO_PKG_JSON = DRAWIO / "package.json"
     DRAWIO_VERSION = "0.7.0"
     DRAWIO_TARBALL = DRAWIO / f"jupyterlab-drawio-{DRAWIO_VERSION}.tgz"
+    DRAWIO_LAB_STATIC = LAB_STATIC / "node_modules" / "jupyterlab-drawio"

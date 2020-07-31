@@ -6,10 +6,14 @@
 
     See `doit list` for more options.
 """
+import os
+import shutil
 import subprocess
 
 import _scripts.project as P
-from doit.tools import PythonInteractiveAction, result_dep
+from doit.tools import PythonInteractiveAction, config_changed, result_dep
+
+os.environ["PYTHONIOENCODING"] = "utf-8"
 
 DOIT_CONFIG = {
     "backend": "sqlite3",
@@ -23,16 +27,20 @@ if not P.SKIP_SUBMODULES:
     def task_submodules():
         """ ensure submodules are available
         """
+        subs = (
+            subprocess.check_output(["git", "submodule"]).decode("utf-8").splitlines()
+        )
 
-        def _uptodate():
-            subs = (
-                subprocess.check_output(["git", "submodule"])
-                .decode("utf-8")
-                .splitlines()
-            )
-            return any(subs, lambda x: x.startswith("-"))
+        def _clean():
+            """ clean drawio, as it gets patched in-place
+            """
+            if any([x.startswith("-") for x in subs]) and P.DRAWIO.exists():
+                shutil.rmtree(P.DRAWIO)
 
-        return dict(actions=[["git", "submodule", "update", "--init", "--recursive"]])
+        return dict(
+            uptodate=[config_changed({"subs": subs})],
+            actions=[_clean, ["git", "submodule", "update", "--init", "--recursive"]],
+        )
 
 
 def task_preflight():
@@ -46,8 +54,8 @@ def task_preflight():
             name="conda",
             file_dep=file_dep,
             actions=(
-                [["echo", "skipping preflight, hope you know what you're doing!"]]
-                if P.SKIP_PREFLIGHT
+                [_echo_ok("skipping preflight, hope you know what you're doing!")]
+                if P.SKIP_CONDA_PREFLIGHT
                 else [["python", "-m", "_scripts.preflight", "conda"]]
             ),
         ),
@@ -83,7 +91,7 @@ def task_binder():
             P.OK_PREFLIGHT_KERNEL,
             P.OK_PREFLIGHT_LAB,
         ],
-        actions=[["echo", "ready to run JupyterLab with:\n\n\tdoit lab\n"]],
+        actions=[_echo_ok("ready to run JupyterLab with:\n\n\tdoit lab\n")],
     )
 
 
@@ -113,7 +121,7 @@ def task_release():
             P.CONDA_PACKAGE,
             *P.EXAMPLE_HTML,
         ],
-        actions=[["echo", "ready to release"]],
+        actions=[_echo_ok("ready to release")],
     )
 
 
@@ -140,11 +148,22 @@ def task_setup():
     )
 
     if not P.SKIP_DRAWIO:
+
+        def _clean():
+            subprocess.call(["git", "clean", "-dxf"], cwd=str(P.DRAWIO))
+
         yield dict(
-            name="drawio",
+            name="drawio_setup",
             uptodate=[result_dep("submodules")],
             file_dep=[P.DRAWIO_PKG_JSON, P.OK_ENV["dev"]],
-            actions=[[*P.APR_DEV, "drawio"]],
+            actions=[_clean, [*P.APR_DEV, "drawio:setup"]],
+            targets=[P.DRAWIO_INTEGRITY],
+        )
+
+        yield dict(
+            name="drawio_build",
+            file_dep=[P.DRAWIO_INTEGRITY, P.DRAWIO_PKG_JSON],
+            actions=[[*P.APR_DEV, "drawio:build"]],
             targets=[P.DRAWIO_TARBALL],
         )
 
@@ -253,7 +272,7 @@ def task_lint():
     yield _ok(
         dict(
             name="nblint",
-            file_dep=[*P.EXAMPLE_IPYNB, P.OK_ENV["qa"]],
+            file_dep=[P.YARN_INTEGRITY, *P.EXAMPLE_IPYNB, P.OK_ENV["qa"]],
             actions=[[*P.APR_QA, *P.PYM, "_scripts.nblint", *P.EXAMPLE_IPYNB]],
             targets=[P.NBLINT_HASHES],
         ),
@@ -262,7 +281,7 @@ def task_lint():
     yield _ok(
         dict(
             name="all",
-            actions=[["echo", "all ok"]],
+            actions=[_echo_ok("all ok")],
             file_dep=[
                 P.OK_BLACK,
                 P.OK_FLAKE8,
@@ -288,23 +307,14 @@ def task_lab_build():
     if not P.SKIP_DRAWIO:
         exts += [P.DRAWIO_TARBALL]
 
-    def _build():
-        build_rc = 1
-        try:
-            build_rc = subprocess.call(
-                [
-                    *P.APR_DEV,
-                    *P.LAB,
-                    "build",
-                    "--debug",
-                    "--minimize=True",
-                    "--dev-build=False",
-                ]
-            )
-        except Exception as err:
-            print(f"Encountered an error, continuing:\n\t{err}\n", flush=True)
+    def _clean():
+        subprocess.call([*P.APR_DEV, "jlpm", "cache", "clean"])
+        subprocess.call([*P.APR_DEV, *P.LAB, "clean", "--all"])
 
-        return build_rc == 0 or P.LAB_INDEX.exists()
+        return True
+
+    def _build():
+        return subprocess.call([*P.APR_DEV, "lab:build"]) == 0
 
     file_dep = [P.EXTENSIONS, P.OK_ENV["dev"]]
 
@@ -315,7 +325,13 @@ def task_lab_build():
         name="extensions",
         file_dep=file_dep,
         actions=[
-            [*P.APR_DEV, *P.LAB, "clean", "--all"],
+            _clean,
+            [
+                *P.APR_DEV,
+                *P.LAB_EXT,
+                "disable",
+                "@jupyterlab/extension-manager-extension",
+            ],
             [*P.APR_DEV, *P.LAB_EXT, "install", "--debug", "--no-build", *exts],
             _build,
             [*P.APR_DEV, *P.LAB_EXT, "list"],
@@ -329,16 +345,15 @@ def task_lab():
     """
 
     def lab():
-        proc = subprocess.Popen([*P.APR_DEV, *P.LAB, "--no-browser", "--debug"])
-        hard_stop = 0
-        while hard_stop < 2:
-            try:
-                proc.wait()
-            except KeyboardInterrupt:
-                hard_stop += 1
+        proc = subprocess.Popen([*P.APR_DEV, "lab"], stdin=subprocess.PIPE)
 
-        proc.terminate()
-        proc.terminate()
+        try:
+            proc.wait()
+        except KeyboardInterrupt:
+            print("attempting to stop lab, you may want to check your process monitor")
+            proc.terminate()
+            proc.communicate(b"y\n")
+
         proc.wait()
 
     return dict(
@@ -346,6 +361,14 @@ def task_lab():
         file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL_E, P.OK_PREFLIGHT_LAB],
         actions=[PythonInteractiveAction(lab)],
     )
+
+
+def _echo_ok(msg):
+    def _echo():
+        print(msg, flush=True)
+        return True
+
+    return _echo
 
 
 def _ok(task, ok):

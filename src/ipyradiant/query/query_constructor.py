@@ -73,9 +73,7 @@ class QueryConstructor(W.HBox):
             with self.log:
                 raise ValueError(f"Unexpected query type: {query_type}")
 
-        return query_template.format(
-            namespaces, header_str, query_body,
-        )
+        return query_template.format(namespaces, header_str, query_body,)
 
     @T.default("formatted_query")
     def make_default_formatted_query(self):
@@ -86,10 +84,7 @@ class QueryConstructor(W.HBox):
         return formatted_query
 
     @T.observe(
-        "namespaces",
-        "query_type",
-        "query_line",
-        "query_body",
+        "namespaces", "query_type", "query_line", "query_body",
     )
     def update_query(self, change):
         self.formatted_query.value = self.build_query()
