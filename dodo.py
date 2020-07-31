@@ -148,11 +148,22 @@ def task_setup():
     )
 
     if not P.SKIP_DRAWIO:
+
+        def _clean():
+            subprocess.call(["git", "clean", "-dxf"], cwd=str(P.DRAWIO))
+
         yield dict(
-            name="drawio",
+            name="drawio_setup",
             uptodate=[result_dep("submodules")],
             file_dep=[P.DRAWIO_PKG_JSON, P.OK_ENV["dev"]],
-            actions=[[*P.APR_DEV, "drawio"]],
+            actions=[_clean, [*P.APR_DEV, "drawio:setup"]],
+            targets=[P.DRAWIO_INTEGRITY],
+        )
+
+        yield dict(
+            name="drawio_build",
+            file_dep=[P.DRAWIO_INTEGRITY, P.DRAWIO_PKG_JSON],
+            actions=[[*P.APR_DEV, "drawio:build"]],
             targets=[P.DRAWIO_TARBALL],
         )
 

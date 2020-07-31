@@ -125,6 +125,7 @@ CONDA_PACKAGE = (
 # vendor stuff
 if not SKIP_DRAWIO:
     DRAWIO = VENDOR / "jupyterlab-drawio"
+    DRAWIO_INTEGRITY = DRAWIO / "node_modules" / ".yarn-integrity"
     DRAWIO_PKG_JSON = DRAWIO / "package.json"
     DRAWIO_VERSION = "0.7.0"
     DRAWIO_TARBALL = DRAWIO / f"jupyterlab-drawio-{DRAWIO_VERSION}.tgz"
