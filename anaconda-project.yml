@@ -20,7 +20,7 @@ commands:
     description: build the vendored jupyterlab-drawio with SVG, notebook support
     unix: &drawio >-
       cd vendor/jupyterlab-drawio && git submodule update --init && jlpm
-      --ignore-optional && jlpm clean && jlpm build && npm pack
+      --ignore-optional && jlpm build && npm pack
     windows: *drawio
     env_spec: dev
 
