@@ -1,7 +1,5 @@
 from pathlib import Path
-
 import traitlets as T
-
 import ipywidgets as W
 from ipycytoscape import CytoscapeWidget
 from rdflib import Graph, Literal, URIRef
