@@ -2,47 +2,36 @@ name: ipyradiant
 
 variables:
   PYTHONIOENCODING: utf-8
-  PYTHONUNBUFFERED: '1'
 
 commands:
   lab:
+    description: start lab
     unix: &lab jupyter lab --no-browser --debug
     windows: *lab
+    env_spec: dev
 
-  postBuild:
-    unix: &postBuild python postBuild
-    windows: *postBuild
+  lab:build:
+    description: build jupyterlab
+    unix: &labBuild jupyter lab build --minimize=True --dev-build=False
+    windows: *labBuild
+    env_spec: dev
 
-  drawio:
-    unix: &drawio >-
+  drawio:setup:
+    description: setup jupyterlab-drawio
+    unix: &drawioSetup >-
       cd vendor/jupyterlab-drawio && git submodule update --init && jlpm
-      --ignore-optional && jlpm clean && jlpm build && npm pack
-    windows: *drawio
+      --ignore-optional
+    windows: *drawioSetup
+    env_spec: dev
+
+  drawio:build:
+    description: build the vendored jupyterlab-drawio with SVG, notebook support
+    unix: &drawioBuild >-
+      cd vendor/jupyterlab-drawio && jlpm build && npm pack .
+    windows: *drawioBuild
+    env_spec: dev
 
 env_specs:
-  ipyradiant:
-    description: minimal binder environment (from environment.yml)
-    channels:
-      - conda-forge
-      - msys2
-    packages:
-      - bqplot
-      - datashader
-      - ipycytoscape
-      - ipywidgets
-      - jupyter_bokeh
-      - jupyterlab ==2.2.0
-      - networkx
-      - nodejs >=12,<13.0.0a0
-      - numpy
-      - pip
-      - pyld
-      - pyshacl
-      - python >=3.6
-      - qgrid
-      - rdflib-jsonld
-      - requests_cache
-
   dev:
     platforms:
       - linux-64
@@ -89,3 +78,26 @@ env_specs:
       - nodejs >=12,<13.0.0a0
       - pyflakes
       - python >=3.7,<3.8.0a0
+
+  ipyradiant:
+    description: minimal binder environment (from environment.yml)
+    channels:
+      - conda-forge
+      - msys2
+    packages:
+      - bqplot
+      - datashader
+      - ipycytoscape
+      - ipywidgets
+      - jupyter_bokeh
+      - jupyterlab ==2.2.2
+      - networkx
+      - nodejs >=12,<13.0.0a0
+      - numpy
+      - pip
+      - pyld
+      - pyshacl
+      - python >=3.6
+      - qgrid
+      - rdflib-jsonld
+      - requests_cache
