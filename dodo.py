@@ -6,7 +6,6 @@
 
     See `doit list` for more options.
 """
-import shutil
 import subprocess
 
 import _scripts.project as P
@@ -330,10 +329,6 @@ def task_lab():
     """
 
     def lab():
-        hack_schema = P.ROOT / "design/plugin.json"
-        drawio_schema = P.LAB_APP_DIR / "schemas/jupyterlab-drawio/plugin.json"
-        shutil.copy2(hack_schema, drawio_schema)
-        print("hacking drawio plugin schema", flush=True)
         proc = subprocess.Popen([*P.APR_DEV, "lab", "--no-browser", "--debug"])
         hard_stop = 0
         while hard_stop < 2:
