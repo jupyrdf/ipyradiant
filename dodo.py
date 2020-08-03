@@ -7,8 +7,9 @@
     See `doit list` for more options.
 """
 import os
-import subprocess
 import shutil
+import subprocess
+
 import _scripts.project as P
 from doit.tools import PythonInteractiveAction, config_changed, result_dep
 
