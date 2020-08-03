@@ -85,8 +85,10 @@ env_specs:
       - conda-forge
       - msys2
     packages:
+      - bokeh
       - bqplot
       - datashader
+      - holoviews
       - ipycytoscape
       - ipywidgets
       - jupyter_bokeh
