@@ -7,7 +7,7 @@
     See `doit list` for more options.
 """
 import os
-import shutil
+
 import subprocess
 
 import _scripts.project as P
