@@ -4,7 +4,7 @@
 from ._version import __version__
 from .loader import LoadWidget
 from .query import QueryWidget
-from .visualization import CytoscapeVisualization, DatashaderVisualization
+from .visualization import CytoscapeVisualization
 
 __all__ = [
     "__version__",
