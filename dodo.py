@@ -154,9 +154,12 @@ def task_setup():
 
         yield dict(
             name="drawio_setup",
-            uptodate=[result_dep("submodules")],
             file_dep=[P.DRAWIO_PKG_JSON, P.OK_ENV["dev"]],
-            actions=[_clean, [*P.APR_DEV, "drawio:setup"]],
+            actions=[
+                _clean,
+                ["git", "submodule", "update", "--init", "--recursive"],
+                [*P.APR_DEV, "drawio:setup"],
+            ],
             targets=[P.DRAWIO_INTEGRITY],
         )
 
@@ -355,6 +358,7 @@ def task_lab():
             proc.communicate(b"y\n")
 
         proc.wait()
+        return True
 
     return dict(
         uptodate=[lambda: False],
