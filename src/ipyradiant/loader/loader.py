@@ -27,7 +27,7 @@ class LoadBox(W.HBox):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.children = tuple([self.label, self.file_upload])
-        T.link((self.file_upload, "value"), (self, "file_upload_value"))
+        T.dlink((self.file_upload, "value"), (self, "file_upload_value"))
 
     @T.default("graph")
     def make_default_graph(self):

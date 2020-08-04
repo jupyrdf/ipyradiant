@@ -204,28 +204,40 @@ def task_build():
 def task_test():
     """ testing
     """
-    yield dict(
-        name="nbsmoke",
-        file_dep=[
-            *P.EXAMPLE_IPYNB,
-            P.OK_NBLINT,
-            P.OK_ENV["dev"],
-            P.OK_PIP_INSTALL_E,
-            P.OK_PREFLIGHT_KERNEL,
-        ],
-        actions=[
-            [
-                *P.APR_DEV,
-                "jupyter",
-                "nbconvert",
-                "--output-dir",
-                P.DIST_NBHTML,
-                "--execute",
-                *P.EXAMPLE_IPYNB,
-            ]
-        ],
-        targets=P.EXAMPLE_HTML,
-    )
+
+    def _nb_test(nb):
+        def _test():
+            env = dict(os.environ)
+            env.update(IPYRADIANT_TESTING="true")
+            subprocess.check_call(
+                [
+                    *P.APR_DEV,
+                    "jupyter",
+                    "nbconvert",
+                    "--output-dir",
+                    P.DIST_NBHTML,
+                    "--execute",
+                    "--ExecutePreprocessor.timeout=600",
+                    nb,
+                ],
+                env=env,
+            )
+
+        return dict(
+            name=f"nb:{nb.name}".replace(" ", "_").replace(".ipynb", ""),
+            file_dep=[
+                nb,
+                P.OK_NBLINT,
+                P.OK_ENV["dev"],
+                P.OK_PIP_INSTALL_E,
+                P.OK_PREFLIGHT_KERNEL,
+            ],
+            actions=[_test],
+            targets=[P.DIST_NBHTML / nb.name.replace(".ipynb", ".html")],
+        )
+
+    for nb in P.EXAMPLE_IPYNB:
+        yield _nb_test(nb)
 
 
 def task_lint():

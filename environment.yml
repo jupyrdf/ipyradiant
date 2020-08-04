@@ -7,6 +7,7 @@ channels:
 dependencies:
   - bqplot
   - datashader
+  - importnb
   - ipycytoscape
   - ipywidgets
   - jupyter_bokeh

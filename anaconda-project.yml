@@ -87,6 +87,7 @@ env_specs:
     packages:
       - bqplot
       - datashader
+      - importnb
       - ipycytoscape
       - ipywidgets
       - jupyter_bokeh
