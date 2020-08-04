@@ -123,15 +123,18 @@ def task_env():
 def task_release():
     """ everything we'd need to do to release (except release)
     """
-    return dict(
-        file_dep=[
-            P.OK_PIP_INSTALL_E,
-            P.OK_LINT,
-            P.WHEEL,
-            P.CONDA_PACKAGE,
-            *P.EXAMPLE_HTML,
-        ],
-        actions=[_echo_ok("ready to release")],
+    return _ok(
+        dict(
+            file_dep=[
+                P.OK_PIP_INSTALL_E,
+                P.OK_LINT,
+                P.WHEEL,
+                P.CONDA_PACKAGE,
+                *P.EXAMPLE_HTML,
+            ],
+            actions=[_echo_ok("ready to release")],
+        ),
+        P.OK_RELEASE,
     )
 
 
@@ -386,6 +389,14 @@ def task_lab():
         uptodate=[lambda: False],
         file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL_E, P.OK_PREFLIGHT_LAB],
         actions=[PythonInteractiveAction(lab)],
+    )
+
+
+def task_all():
+    """ do everything except start lab
+    """
+    return dict(
+        file_dep=[P.OK_RELEASE, P.OK_PREFLIGHT_LAB], actions=([_echo_ok("ALL GOOD")]),
     )
 
 
