@@ -11,6 +11,7 @@ import shutil
 import subprocess
 
 import _scripts.project as P
+from doit.action import CmdAction
 from doit.tools import PythonInteractiveAction, config_changed
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
@@ -215,7 +216,7 @@ def task_build():
 
 
 def task_test():
-    """ testing
+    """ run all the notebooks
     """
 
     def _nb_test(nb):
@@ -232,7 +233,8 @@ def task_test():
                 "--ExecutePreprocessor.timeout=600",
                 nb,
             ]
-            return _call(args, env=env) == 0
+            print(args)
+            return CmdAction(args, env=env, shell=False)
 
         return dict(
             name=f"nb:{nb.name}".replace(" ", "_").replace(".ipynb", ""),
@@ -243,7 +245,7 @@ def task_test():
                 P.OK_PIP_INSTALL_E,
                 P.OK_PREFLIGHT_KERNEL,
             ],
-            actions=[_test],
+            actions=[_test()],
             targets=[P.DIST_NBHTML / nb.name.replace(".ipynb", ".html")],
         )
 
