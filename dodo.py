@@ -11,7 +11,7 @@ import shutil
 import subprocess
 
 import _scripts.project as P
-from doit.tools import PythonInteractiveAction, config_changed, result_dep
+from doit.tools import PythonInteractiveAction, config_changed
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
 
@@ -21,6 +21,8 @@ DOIT_CONFIG = {
     "par_type": "thread",
     "default_tasks": ["binder"],
 }
+
+COMMIT = subprocess.check_output(["git", "rev-parse", "HEAD"])
 
 if not P.SKIP_SUBMODULES:
 
@@ -37,20 +39,26 @@ if not P.SKIP_SUBMODULES:
             if any([x.startswith("-") for x in subs]) and P.DRAWIO.exists():
                 shutil.rmtree(P.DRAWIO)
 
-        return dict(
-            uptodate=[config_changed({"subs": subs})],
-            actions=[_clean, ["git", "submodule", "update", "--init", "--recursive"]],
+        return _ok(
+            dict(
+                uptodate=[config_changed({"subs": subs})],
+                actions=[
+                    _clean,
+                    ["git", "submodule", "update", "--init", "--recursive"],
+                ],
+            ),
+            P.OK_SUBMODULES,
         )
 
 
 def task_preflight():
     """ ensure a sane development environment
     """
-    file_dep = [P.PROJ_LOCK, P.SCRIPTS / "preflight.py"]
+    file_dep = [P.PROJ_LOCK, P.SCRIPTS / "preflight.py", P.OK_SUBMODULES]
 
     yield _ok(
         dict(
-            uptodate=[] if P.SKIP_SUBMODULES else [result_dep("submodules")],
+            uptodate=[] if P.SKIP_SUBMODULES else [config_changed({"commit": COMMIT})],
             name="conda",
             file_dep=file_dep,
             actions=(
