@@ -90,6 +90,7 @@ class CytoscapeVisualization(W.GridBox):
     # # TODO:
     # Why are there missing edges, etc in the graph and why does it look wrong
     # do we want the check for object not being literal ???
+    # LINK TO ISSUE: https://github.com/jupyrdf/ipyradiant/issues/16
 
     def build_cytoscape_json(self, graph: Graph):
         # collect uris & edges
@@ -106,6 +107,7 @@ class CytoscapeVisualization(W.GridBox):
             # edges.append(
             #     {"source":s, "target":o, "label":f"{Path(p).name}",}
             # )
+            # above comment also applies to issue #16, link above on line 93
 
         # create nodes
         nodes = {}

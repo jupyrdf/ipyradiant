@@ -88,7 +88,8 @@ env_specs:
       - bokeh
       - bqplot
       - datashader
-      - holoviews
+      - hvplot
+      - importnb
       - ipycytoscape
       - ipywidgets
       - jupyter_bokeh
@@ -99,7 +100,7 @@ env_specs:
       - pip
       - pyld
       - pyshacl
-      - python >=3.6
+      - python >=3.6 # underspecified so binder does whatever's clever
       - qgrid
       - rdflib-jsonld
       - requests_cache
