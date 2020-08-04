@@ -54,11 +54,14 @@ if not P.SKIP_SUBMODULES:
 def task_preflight():
     """ ensure a sane development environment
     """
-    file_dep = [P.PROJ_LOCK, P.SCRIPTS / "preflight.py", P.OK_SUBMODULES]
+    file_dep = [P.PROJ_LOCK, P.SCRIPTS / "preflight.py"]
+
+    if not P.SKIP_SUBMODULES:
+        file_dep += [P.OK_SUBMODULES]
 
     yield _ok(
         dict(
-            uptodate=[] if P.SKIP_SUBMODULES else [config_changed({"commit": COMMIT})],
+            uptodate=[config_changed({"commit": COMMIT})],
             name="conda",
             file_dep=file_dep,
             actions=(
