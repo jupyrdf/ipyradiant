@@ -226,7 +226,7 @@ def task_test():
         return dict(
             name=f"nb:{nb.name}".replace(" ", "_").replace(".ipynb", ""),
             file_dep=[
-                nb,
+                *P.EXAMPLE_IPYNB,
                 P.OK_NBLINT,
                 P.OK_ENV["dev"],
                 P.OK_PIP_INSTALL_E,
