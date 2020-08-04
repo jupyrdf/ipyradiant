@@ -411,4 +411,6 @@ def _call(args, **kwargs):
         kwargs["cwd"] = str(kwargs["cwd"])
     if "env" in kwargs:
         kwargs["env"] = {k: json.dumps(v) for k, v in kwargs["env"]}
-    return subprocess.call(list(map(str, args)), **kwargs)
+    args = list(map(str, args))
+    print("\n>>>", " ".join(args), "\n", flush=True)
+    return subprocess.call(args, **kwargs)
