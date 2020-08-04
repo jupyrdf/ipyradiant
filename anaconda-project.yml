@@ -103,3 +103,4 @@ env_specs:
       - qgrid
       - rdflib-jsonld
       - requests_cache
+      - scikit-image
