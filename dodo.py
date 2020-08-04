@@ -11,6 +11,7 @@ import shutil
 import subprocess
 
 import _scripts.project as P
+from doit.action import CmdAction
 from doit.tools import PythonInteractiveAction, config_changed
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
@@ -22,7 +23,7 @@ DOIT_CONFIG = {
     "default_tasks": ["binder"],
 }
 
-COMMIT = subprocess.check_output(["git", "rev-parse", "HEAD"])
+COMMIT = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8")
 
 if not P.SKIP_SUBMODULES:
 
@@ -123,16 +124,18 @@ def task_env():
 def task_release():
     """ everything we'd need to do to release (except release)
     """
-    return dict(
-        file_dep=[
-            P.LAB_INDEX,
-            P.OK_PIP_INSTALL_E,
-            P.OK_LINT,
-            P.WHEEL,
-            P.CONDA_PACKAGE,
-            *P.EXAMPLE_HTML,
-        ],
-        actions=[_echo_ok("ready to release")],
+    return _ok(
+        dict(
+            file_dep=[
+                P.OK_PIP_INSTALL_E,
+                P.OK_LINT,
+                P.WHEEL,
+                P.CONDA_PACKAGE,
+                *P.EXAMPLE_HTML,
+            ],
+            actions=[_echo_ok("ready to release")],
+        ),
+        P.OK_RELEASE,
     )
 
 
@@ -213,7 +216,7 @@ def task_build():
 
 
 def task_test():
-    """ testing
+    """ run all the notebooks
     """
 
     def _nb_test(nb):
@@ -230,7 +233,8 @@ def task_test():
                 "--ExecutePreprocessor.timeout=600",
                 nb,
             ]
-            return _call(args, env=env) == 0
+            print(args)
+            return CmdAction(args, env=env, shell=False)
 
         return dict(
             name=f"nb:{nb.name}".replace(" ", "_").replace(".ipynb", ""),
@@ -241,7 +245,7 @@ def task_test():
                 P.OK_PIP_INSTALL_E,
                 P.OK_PREFLIGHT_KERNEL,
             ],
-            actions=[_test],
+            actions=[_test()],
             targets=[P.DIST_NBHTML / nb.name.replace(".ipynb", ".html")],
         )
 
@@ -387,6 +391,14 @@ def task_lab():
         uptodate=[lambda: False],
         file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL_E, P.OK_PREFLIGHT_LAB],
         actions=[PythonInteractiveAction(lab)],
+    )
+
+
+def task_all():
+    """ do everything except start lab
+    """
+    return dict(
+        file_dep=[P.OK_RELEASE, P.OK_PREFLIGHT_LAB], actions=([_echo_ok("ALL GOOD")]),
     )
 
 
