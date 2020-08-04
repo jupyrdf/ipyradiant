@@ -230,7 +230,7 @@ def task_test():
                 "--output-dir",
                 P.DIST_NBHTML,
                 "--execute",
-                "--ExecutePreprocessor.timeout=600",
+                "--ExecutePreprocessor.timeout=1200",
                 nb,
             ]
             print(args)
