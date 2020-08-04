@@ -6,6 +6,7 @@
 
     See `doit list` for more options.
 """
+import json
 import os
 import shutil
 import subprocess
@@ -158,7 +159,7 @@ def task_setup():
     if not P.SKIP_DRAWIO:
 
         def _clean():
-            subprocess.call(["git", "clean", "-dxf"], cwd=str(P.DRAWIO))
+            _call(["git", "clean", "-dxf"], cwd=str(P.DRAWIO))
 
         yield dict(
             name="drawio_setup",
@@ -217,19 +218,17 @@ def task_test():
         def _test():
             env = dict(os.environ)
             env.update(IPYRADIANT_TESTING="true")
-            subprocess.check_call(
-                [
-                    *P.APR_DEV,
-                    "jupyter",
-                    "nbconvert",
-                    "--output-dir",
-                    P.DIST_NBHTML,
-                    "--execute",
-                    "--ExecutePreprocessor.timeout=600",
-                    nb,
-                ],
-                env=env,
-            )
+            args = [
+                *P.APR_DEV,
+                "jupyter",
+                "nbconvert",
+                "--output-dir",
+                P.DIST_NBHTML,
+                "--execute",
+                "--ExecutePreprocessor.timeout=600",
+                nb,
+            ]
+            return _call(args, env=env) == 0
 
         return dict(
             name=f"nb:{nb.name}".replace(" ", "_").replace(".ipynb", ""),
@@ -331,13 +330,13 @@ def task_lab_build():
         exts += [P.DRAWIO_TARBALL]
 
     def _clean():
-        subprocess.call([*P.APR_DEV, "jlpm", "cache", "clean"])
-        subprocess.call([*P.APR_DEV, *P.LAB, "clean", "--all"])
+        _call([*P.APR_DEV, "jlpm", "cache", "clean"])
+        _call([*P.APR_DEV, *P.LAB, "clean", "--all"])
 
         return True
 
     def _build():
-        return subprocess.call([*P.APR_DEV, "lab:build"]) == 0
+        return _call([*P.APR_DEV, "lab:build"]) == 0
 
     file_dep = [P.EXTENSIONS, P.OK_ENV["dev"]]
 
@@ -368,7 +367,9 @@ def task_lab():
     """
 
     def lab():
-        proc = subprocess.Popen([*P.APR_DEV, "lab"], stdin=subprocess.PIPE)
+        proc = subprocess.Popen(
+            list(map(str, [*P.APR_DEV, "lab"])), stdin=subprocess.PIPE
+        )
 
         try:
             proc.wait()
@@ -403,3 +404,11 @@ def _ok(task, ok):
         lambda: [ok.parent.mkdir(exist_ok=True), ok.write_text("ok"), True][-1],
     ]
     return task
+
+
+def _call(args, **kwargs):
+    if "cwd" in kwargs:
+        kwargs["cwd"] = str(kwargs["cwd"])
+    if "env" in kwargs:
+        kwargs["env"] = {k: json.dumps(v) for k, v in kwargs["env"]}
+    return subprocess.call(list(map(str, args)), **kwargs)
