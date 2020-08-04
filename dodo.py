@@ -22,7 +22,7 @@ DOIT_CONFIG = {
     "default_tasks": ["binder"],
 }
 
-COMMIT = subprocess.check_output(["git", "rev-parse", "HEAD"])
+COMMIT = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8")
 
 if not P.SKIP_SUBMODULES:
 
