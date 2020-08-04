@@ -125,7 +125,6 @@ def task_release():
     """
     return dict(
         file_dep=[
-            P.LAB_INDEX,
             P.OK_PIP_INSTALL_E,
             P.OK_LINT,
             P.WHEEL,
