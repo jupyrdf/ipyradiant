@@ -6,7 +6,6 @@
 
     See `doit list` for more options.
 """
-import json
 import os
 import shutil
 import subprocess
@@ -410,7 +409,7 @@ def _call(args, **kwargs):
     if "cwd" in kwargs:
         kwargs["cwd"] = str(kwargs["cwd"])
     if "env" in kwargs:
-        kwargs["env"] = {k: json.dumps(v) for k, v in kwargs["env"]}
+        kwargs["env"] = {k: str(v) for k, v in kwargs["env"].items()}
     args = list(map(str, args))
     print("\n>>>", " ".join(args), "\n", flush=True)
     return subprocess.call(args, **kwargs)
