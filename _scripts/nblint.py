@@ -15,6 +15,8 @@ from . import project as P
 
 NODE = [shutil.which("node") or shutil.which("node.exe") or shutil.which("node.cmd")]
 
+NB_METADATA_KEYS = ["kernelspec", "language_info"]
+
 
 def blacken(source):
     """ apply black to a source string
@@ -27,6 +29,10 @@ def nblint_one(nb_node):
     """
     changes = 0
     has_empty = 0
+    nb_metadata_keys = list(nb_node.metadata.keys())
+    for key in nb_metadata_keys:
+        if key not in NB_METADATA_KEYS:
+            nb_node.metadata.pop(key)
     for cell in nb_node.cells:
         cell_type = cell["cell_type"]
         source = "".join(cell["source"])
