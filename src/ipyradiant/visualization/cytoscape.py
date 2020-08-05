@@ -6,11 +6,10 @@ import ipywidgets as W
 from ipycytoscape import CytoscapeWidget
 from rdflib import Graph, Literal, URIRef
 from rdflib.namespace import RDF
+from .base import VisBase
 
-# from .base import VisBase
 
-
-class CytoscapeVisualization(W.Box):
+class CytoscapeVisualization(VisBase):
     graph = T.Instance(Graph, allow_none=True)
     cyto_widget = T.Instance(CytoscapeWidget, allow_none=True)
     nodes = T.List()

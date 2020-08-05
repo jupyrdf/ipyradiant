@@ -1,5 +1,8 @@
 import ipywidgets as W
 import traitlets as T
+from ipycytoscape import CytoscapeWidget
+from rdflib import Graph, Literal, URIRef
+from rdflib.namespace import RDF
 
 
 class VisBase(W.VBox):
@@ -23,7 +26,7 @@ class VisBase(W.VBox):
             self._vis.close()
             self._vis = None
         else:
-            pass
+            vis_tool = DatashaderVis()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
