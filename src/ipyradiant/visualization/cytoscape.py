@@ -7,8 +7,10 @@ from ipycytoscape import CytoscapeWidget
 from rdflib import Graph, Literal, URIRef
 from rdflib.namespace import RDF
 
+# from .base import VisBase
 
-class CytoscapeVisualization(W.GridBox):
+
+class CytoscapeVisualization(W.Box):
     graph = T.Instance(Graph, allow_none=True)
     cyto_widget = T.Instance(CytoscapeWidget, allow_none=True)
     nodes = T.List()
