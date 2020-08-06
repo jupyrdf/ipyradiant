@@ -3,10 +3,10 @@ import traitlets as T
 from ipycytoscape import CytoscapeWidget
 from rdflib import Graph, Literal, URIRef
 from rdflib.namespace import RDF
+import networkx as nx
 
 
 class VisBase(W.VBox):
-    renderer = T.Unicode("auto").tag(sync=True)
     graph = T.Instance(Graph, allow_none=True)
     _vis = T.Instance(W.Box, allow_none=True)
     edge_color = T.Unicode()
@@ -17,18 +17,25 @@ class VisBase(W.VBox):
     hovered_edges = T.List()
     layout = T.Any()
 
-    @T.observe("graph")
-    def _on_graph(self, change):
-        if change.old:
-            pass
-        if change.new is None:
-            self.children = []
-            self._vis.close()
-            self._vis = None
-        else:
-            vis_tool = DatashaderVis()
+    layouts = {
+        "circular_layout": nx.layout.circular_layout,
+        "random_layout": nx.layout.random_layout,
+        "shell_layout": nx.layout.shell_layout,
+        "spring_layout": nx.layout.spring_layout,
+        "spiral_layout": nx.layout.spiral_layout,
+    }
+
+    @T.default("layout")
+    def _make_default_layout(self):
+        return layouts["circulat_layout"]
+
+    @T.default("edge_color")
+    def _make_default_edge_color(self):
+        return "pink"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.edge_color = kwargs.get("edge_color", "pink")
         self.node_color = kwargs.get("node_color", "grey")
+        self.graph = kwargs.get("graph", None)
+        self.layout = self.layouts[kwargs.get("layout", "circular_layout")]
