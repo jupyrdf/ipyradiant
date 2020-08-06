@@ -39,22 +39,15 @@ def nblint_one(nb_node):
         if not source.strip():
             has_empty += 1
         if cell_type == "markdown":
+            args = [
+                *P.PRETTIER,
+                "--stdin-filepath",
+                "foo.md",
+                "--prose-wrap",
+                "always",
+            ]
             prettier = subprocess.Popen(
-                list(
-                    map(
-                        str,
-                        [
-                            *NODE,
-                            *P.PRETTIER,
-                            "--stdin-filepath",
-                            "foo.md",
-                            "--prose-wrap",
-                            "always",
-                        ],
-                    )
-                ),
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
+                list(map(str, args)), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             )
             out, _err = prettier.communicate(source.encode("utf-8"))
             new = out.decode("utf-8").rstrip()
