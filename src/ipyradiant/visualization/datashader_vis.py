@@ -17,6 +17,12 @@ hv.extension("bokeh")
 
 
 class DatashaderVis(VisBase):
+    output = T.Instance(W.Output)
+
+    @T.default("output")
+    def _make_default_output(self):
+        return W.Output()
+
     edge_tooltips = [
         ("Source", "@start"),
         ("Target", "@end"),
@@ -44,24 +50,25 @@ class DatashaderVis(VisBase):
         tooltip = kwargs.get("tooltip", "nodes")
         tooltip_dict = {"nodes": self.node_hover, "edges": self.edge_hover}
         output_graph = self.strip_and_produce_rdf_graph(self.graph)
-        p = hv.render(
-            output_graph.options(
-                frame_width=1000,
-                frame_height=1000,
-                xaxis=None,
-                yaxis=None,
-                tools=[tooltip_dict[tooltip]],
-                inspection_policy=tooltip,
-                node_color=self.node_color,
-                edge_color=self.edge_color,
-            ),
-            backend="bokeh",
+        p = output_graph.options(
+            frame_width=1000,
+            frame_height=1000,
+            xaxis=None,
+            yaxis=None,
+            tools=[tooltip_dict[tooltip]],
+            inspection_policy=tooltip,
+            node_color=self.node_color,
+            edge_color=self.edge_color,
         )
-        self.widget_output = jbk.BokehModel(p)
+        self.display_datashader_vis(p)
         self.children = [
             W.HTML("<h1>Visualization With Datashader"),
-            self.widget_output,
+            self.output,
         ]
+
+    def display_datashader_vis(self, p):
+        with self.output:
+            display(p)
 
     def strip_and_produce_rdf_graph(self, rdf_graph: Graph):
         sparql = self.sparql

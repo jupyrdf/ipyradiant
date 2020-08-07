@@ -65,7 +65,7 @@ class CytoscapeVisualization(VisBase):
         self.children = [
             W.HTML("<h1>Cytoscape Visualization</h1>"),
             self.cyto_widget,
-            self.click_output_box,
+            # self.click_output_box
         ]
 
     def log_node_clicks(self, node):
@@ -75,7 +75,7 @@ class CytoscapeVisualization(VisBase):
             print("-------------------------------")
 
     def log_edge_clicks(self, edge):
-        self.seleced_edges.append(edge["data"])
+        self.selected_edges.append(edge["data"])
         with self.click_output:
             print("edge clicked:")
             print(f'edge source: {edge["data"]["source"]}')
