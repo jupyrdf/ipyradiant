@@ -1,5 +1,4 @@
 import traitlets as T
-
 import holoviews as hv
 import ipywidgets as W
 from bokeh.models import HoverTool
@@ -14,21 +13,11 @@ hv.extension("bokeh")
 
 class DatashaderVis(VisBase):
     output = T.Instance(W.Output)
+    tooltip = T.Unicode()
+    tooltip_dict = T.Dict()
+    node_tooltips = T.List()
+    edge_tooltips = T.List()
 
-    @T.default("output")
-    def _make_default_output(self):
-        return W.Output()
-
-    edge_tooltips = [
-        ("Source", "@start"),
-        ("Target", "@end"),
-    ]
-    edge_hover = HoverTool(tooltips=edge_tooltips)
-
-    node_tooltips = [
-        ("ID", "@index"),
-    ]
-    node_hover = HoverTool(tooltips=node_tooltips)
     sparql = """
         CONSTRUCT {
             ?s ?p ?o .
@@ -41,21 +30,39 @@ class DatashaderVis(VisBase):
         LIMIT 300
     """
 
+    @T.default("output")
+    def _make_default_output(self):
+        return W.Output()
+
+    @T.default("edge_tooltips")
+    def _make_edge_tooltip(self):
+        return [
+            ("Source", "@start"),
+            ("Target", "@end"),
+        ]
+
+    @T.default("node_tooltips")
+    def _make_node_tooltip(self):
+        return [
+            ("ID", "@index"),
+        ]
+
+    @T.default("tooltip")
+    def _make_tooltip(self):
+        return "nodes"
+
+    @T.default("tooltip_dict")
+    def _make_tooltip_dict(self):
+        return {
+            "nodes": HoverTool(tooltips=self.node_tooltips),
+            "edges": HoverTool(tooltips=self.edge_tooltips),
+        }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        tooltip = kwargs.get("tooltip", "nodes")
-        tooltip_dict = {"nodes": self.node_hover, "edges": self.edge_hover}
+        self.tooltip = kwargs.get("tooltip", "nodes")
         output_graph = self.strip_and_produce_rdf_graph(self.graph)
-        p = output_graph.options(
-            frame_width=1000,
-            frame_height=1000,
-            xaxis=None,
-            yaxis=None,
-            tools=[tooltip_dict[tooltip]],
-            inspection_policy=tooltip,
-            node_color=self.node_color,
-            edge_color=self.edge_color,
-        )
+        p = self.set_options(output_graph)
         self.display_datashader_vis(p)
         self.children = [
             W.HTML("<h1>Visualization With Datashader"),
@@ -77,3 +84,22 @@ class DatashaderVis(VisBase):
         original = hv.Graph.from_networkx(new_netx, self.nx_layout,)
         output_graph = bundle_graph(original)
         return output_graph
+
+    def set_options(self, output_graph):
+        return output_graph.options(
+            frame_width=1000,
+            frame_height=1000,
+            xaxis=None,
+            yaxis=None,
+            tools=[self.tooltip_dict[self.tooltip]],
+            inspection_policy=self.tooltip,
+            node_color=self.node_color,
+            edge_color=self.edge_color,
+        )
+
+    @T.observe("nx_layout")
+    def changed_layout(self, change):
+        self.output.clear_output()
+        output_graph = self.strip_and_produce_rdf_graph(self.graph)
+        p = self.set_options(output_graph)
+        self.display_datashader_vis(p)

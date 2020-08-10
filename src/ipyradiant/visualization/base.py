@@ -5,11 +5,11 @@ import networkx as nx
 from rdflib import Graph
 
 LAYOUTS = {
-    "circular_layout": nx.layout.circular_layout,
-    "random_layout": nx.layout.random_layout,
-    "shell_layout": nx.layout.shell_layout,
-    "spring_layout": nx.layout.spring_layout,
-    "spiral_layout": nx.layout.spiral_layout,
+    "circular_layout": nx.circular_layout,
+    "random_layout": nx.random_layout,
+    "shell_layout": nx.shell_layout,
+    "spring_layout": nx.spring_layout,
+    "spiral_layout": nx.spiral_layout,
 }
 
 
@@ -35,12 +35,21 @@ class VisBase(W.VBox):
     hovered_nodes = T.List()
     hovered_edges = T.List()
     nx_layout = T.Any()
+    layout_choice = T.Unicode()
 
     global LAYOUTS
+
+    @T.observe("layout_choice")
+    def _update_layout(self, change):
+        self.nx_layout = LAYOUTS[self.layout_choice]
 
     @T.default("edge_color")
     def _make_default_edge_color(self):
         return "pink"
+
+    @T.default("nx_layout")
+    def _make_default_layout(self):
+        return nx.circular_layout
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
