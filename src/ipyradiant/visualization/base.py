@@ -4,6 +4,24 @@ import ipywidgets as W
 import networkx as nx
 from rdflib import Graph
 
+LAYOUTS = {
+    "circular_layout": nx.layout.circular_layout,
+    "random_layout": nx.layout.random_layout,
+    "shell_layout": nx.layout.shell_layout,
+    "spring_layout": nx.layout.spring_layout,
+    "spiral_layout": nx.layout.spiral_layout,
+}
+
+
+class VisSelector(W.Dropdown):
+    global LAYOUTS
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.options = LAYOUTS.keys()
+        self.disabled = False
+
+
 # visbase layout widgets
 # make visbase layouts global, dropdown/select
 # better for user experience
