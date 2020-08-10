@@ -4,7 +4,9 @@ import ipywidgets as W
 import networkx as nx
 from rdflib import Graph
 
-
+# visbase layout widgets
+# make visbase layouts global, dropdown/select
+# better for user experience
 class VisBase(W.VBox):
     graph = T.Instance(Graph, allow_none=True)
     _vis = T.Instance(W.Box, allow_none=True)
