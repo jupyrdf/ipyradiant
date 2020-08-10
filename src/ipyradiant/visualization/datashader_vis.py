@@ -1,16 +1,12 @@
-import networkx as nx
 import traitlets as T
-import ipywidgets as W
-from ipyradiant import LoadWidget
-from rdflib import BNode, Graph, Literal, URIRef
-from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
+
 import holoviews as hv
-from holoviews.operation.datashader import datashade, bundle_graph, dynspread
-import ipycytoscape
+import ipywidgets as W
 from bokeh.models import HoverTool
-import bokeh.models.widgets as bk
-import jupyter_bokeh as jbk
-from bokeh.plotting import figure
+from holoviews.operation.datashader import bundle_graph
+from rdflib import Graph
+from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
+
 from .base import VisBase
 
 hv.extension("bokeh")
@@ -78,6 +74,6 @@ class DatashaderVis(VisBase):
             uri_graph.add(row)
 
         new_netx = rdflib_to_networkx_graph(uri_graph)
-        original = hv.Graph.from_networkx(new_netx, self.layout,)
+        original = hv.Graph.from_networkx(new_netx, self.nx_layout,)
         output_graph = bundle_graph(original)
         return output_graph
