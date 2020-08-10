@@ -7,7 +7,7 @@ the Jupyter notebook.
 
 [binder]: https://mybinder.org/badge_logo.svg
 [binder-link]:
-  https://mybinder.org/v2/gh/jupyrdf/ipyradiant/master?urlpath=lab/tree/examples/ipyradiant.ipynb
+  https://mybinder.org/v2/gh/jupyrdf/ipyradiant/master?urlpath=lab/tree/examples/Tab_App_Example.ipynb
 [status]:
   https://github.com/jupyrdf/ipyradiant/workflows/.github/workflows/ciV0.yml/badge.svg
 [status-link]: https://github.com/jupyrdf/ipyradiant/actions

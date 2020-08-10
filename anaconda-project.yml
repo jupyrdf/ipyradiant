@@ -78,6 +78,7 @@ env_specs:
       - nodejs >=12,<13.0.0a0
       - pyflakes
       - python >=3.7,<3.8.0a0
+      - yarn >=1,<2
 
   ipyradiant:
     description: minimal binder environment (from environment.yml)
@@ -87,6 +88,8 @@ env_specs:
     packages:
       - bqplot
       - datashader
+      - hvplot
+      - importnb
       - ipycytoscape
       - ipywidgets
       - jupyter_bokeh
@@ -97,7 +100,8 @@ env_specs:
       - pip
       - pyld
       - pyshacl
-      - python >=3.6
+      - python >=3.6 # underspecified so binder does whatever's clever
       - qgrid
       - rdflib-jsonld
       - requests_cache
+      - scikit-image
