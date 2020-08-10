@@ -45,6 +45,7 @@ doit lab
 ```
 
 - open the browser with the URL shown
+- open `index.ipynb` for a landing page with links to examples
 
 ## Get Ready for a Release
 
