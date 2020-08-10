@@ -1,4 +1,5 @@
 import traitlets as T
+
 import holoviews as hv
 import ipywidgets as W
 from bokeh.models import HoverTool
