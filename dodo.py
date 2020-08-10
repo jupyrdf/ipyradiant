@@ -233,7 +233,6 @@ def task_test():
                 "--ExecutePreprocessor.timeout=1200",
                 nb,
             ]
-            print(args)
             return CmdAction(args, env=env, shell=False)
 
         return dict(
