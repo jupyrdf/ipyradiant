@@ -34,14 +34,9 @@ class VisBase(W.VBox):
     selected_edges = T.List()
     hovered_nodes = T.List()
     hovered_edges = T.List()
+    nx_layout = T.Any()
 
-    layouts = {
-        "circular_layout": nx.layout.circular_layout,
-        "random_layout": nx.layout.random_layout,
-        "shell_layout": nx.layout.shell_layout,
-        "spring_layout": nx.layout.spring_layout,
-        "spiral_layout": nx.layout.spiral_layout,
-    }
+    global LAYOUTS
 
     @T.default("edge_color")
     def _make_default_edge_color(self):
@@ -52,4 +47,4 @@ class VisBase(W.VBox):
         self.edge_color = kwargs.get("edge_color", "pink")
         self.node_color = kwargs.get("node_color", "grey")
         self.graph = kwargs.get("graph", None)
-        self.nx_layout = self.layouts[kwargs.get("nx_layout", "circular_layout")]
+        self.nx_layout = LAYOUTS[kwargs.get("nx_layout", "circular_layout")]
