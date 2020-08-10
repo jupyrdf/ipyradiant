@@ -1,5 +1,6 @@
 @bokeh/jupyter_bokeh
 @jupyter-widgets/jupyterlab-manager
+@pyviz/jupyterlab_pyviz
 bqplot
 jupyter-cytoscape
 qgrid2

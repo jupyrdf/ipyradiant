@@ -27,9 +27,10 @@ requirements:
     - ipycytoscape >=1.0.3
     - ipywidgets
     - pandas
+    - python >=3.6
     - qgrid
     - rdflib
-    - python >=3.6
+    - rdflib-jsonld
 
 test:
   requires:
