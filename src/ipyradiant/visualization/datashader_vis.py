@@ -4,6 +4,7 @@ import holoviews as hv
 import ipywidgets as W
 from bokeh.models import HoverTool
 from holoviews.operation.datashader import bundle_graph
+from IPython.display import display
 from rdflib import Graph
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
 
