@@ -1,5 +1,5 @@
 import traitlets as T
-
+from holoviews import streams
 import holoviews as hv
 import IPython
 import ipywidgets as W
@@ -94,14 +94,37 @@ class DatashaderVis(NXBase):
             frame_height=1000,
             xaxis=None,
             yaxis=None,
-            tools=[self.tooltip_dict[self.tooltip]],
+            tools=[self.tooltip_dict[self.tooltip], "tap", "box_select"],
             inspection_policy=self.tooltip,
             node_color=self.node_color,
             edge_color=self.edge_color,
         )
 
+    def tap_stream_subscriber(self, x, y):
+        with self.output:
+            print("im here!")
+        tol = 0.01
+        values = self.nodes_data[self.nodes_data.x.between(x - tol, x + tol, True)][
+            self.nodes_data.y.between(y - t, y + t, True)
+        ]
+        self.selected_nodes = tuple(list(values["index"])[0])
+
     @T.observe("_nx_layout", "sparql", "graph", "graph_layout_params")
     def changed_layout(self, change):
-        output_graph = self.strip_and_produce_rdf_graph(self.graph)
-        p = self.set_options(output_graph)
-        self.display_datashader_vis(p)
+        self.output_graph = self.strip_and_produce_rdf_graph(self.graph)
+        self.nodes_data = self.output_graph.nodes.data
+        self.selection_stream = streams.Tap(source=self.output_graph)
+        self.selection_stream.add_subscriber(self.tap_stream_subscriber)
+
+        self.p = self.output_graph.options(
+            frame_width=1000,
+            frame_height=1000,
+            xaxis=None,
+            yaxis=None,
+            tools=[self.tooltip_dict[self.tooltip], "tap", "box_select"],
+            inspection_policy=self.tooltip,
+            node_color=self.node_color,
+            edge_color=self.edge_color,
+        )
+        with self.output:
+            IPython.display.display(self.p)
