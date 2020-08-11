@@ -133,26 +133,6 @@ def preflight_lab():
         print(f"Something is not right with the lab build: {raw}")
         return 1
 
-    print("Checking drawio static status...", flush=True)
-    missing_drawio = []
-    ignore_list = ["LICENSE.txt", ".npmignore"]
-    for fname in json.loads(P.DRAWIO_PKG_JSON.read_text())["files"]:
-        if "*" in fname:
-            continue
-
-        path = P.DRAWIO_LAB_STATIC / fname
-
-        if path.name in ignore_list:
-            continue
-
-        if not path.exists():
-            missing_drawio += [path]
-
-    if missing_drawio:
-        pprint(sorted(map(str, missing_drawio)))
-        print("\nMissing drawio files, might need to `jlpm cache clean`\n")
-        return 1
-
     print("Lab looks ready to start!")
 
     return 0
