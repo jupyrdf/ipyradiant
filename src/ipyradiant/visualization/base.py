@@ -2,58 +2,56 @@ import traitlets as T
 
 import ipywidgets as W
 import networkx as nx
-from rdflib import Graph
-
-LAYOUTS = {
-    "circular_layout": nx.circular_layout,
-    "random_layout": nx.random_layout,
-    "shell_layout": nx.shell_layout,
-    "spring_layout": nx.spring_layout,
-    "spiral_layout": nx.spiral_layout,
-}
+from rdflib import Graph, URIRef
+import types
 
 
-class VisSelector(W.Dropdown):
-    global LAYOUTS
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.options = LAYOUTS.keys()
-        self.disabled = False
-
-
-# visbase layout widgets
-# make visbase layouts global, dropdown/select
-# better for user experience
 class VisBase(W.VBox):
     graph = T.Instance(Graph, allow_none=True)
     _vis = T.Instance(W.Box, allow_none=True)
-    edge_color = T.Unicode()
-    node_color = T.Unicode()
-    selected_nodes = T.List()
+    edge_color = T.Unicode(default_value="pink")
+    node_color = T.Unicode(default_value="grey")
+    selected_nodes = W.trait_types.TypedTuple(trait=T.Instance(URIRef))
     selected_edges = T.List()
-    hovered_nodes = T.List()
+    hovered_nodes = W.trait_types.TypedTuple(trait=T.Instance(URIRef))
     hovered_edges = T.List()
-    nx_layout = T.Any()
-    layout_choice = T.Unicode()
+    graph_layout = T.Unicode()
+    graph_layout_options = W.trait_types.TypedTuple(trait=T.Unicode())
+    graph_layout_params = T.Dict()
 
-    global LAYOUTS
+    @T.default("graph_layout_params")
+    def make_params(self):
+        return {}
 
-    @T.observe("layout_choice")
-    def _update_layout(self, change):
-        self.nx_layout = LAYOUTS[self.layout_choice]
 
-    @T.default("edge_color")
-    def _make_default_edge_color(self):
-        return "pink"
+class NXBase(VisBase):
+    _layouts = {
+        "Kamada Kawai": nx.kamada_kawai_layout,
+        "Circular": nx.circular_layout,
+        "Planar": nx.planar_layout,
+        "Random": nx.random_layout,
+        "Shell": nx.shell_layout,
+        "Spectral": nx.spectral_layout,
+        "Spiral": nx.spiral_layout,
+        "Spring": nx.spring_layout,
+        # "Bipartite": nx.bipartite_layout,
+        # "Rescale": nx.rescale_layout,
+    }
 
-    @T.default("nx_layout")
+    _nx_layout = T.Instance(types.FunctionType)
+
+    @T.default("graph_layout_options")
+    def _make_default_options(self):
+        return tuple(self._layouts.keys())
+
+    @T.default("graph_layout")
     def _make_default_layout(self):
-        return nx.circular_layout
+        return self.graph_layout_options[0]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.edge_color = kwargs.get("edge_color", "pink")
-        self.node_color = kwargs.get("node_color", "grey")
-        self.graph = kwargs.get("graph", None)
-        self.nx_layout = LAYOUTS[kwargs.get("nx_layout", "circular_layout")]
+    @T.observe("graph_layout")
+    def _update_graph_layout(self, change):
+        self._nx_layout = self._layouts[self.graph_layout]
+
+    @T.default("_nx_layout")
+    def set_default_nx_layout(self):
+        return self._layouts[self.graph_layout]

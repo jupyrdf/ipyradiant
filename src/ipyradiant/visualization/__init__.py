@@ -1,6 +1,13 @@
 """vis widgets
 """
-__all__ = ["CytoscapeVisualization", "DatashaderVis", "VisBase", "VisSelector"]
-from .base import VisBase, VisSelector
+__all__ = [
+    "CytoscapeVisualization",
+    "DatashaderVis",
+    "VisBase",
+    "VisSelector",
+    "NXBase",
+]
+from .base import VisBase, NXBase
 from .cytoscape import CytoscapeVisualization
 from .datashader_vis import DatashaderVis
+from .tools import VisSelector

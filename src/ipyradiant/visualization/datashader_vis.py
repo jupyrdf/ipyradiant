@@ -8,14 +8,12 @@ from holoviews.operation.datashader import bundle_graph
 from rdflib import Graph
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
 
-from .base import VisBase
-
-hv.extension("bokeh")
+from .base import NXBase
 
 
-class DatashaderVis(VisBase):
+class DatashaderVis(NXBase):
     output = T.Instance(W.Output)
-    tooltip = T.Unicode()
+    tooltip = T.Unicode(default_value="nodes")
     tooltip_dict = T.Dict()
     node_tooltips = T.List()
     edge_tooltips = T.List()
@@ -23,7 +21,11 @@ class DatashaderVis(VisBase):
 
     @T.default("output")
     def _make_default_output(self):
-        return W.Output()
+        output = W.Output()
+        with output:
+            hv.extension("bokeh")
+        output.clear_output()
+        return output
 
     @T.default("edge_tooltips")
     def _make_edge_tooltip(self):
@@ -65,16 +67,10 @@ class DatashaderVis(VisBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.tooltip = kwargs.get("tooltip", "nodes")
-        output_graph = self.strip_and_produce_rdf_graph(self.graph)
-        p = self.set_options(output_graph)
-        self.display_datashader_vis(p)
-        self.children = [
-            W.HTML("<h1>Visualization With Datashader"),
-            self.output,
-        ]
+        self.children = [self.output]
 
     def display_datashader_vis(self, p):
+        self.output.clear_output()
         with self.output:
             IPython.display.display(p)
 
@@ -86,7 +82,9 @@ class DatashaderVis(VisBase):
             uri_graph.add(row)
 
         new_netx = rdflib_to_networkx_graph(uri_graph)
-        original = hv.Graph.from_networkx(new_netx, self.nx_layout,)
+        original = hv.Graph.from_networkx(
+            new_netx, self._nx_layout, **self.graph_layout_params
+        )
         output_graph = bundle_graph(original)
         return output_graph
 
@@ -102,9 +100,8 @@ class DatashaderVis(VisBase):
             edge_color=self.edge_color,
         )
 
-    @T.observe("nx_layout", "sparql")
+    @T.observe("_nx_layout", "sparql", "graph", "graph_layout_params")
     def changed_layout(self, change):
-        self.output.clear_output()
         output_graph = self.strip_and_produce_rdf_graph(self.graph)
         p = self.set_options(output_graph)
         self.display_datashader_vis(p)
