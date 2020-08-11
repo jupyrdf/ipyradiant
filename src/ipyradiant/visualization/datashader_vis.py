@@ -1,10 +1,10 @@
 import traitlets as T
 
 import holoviews as hv
+import IPython
 import ipywidgets as W
 from bokeh.models import HoverTool
 from holoviews.operation.datashader import bundle_graph
-from IPython import display
 from rdflib import Graph
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
 
@@ -76,7 +76,7 @@ class DatashaderVis(VisBase):
 
     def display_datashader_vis(self, p):
         with self.output:
-            display(p)
+            IPython.display.display(p)
 
     def strip_and_produce_rdf_graph(self, rdf_graph: Graph):
         sparql = self.sparql
