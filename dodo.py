@@ -243,7 +243,7 @@ def task_test():
                 P.OK_ENV["dev"],
                 P.OK_PIP_INSTALL_E,
                 P.OK_PREFLIGHT_KERNEL,
-                *P.ALL_PY_SRC
+                *P.ALL_PY_SRC,
             ],
             actions=[_test()],
             targets=[P.DIST_NBHTML / nb.name.replace(".ipynb", ".html")],
