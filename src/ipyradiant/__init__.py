@@ -7,9 +7,8 @@ from .query import QueryWidget
 from .visualization import (
     CytoscapeVisualization,
     DatashaderVis,
-    VisBase,
-    VisSelector,
     NXBase,
+    VisBase,
     VisSelector,
 )
 

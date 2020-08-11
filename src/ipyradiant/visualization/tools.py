@@ -1,5 +1,7 @@
-import ipywidgets as W
 import traitlets as T
+
+import ipywidgets as W
+
 from .base import VisBase
 
 

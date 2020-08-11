@@ -7,7 +7,7 @@ __all__ = [
     "VisSelector",
     "NXBase",
 ]
-from .base import VisBase, NXBase
+from .base import NXBase, VisBase
 from .cytoscape import CytoscapeVisualization
 from .datashader_vis import DatashaderVis
 from .tools import VisSelector

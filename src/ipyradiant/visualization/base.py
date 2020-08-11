@@ -1,9 +1,10 @@
+import types
+
 import traitlets as T
 
 import ipywidgets as W
 import networkx as nx
 from rdflib import Graph, URIRef
-import types
 
 
 class VisBase(W.VBox):
