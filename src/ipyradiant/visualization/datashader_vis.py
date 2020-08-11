@@ -4,6 +4,7 @@ import holoviews as hv
 import ipywidgets as W
 from bokeh.models import HoverTool
 from holoviews.operation.datashader import bundle_graph
+from IPython import display
 from rdflib import Graph
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
 
@@ -18,18 +19,7 @@ class DatashaderVis(VisBase):
     tooltip_dict = T.Dict()
     node_tooltips = T.List()
     edge_tooltips = T.List()
-
-    sparql = """
-        CONSTRUCT {
-            ?s ?p ?o .
-        }
-        WHERE {
-            ?s ?p ?o .
-            FILTER (!isLiteral(?o))
-            FILTER (!isLiteral(?s))
-        }
-        LIMIT 300
-    """
+    sparql = T.Unicode()
 
     @T.default("output")
     def _make_default_output(self):
@@ -58,6 +48,20 @@ class DatashaderVis(VisBase):
             "nodes": HoverTool(tooltips=self.node_tooltips),
             "edges": HoverTool(tooltips=self.edge_tooltips),
         }
+
+    @T.default("sparql")
+    def _make_sparql(self):
+        return """
+            CONSTRUCT {
+                ?s ?p ?o .
+            }
+            WHERE {
+                ?s ?p ?o .
+                FILTER (!isLiteral(?o))
+                FILTER (!isLiteral(?s))
+            }
+            LIMIT 300
+        """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -98,7 +102,7 @@ class DatashaderVis(VisBase):
             edge_color=self.edge_color,
         )
 
-    @T.observe("nx_layout")
+    @T.observe("nx_layout", "sparql")
     def changed_layout(self, change):
         self.output.clear_output()
         output_graph = self.strip_and_produce_rdf_graph(self.graph)
