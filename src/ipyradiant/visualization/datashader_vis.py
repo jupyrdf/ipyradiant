@@ -1,5 +1,6 @@
 import traitlets as T
-from holoviews import streams
+
+# from holoviews import streams
 import holoviews as hv
 import IPython
 import ipywidgets as W
@@ -105,7 +106,7 @@ class DatashaderVis(NXBase):
             print("im here!")
         tol = 0.01
         values = self.nodes_data[self.nodes_data.x.between(x - tol, x + tol, True)][
-            self.nodes_data.y.between(y - t, y + t, True)
+            self.nodes_data.y.between(y - tol, y + tol, True)
         ]
         self.selected_nodes = tuple(list(values["index"])[0])
 
