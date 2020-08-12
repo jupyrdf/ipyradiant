@@ -1,9 +1,10 @@
 import traitlets as T
-from holoviews import streams
+
 import holoviews as hv
 import IPython
 import ipywidgets as W
 from bokeh.models import HoverTool
+from holoviews import streams
 from holoviews.operation.datashader import bundle_graph
 from rdflib import Graph
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
