@@ -1,10 +1,9 @@
-import types
-
 import traitlets as T
 
 import ipywidgets as W
 import networkx as nx
 from rdflib import Graph, URIRef
+import types
 
 
 class VisBase(W.VBox):
@@ -12,7 +11,8 @@ class VisBase(W.VBox):
     _vis = T.Instance(W.Box, allow_none=True)
     edge_color = T.Unicode(default_value="pink")
     node_color = T.Unicode(default_value="grey")
-    selected_nodes = W.trait_types.TypedTuple(trait=T.Instance(URIRef))
+    # selected_nodes = W.trait_types.TypedTuple(trait = T.Instance(URIRef))
+    selected_nodes = T.List()
     selected_edges = T.List()
     hovered_nodes = W.trait_types.TypedTuple(trait=T.Instance(URIRef))
     hovered_edges = T.List()

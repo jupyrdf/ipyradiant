@@ -1,6 +1,5 @@
 import traitlets as T
-
-# from holoviews import streams
+from holoviews import streams
 import holoviews as hv
 import IPython
 import ipywidgets as W
@@ -102,16 +101,27 @@ class DatashaderVis(NXBase):
         )
 
     def tap_stream_subscriber(self, x, y):
-        with self.output:
-            print("im here!")
-        tol = 0.01
-        values = self.nodes_data[self.nodes_data.x.between(x - tol, x + tol, True)][
-            self.nodes_data.y.between(y - tol, y + tol, True)
+        nodes_data = self.output_graph.nodes.data
+        t = 0.01
+        values = nodes_data[nodes_data.x.between(x - t, x + t, True)][
+            nodes_data.y.between(y - t, y + t, True)
         ]
-        self.selected_nodes = tuple(list(values["index"])[0])
+        self.selected_nodes = list(values["index"])
+
+    def box_stream_subscriber(self, **kwargs):
+        bounds = kwargs["bounds"]
+        nodes_data = self.output_graph.nodes.data
+        values = nodes_data[nodes_data.x.between(bounds[0], bounds[2], True)][
+            nodes_data.y.between(bounds[1], bounds[3], True)
+        ]
+        self.selected_nodes = list(values["index"])
 
     @T.observe("_nx_layout", "sparql", "graph", "graph_layout_params")
     def changed_layout(self, change):
-        output_graph = self.strip_and_produce_rdf_graph(self.graph)
-        p = self.set_options(output_graph)
-        self.display_datashader_vis(p)
+        self.output_graph = self.strip_and_produce_rdf_graph(self.graph)
+        self.tap_selection_stream = streams.Tap(source=self.output_graph)
+        self.tap_selection_stream.add_subscriber(self.tap_stream_subscriber)
+        self.box_selection_stream = streams.BoundsXY(source=self.output_graph)
+        self.box_selection_stream.add_subscriber(self.box_stream_subscriber)
+        self.final_graph = self.set_options(self.output_graph)
+        self.display_datashader_vis(self.final_graph)
