@@ -111,20 +111,6 @@ class DatashaderVis(NXBase):
 
     @T.observe("_nx_layout", "sparql", "graph", "graph_layout_params")
     def changed_layout(self, change):
-        self.output_graph = self.strip_and_produce_rdf_graph(self.graph)
-        self.nodes_data = self.output_graph.nodes.data
-        self.selection_stream = streams.Tap(source=self.output_graph)
-        self.selection_stream.add_subscriber(self.tap_stream_subscriber)
-
-        self.p = self.output_graph.options(
-            frame_width=1000,
-            frame_height=1000,
-            xaxis=None,
-            yaxis=None,
-            tools=[self.tooltip_dict[self.tooltip], "tap", "box_select"],
-            inspection_policy=self.tooltip,
-            node_color=self.node_color,
-            edge_color=self.edge_color,
-        )
-        with self.output:
-            IPython.display.display(self.p)
+        output_graph = self.strip_and_produce_rdf_graph(self.graph)
+        p = self.set_options(output_graph)
+        self.display_datashader_vis(p)
