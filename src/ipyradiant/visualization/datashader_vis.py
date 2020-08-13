@@ -1,10 +1,9 @@
 import traitlets as T
-
+from holoviews import streams
 import holoviews as hv
 import IPython
 import ipywidgets as W
 from bokeh.models import HoverTool
-from holoviews import streams
 from holoviews.operation.datashader import bundle_graph
 from rdflib import Graph
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
@@ -119,10 +118,17 @@ class DatashaderVis(NXBase):
 
     @T.observe("_nx_layout", "sparql", "graph", "graph_layout_params")
     def changed_layout(self, change):
-        self.output_graph = self.strip_and_produce_rdf_graph(self.graph)
-        self.tap_selection_stream = streams.Tap(source=self.output_graph)
-        self.tap_selection_stream.add_subscriber(self.tap_stream_subscriber)
-        self.box_selection_stream = streams.BoundsXY(source=self.output_graph)
-        self.box_selection_stream.add_subscriber(self.box_stream_subscriber)
-        self.final_graph = self.set_options(self.output_graph)
-        self.display_datashader_vis(self.final_graph)
+        if self.graph == None:
+            self.output_graph = None
+            self.display_datashader_vis(self.output_graph)
+        elif len(self.graph) == 0:
+            self.output_graph = None
+            self.display_datashader_vis("Cannot display blank graph.")
+        else:
+            self.output_graph = self.strip_and_produce_rdf_graph(self.graph)
+            self.tap_selection_stream = streams.Tap(source=self.output_graph)
+            self.tap_selection_stream.add_subscriber(self.tap_stream_subscriber)
+            self.box_selection_stream = streams.BoundsXY(source=self.output_graph)
+            self.box_selection_stream.add_subscriber(self.box_stream_subscriber)
+            self.final_graph = self.set_options(self.output_graph)
+            self.display_datashader_vis(self.final_graph)
