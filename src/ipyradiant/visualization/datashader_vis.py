@@ -118,7 +118,7 @@ class DatashaderVis(NXBase):
 
     @T.observe("_nx_layout", "sparql", "graph", "graph_layout_params")
     def changed_layout(self, change):
-        if self.graph == None:
+        if self.graph is None:
             self.output_graph = None
             self.display_datashader_vis(self.output_graph)
         elif len(self.graph) == 0:
