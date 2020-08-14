@@ -1,12 +1,9 @@
 from pathlib import Path
-
 import traitlets as T
-
 import ipywidgets as W
 from ipycytoscape import CytoscapeWidget
 from rdflib import Graph, Literal, URIRef
 from rdflib.namespace import RDF
-
 from .base import VisualizerBase
 
 
@@ -76,11 +73,10 @@ class CytoscapeVisualizer(VisualizerBase):
         self.children = [
             W.HTML("<h1>Cytoscape Visualization</h1>"),
             self.cyto_widget,
-            # self.click_output_box
         ]
 
     def log_node_clicks(self, node):
-        self.selected_nodes.append(node["data"])
+        self.selected_nodes = tuple([URIRef(node["data"]["id"])])
         with self.click_output:
             print(f"node clicked: {node['data']}")
             print("-------------------------------")
