@@ -7,10 +7,18 @@ from ipycytoscape import CytoscapeWidget
 from rdflib import Graph, Literal, URIRef
 from rdflib.namespace import RDF
 
-from .base import VisBase
+from .base import VisualizerBase
 
 
-class CytoscapeVisualization(VisBase):
+class CytoscapeVisualizer(VisualizerBase):
+    """
+    A visualization class for visualizing an rdflib.graph.Graph object via ipycytoscape.
+
+    :param graph: an rdflib.graph.Graph object
+    :param show_outputs: a boolean, decides whether or not to show feedback from clicks on the graph.
+    :param cyto_widget: the actual ipycytoscape visualization.
+    """
+
     cyto_widget = T.Instance(CytoscapeWidget, allow_none=True)
     nodes = T.List()
     click_output = T.Instance(W.Output)
@@ -96,6 +104,11 @@ class CytoscapeVisualization(VisBase):
         self.cyto_widget.graph.add_graph_from_json(new_json, directed=True)
 
     def build_cytoscape_json(self, graph: Graph):
+        """
+        A function to build the specific json format that
+        ipycytoscape reads. Takes in an rdflib.graph.Graph object as
+        a parameter.
+        """
         # collect uris & edges
         element_set = set()
         edges = []

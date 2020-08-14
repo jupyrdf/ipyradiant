@@ -2,11 +2,11 @@ import traitlets as T
 
 import ipywidgets as W
 
-from .base import VisBase
+from .base import VisualizerBase
 
 
-class VisSelector(W.Dropdown):
-    vis = T.Instance(VisBase)
+class LayoutSelector(W.Dropdown):
+    vis = T.Instance(VisualizerBase)
 
     @T.observe("vis")
     def _update_options(self, change):

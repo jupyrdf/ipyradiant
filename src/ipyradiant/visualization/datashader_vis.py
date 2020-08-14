@@ -6,13 +6,21 @@ import ipywidgets as W
 from bokeh.models import HoverTool
 from holoviews import streams
 from holoviews.operation.datashader import bundle_graph
-from rdflib import Graph
+from rdflib import Graph, URIRef
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
 
 from .base import NXBase
 
 
-class DatashaderVis(NXBase):
+class DatashaderVisualizer(NXBase):
+    """
+    A class for visualization an RDF graph with datashader
+
+    :param graph: an rdflib.graph.Graph object to visualize.
+    :param tooltip: takes either 'nodes' or 'edges', and sets the hover tool.
+    :param sparql: a query you'd like to perform on the rdflib.graph.Grab object.
+    """
+
     output = T.Instance(W.Output)
     tooltip = T.Unicode(default_value="nodes")
     tooltip_dict = T.Dict()
@@ -76,6 +84,13 @@ class DatashaderVis(NXBase):
             IPython.display.display(p)
 
     def strip_and_produce_rdf_graph(self, rdf_graph: Graph):
+        """
+        A function that takes in an rdflib.graph.Graph object
+        and transforms it into a datashader holoviews graph.
+        Also performs the sparql query on the graph that can be set
+        via the 'sparql' parameter
+        """
+
         sparql = self.sparql
         qres = rdf_graph.query(sparql)
         uri_graph = Graph()
@@ -107,7 +122,7 @@ class DatashaderVis(NXBase):
         values = nodes_data[nodes_data.x.between(x - t, x + t, True)][
             nodes_data.y.between(y - t, y + t, True)
         ]
-        self.selected_nodes = list(values["index"])
+        self.selected_nodes = tuple([URIRef(_) for _ in list(values["index"])])
 
     def box_stream_subscriber(self, **kwargs):
         bounds = kwargs["bounds"]
@@ -115,7 +130,7 @@ class DatashaderVis(NXBase):
         values = nodes_data[nodes_data.x.between(bounds[0], bounds[2], True)][
             nodes_data.y.between(bounds[1], bounds[3], True)
         ]
-        self.selected_nodes = list(values["index"])
+        self.selected_nodes = tuple([URIRef(_) for _ in list(values["index"])])
 
     @T.observe("_nx_layout", "sparql", "graph", "graph_layout_params")
     def changed_layout(self, change):
