@@ -9,16 +9,6 @@ python -m pip install -e . --no-cache-dir --no-deps
 
 # lab
 jupyter labextension install $(cat labextensions.txt) --no-build --debug
-
-pushd vendor/jupyterlab-drawio
-    git submodule update --init
-    jlpm --ignore-optional
-    jlpm build
-    jupyter labextension install --no-build --debug $(npm pack .)
-    git clean -dxf
-    rm -rf drawio drawio-export
-popd
-
 jupyter lab build --debug --dev-build=False --minimize=True
 
 # cleanup

@@ -7,7 +7,6 @@
     See `doit list` for more options.
 """
 import os
-import shutil
 import subprocess
 
 import _scripts.project as P
@@ -25,40 +24,11 @@ DOIT_CONFIG = {
 
 COMMIT = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8")
 
-if not P.SKIP_SUBMODULES:
-
-    def task_submodules():
-        """ ensure submodules are available
-        """
-        subs = (
-            subprocess.check_output(["git", "submodule"]).decode("utf-8").splitlines()
-        )
-
-        def _clean():
-            """ clean drawio, as it gets patched in-place
-            """
-            if any([x.startswith("-") for x in subs]) and P.DRAWIO.exists():
-                shutil.rmtree(P.DRAWIO)
-
-        return _ok(
-            dict(
-                uptodate=[config_changed({"subs": subs})],
-                actions=[
-                    _clean,
-                    ["git", "submodule", "update", "--init", "--recursive"],
-                ],
-            ),
-            P.OK_SUBMODULES,
-        )
-
 
 def task_preflight():
     """ ensure a sane development environment
     """
     file_dep = [P.PROJ_LOCK, P.SCRIPTS / "preflight.py"]
-
-    if not P.SKIP_SUBMODULES:
-        file_dep += [P.OK_SUBMODULES]
 
     yield _ok(
         dict(
@@ -160,29 +130,6 @@ def task_setup():
         actions=[[*P.APR_DEV, *P.JLPM_INSTALL]],
         targets=[P.YARN_INTEGRITY],
     )
-
-    if not P.SKIP_DRAWIO:
-
-        def _clean():
-            _call(["git", "clean", "-dxf"], cwd=str(P.DRAWIO))
-
-        yield dict(
-            name="drawio_setup",
-            file_dep=[P.DRAWIO_PKG_JSON, P.OK_ENV["dev"]],
-            actions=[
-                _clean,
-                ["git", "submodule", "update", "--init", "--recursive"],
-                [*P.APR_DEV, "drawio:setup"],
-            ],
-            targets=[P.DRAWIO_INTEGRITY],
-        )
-
-        yield dict(
-            name="drawio_build",
-            file_dep=[P.DRAWIO_INTEGRITY, P.DRAWIO_PKG_JSON],
-            actions=[[*P.APR_DEV, "drawio:build"]],
-            targets=[P.DRAWIO_TARBALL],
-        )
 
 
 def task_build():
@@ -332,9 +279,6 @@ def task_lab_build():
         if line and not line.startswith("#")
     ]
 
-    if not P.SKIP_DRAWIO:
-        exts += [P.DRAWIO_TARBALL]
-
     def _clean():
         _call([*P.APR_DEV, "jlpm", "cache", "clean"])
         _call([*P.APR_DEV, *P.LAB, "clean", "--all"])
@@ -345,9 +289,6 @@ def task_lab_build():
         return _call([*P.APR_DEV, "lab:build"]) == 0
 
     file_dep = [P.EXTENSIONS, P.OK_ENV["dev"]]
-
-    if not P.SKIP_DRAWIO:
-        file_dep += [P.DRAWIO_TARBALL]
 
     yield dict(
         name="extensions",

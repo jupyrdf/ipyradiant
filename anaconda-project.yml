@@ -16,21 +16,6 @@ commands:
     windows: *labBuild
     env_spec: dev
 
-  drawio:setup:
-    description: setup jupyterlab-drawio
-    unix: &drawioSetup >-
-      cd vendor/jupyterlab-drawio && git submodule update --init && jlpm
-      --ignore-optional
-    windows: *drawioSetup
-    env_spec: dev
-
-  drawio:build:
-    description: build the vendored jupyterlab-drawio with SVG, notebook support
-    unix: &drawioBuild >-
-      cd vendor/jupyterlab-drawio && jlpm build && npm pack .
-    windows: *drawioBuild
-    env_spec: dev
-
 env_specs:
   dev:
     platforms:
@@ -94,7 +79,7 @@ env_specs:
       - ipycytoscape
       - ipywidgets
       - jupyter_bokeh
-      - jupyterlab ==2.2.2
+      - jupyterlab ==2.2.4
       - networkx
       - nodejs >=12,<13.0.0a0
       - numpy
