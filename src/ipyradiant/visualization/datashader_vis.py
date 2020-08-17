@@ -9,7 +9,6 @@ from holoviews.operation.datashader import bundle_graph
 from rdflib import Graph, URIRef
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
 
-
 from .base import NXBase
 
 hv.extension("bokeh", logo=False)
