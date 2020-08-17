@@ -19,7 +19,7 @@ env_specs:
     locked: false
   dev:
     locked: true
-    env_spec_hash: b3af9e95194041f69b946c6e15b3657569b39031
+    env_spec_hash: 7ef0cbc2671ab797cbc70c36f9106c69d1838f72
     platforms:
       - linux-64
       - osx-64
@@ -71,7 +71,7 @@ env_specs:
         - jupyter_bokeh=2.0.3=py_0
         - jupyter_client=6.1.6=py_0
         - jupyter_core=4.6.3=py37hc8dfbb8_1
-        - jupyterlab=2.2.2=py_0
+        - jupyterlab=2.2.4=py_0
         - jupyterlab_server=1.2.0=py_0
         - keepalive=0.5=py_1
         - locket=0.2.0=py_2
@@ -91,7 +91,7 @@ env_specs:
         - parso=0.7.1=pyh9f0ad1d_0
         - partd=1.1.0=py_0
         - pickleshare=0.7.5=py37hc8dfbb8_1001
-        - pip=20.2.1=py_0
+        - pip=20.2.2=py_0
         - pluggy=0.13.1=py37hc8dfbb8_2
         - prometheus_client=0.8.0=pyh9f0ad1d_0
         - prompt-toolkit=3.0.6=py_0
