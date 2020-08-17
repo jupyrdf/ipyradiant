@@ -12,6 +12,7 @@ import subprocess
 import _scripts.project as P
 from doit.action import CmdAction
 from doit.tools import PythonInteractiveAction, config_changed
+from yaml import safe_load
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
 
@@ -23,6 +24,8 @@ DOIT_CONFIG = {
 }
 
 COMMIT = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8")
+
+PROJ = safe_load(P.PROJ.read_text(encoding="utf-8"))
 
 
 def task_preflight():
@@ -153,8 +156,7 @@ def task_build():
                 *P.CONDA_BUILD,
                 "--output-folder",
                 P.DIST_CONDA,
-                "-c",
-                "conda-forge",
+                *_channel_args(),
                 P.RECIPE,
             ]
         ],
@@ -190,6 +192,7 @@ def task_test():
                 P.OK_ENV["dev"],
                 P.OK_PIP_INSTALL_E,
                 P.OK_PREFLIGHT_KERNEL,
+                *P.ALL_PY_SRC,
             ],
             actions=[_test()],
             targets=[P.DIST_NBHTML / nb.name.replace(".ipynb", ".html")],
@@ -368,3 +371,7 @@ def _call(args, **kwargs):
     args = list(map(str, args))
     print("\n>>>", " ".join(args), "\n", flush=True)
     return subprocess.call(args, **kwargs)
+
+
+def _channel_args(env="ipyradiant"):
+    return sum([["-c", c] for c in PROJ["env_specs"][env]["channels"]], [])

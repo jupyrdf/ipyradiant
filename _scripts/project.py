@@ -37,6 +37,7 @@ BUILD = ROOT / "build"
 DIST = ROOT / "dist"
 RECIPE = ROOT / "conda.recipe"
 ENVS = ROOT / "envs"
+PROJ = ROOT / "anaconda-project.yml"
 PROJ_LOCK = ROOT / "anaconda-project-lock.yml"
 VENDOR = ROOT / "vendor"
 
