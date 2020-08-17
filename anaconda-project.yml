@@ -36,10 +36,11 @@ env_specs:
       - osx-64
       - win-64
     channels:
-      - conda-forge
-      - msys2
+      - https://conda.anaconda.org/conda-forge
+      - https://conda.anaconda.org/anaconda
+      - https://conda.anaconda.org/msys2
     packages:
-      - conda >=4.8.3,<4.9.0a0
+      - conda ==4.8.3
       - conda-build <3.19.0a0
       - conda-verify
       - pip
@@ -53,8 +54,9 @@ env_specs:
       - osx-64
       - win-64
     channels:
-      - conda-forge
-      - msys2
+      - https://conda.anaconda.org/conda-forge
+      - https://conda.anaconda.org/anaconda
+      - https://conda.anaconda.org/msys2
     packages:
       - black
       - flake8
@@ -68,8 +70,9 @@ env_specs:
   ipyradiant:
     description: minimal binder environment (from environment.yml)
     channels:
-      - conda-forge
-      - msys2
+      - https://conda.anaconda.org/conda-forge
+      - https://conda.anaconda.org/anaconda
+      - https://conda.anaconda.org/msys2
     packages:
       - bokeh
       - bqplot

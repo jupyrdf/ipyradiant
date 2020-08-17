@@ -19,7 +19,7 @@ env_specs:
     locked: false
   dev:
     locked: true
-    env_spec_hash: d813497267f714162e56019cfc1c373acd0d2e9d
+    env_spec_hash: 2a9f0bdd67a0431ea28eaebcaf46ce3340ec3b13
     platforms:
       - linux-64
       - osx-64
@@ -355,7 +355,7 @@ env_specs:
         - zlib=1.2.11=vc14h1cdd9ab_1
   qa:
     locked: true
-    env_spec_hash: f516ebe4a7aab81d20d9182b89f68a3afe99f061
+    env_spec_hash: 2f6e13fe6031179d92184600395e61f3cae6a947
     platforms:
       - linux-64
       - osx-64
@@ -379,15 +379,15 @@ env_specs:
         - mccabe=0.6.1=py_1
         - nbformat=5.0.7=py_0
         - pathspec=0.8.0=pyh9f0ad1d_0
-        - pip=20.2.1=py_0
+        - pip=20.2.2=py_0
         - pycodestyle=2.6.0=pyh9f0ad1d_0
         - pyflakes=2.2.0=pyh9f0ad1d_0
         - python_abi=3.7=1_cp37m
-        - setuptools=49.2.1=py37hc8dfbb8_0
+        - setuptools=49.6.0=py37hc8dfbb8_0
         - six=1.15.0=pyh9f0ad1d_0
         - toml=0.10.1=pyh9f0ad1d_0
         - traitlets=4.3.3=py37hc8dfbb8_1
-        - wheel=0.34.2=py_1
+        - wheel=0.35.1=pyh9f0ad1d_0
         - yarn=1.22.4=0
         - zipp=3.1.0=py_0
       linux-64:
@@ -396,9 +396,9 @@ env_specs:
         - icu=64.2=he1b5a44_1
         - ld_impl_linux-64=2.34=hc38a660_9
         - libffi=3.2.1=he1b5a44_1007
-        - libgcc-ng=9.3.0=h24d8f2e_14
-        - libgomp=9.3.0=h24d8f2e_14
-        - libstdcxx-ng=9.3.0=hdf63c60_14
+        - libgcc-ng=9.3.0=h24d8f2e_15
+        - libgomp=9.3.0=h24d8f2e_15
+        - libstdcxx-ng=9.3.0=hdf63c60_15
         - libuv=1.34.0=h516909a_0
         - ncurses=6.2=he1b5a44_1
         - nodejs=12.16.1=h67efad7_0
@@ -407,28 +407,28 @@ env_specs:
         - python=3.7.8=h6f2ec95_1_cpython
         - readline=8.0=he28a2e2_2
         - regex=2020.7.14=py37h8f50634_0
-        - sqlite=3.32.3=hcee41ef_1
+        - sqlite=3.32.3=h4cf870e_1
         - tk=8.6.10=hed695b0_0
         - typed-ast=1.4.1=py37h516909a_0
         - xz=5.2.5=h516909a_1
-        - zlib=1.2.11=h516909a_1006
+        - zlib=1.2.11=h516909a_1007
       osx-64:
         - icu=64.2=h6de7cb9_1
         - libcxx=10.0.1=h5f48129_0
-        - libffi=3.2.1=h4a8c4bd_1007
+        - libffi=3.2.1=hb1e8313_1007
         - libuv=1.34.0=h0b31af3_0
         - ncurses=6.2=hb1e8313_1
         - nodejs=12.16.1=h64044b7_0
-        - openssl=1.1.1g=h0b31af3_1
+        - openssl=1.1.1g=haf1e3a3_1
         - pyrsistent=0.16.0=py37h9bfed18_0
         - python=3.7.8=hc9dea61_1_cpython
         - readline=8.0=h0678c8f_2
         - regex=2020.7.14=py37h60d8a13_0
-        - sqlite=3.32.3=h93121df_1
-        - tk=8.6.10=hbbe82c9_0
+        - sqlite=3.32.3=h960bd1c_1
+        - tk=8.6.10=hb0a8c7a_0
         - typed-ast=1.4.1=py37h0b31af3_0
-        - xz=5.2.5=h0b31af3_1
-        - zlib=1.2.11=h0b31af3_1006
+        - xz=5.2.5=haf1e3a3_1
+        - zlib=1.2.11=1007
       win-64:
         - nodejs=12.16.1=0
         - openssl=1.1.1g=he774522_1
@@ -443,19 +443,19 @@ env_specs:
         - wincertstore=0.2=py37_1003
   build:
     locked: true
-    env_spec_hash: 17a40cd9a71e203697f2b6761ac9dbf31826c685
+    env_spec_hash: e00a6a8c3bb97b1a0eef7293a732a7c80e22e729
     platforms:
       - linux-64
       - osx-64
       - win-64
     packages:
       all:
-        - beautifulsoup4=4.9.1=py37hc8dfbb8_0
+        - beautifulsoup4=4.9.1=py_1
         - ca-certificates=2020.6.20=hecda079_0
         - certifi=2020.6.20=py37hc8dfbb8_0
         - chardet=3.0.4=py37hc8dfbb8_1006
         - click=7.1.2=pyh9f0ad1d_0
-        - conda-build=3.18.11=py37_0
+        - conda-build=3.18.12=py37hc8dfbb8_2
         - conda-verify=3.1.1=py37hc8dfbb8_1001
         - conda=4.8.3=py37hc8dfbb8_1
         - filelock=3.0.12=pyh9f0ad1d_0
@@ -463,7 +463,7 @@ env_specs:
         - glob2=0.7=py_0
         - idna=2.10=pyh9f0ad1d_0
         - jinja2=2.11.2=pyh9f0ad1d_0
-        - pip=20.2=py_0
+        - pip=20.2.2=py_0
         - pkginfo=1.5.0.1=py_0
         - pycparser=2.20=pyh9f0ad1d_2
         - pyopenssl=19.1.0=py_1
@@ -472,31 +472,31 @@ env_specs:
         - python_abi=3.7=1_cp37m
         - pytz=2020.1=pyh9f0ad1d_0
         - requests=2.24.0=pyh9f0ad1d_0
-        - setuptools=49.2.0=py37hc8dfbb8_0
+        - setuptools=49.6.0=py37hc8dfbb8_0
         - six=1.15.0=pyh9f0ad1d_0
         - soupsieve=2.0.1=py37hc8dfbb8_0
-        - tqdm=4.48.0=pyh9f0ad1d_0
+        - tqdm=4.48.2=pyh9f0ad1d_0
         - urllib3=1.25.10=py_0
-        - wheel=0.34.2=py_1
+        - wheel=0.35.1=pyh9f0ad1d_0
       linux-64:
         - _libgcc_mutex=0.1=conda_forge
-        - _openmp_mutex=4.5=0_gnu
+        - _openmp_mutex=4.5=1_gnu
         - brotlipy=0.7.0=py37h8f50634_1000
         - bzip2=1.0.8=h516909a_2
         - cffi=1.14.1=py37h2b28604_0
-        - conda-package-handling=1.6.0=py37h8f50634_2
+        - conda-package-handling=1.7.0=py37h8f50634_4
         - cryptography=3.0=py37hb09aad4_0
         - icu=67.1=he1b5a44_0
         - ld_impl_linux-64=2.34=hc38a660_9
         - libarchive=3.3.3=h3a8160c_1008
         - libffi=3.2.1=he1b5a44_1007
-        - libgcc-ng=9.3.0=h24d8f2e_11
-        - libgomp=9.3.0=h24d8f2e_11
+        - libgcc-ng=9.3.0=h24d8f2e_15
+        - libgomp=9.3.0=h24d8f2e_15
         - libiconv=1.15=h516909a_1006
         - liblief=0.10.1=he1b5a44_0
-        - libstdcxx-ng=9.3.0=hdf63c60_11
+        - libstdcxx-ng=9.3.0=hdf63c60_15
         - libxml2=2.9.10=h72b56ed_2
-        - lz4-c=1.9.2=he1b5a44_1
+        - lz4-c=1.9.2=he1b5a44_2
         - lzo=2.10=h14c3975_1000
         - markupsafe=1.1.1=py37h8f50634_1
         - ncurses=6.2=he1b5a44_1
@@ -505,61 +505,61 @@ env_specs:
         - psutil=5.7.2=py37h8f50634_0
         - py-lief=0.10.1=py37h3340039_0
         - pycosat=0.6.3=py37h8f50634_1004
-        - python=3.7.8=h6f2ec95_0_cpython
+        - python=3.7.8=h6f2ec95_1_cpython
         - pyyaml=5.3.1=py37h8f50634_0
         - readline=8.0=he28a2e2_2
         - ripgrep=12.1.1=h516909a_0
         - ruamel_yaml=0.15.80=py37h8f50634_1001
-        - sqlite=3.32.3=hcee41ef_1
+        - sqlite=3.32.3=h4cf870e_1
         - tk=8.6.10=hed695b0_0
         - xz=5.2.5=h516909a_1
         - yaml=0.2.5=h516909a_0
-        - zlib=1.2.11=h516909a_1006
+        - zlib=1.2.11=h516909a_1007
         - zstd=1.4.5=h6597ccf_2
       osx-64:
         - brotlipy=0.7.0=py37h9bfed18_1000
-        - bzip2=1.0.8=h0b31af3_2
+        - bzip2=1.0.8=haf1e3a3_2
         - cffi=1.14.1=py37hf5b7abd_0
-        - conda-package-handling=1.6.0=py37h9bfed18_2
+        - conda-package-handling=1.7.0=py37h60d8a13_4
         - cryptography=3.0=py37h94e4008_0
         - icu=67.1=h4a8c4bd_0
         - libarchive=3.3.3=h02796b4_1008
         - libcxx=10.0.1=h5f48129_0
-        - libffi=3.2.1=h4a8c4bd_1007
+        - libffi=3.2.1=hb1e8313_1007
         - libiconv=1.15=h0b31af3_1006
         - liblief=0.10.1=hb1e8313_0
         - libxml2=2.9.10=h7fdee97_2
-        - lz4-c=1.9.2=h4a8c4bd_1
+        - lz4-c=1.9.2=hb1e8313_2
         - lzo=2.10=h1de35cc_1000
         - markupsafe=1.1.1=py37h9bfed18_1
         - ncurses=6.2=hb1e8313_1
-        - openssl=1.1.1g=h0b31af3_1
+        - openssl=1.1.1g=haf1e3a3_1
         - psutil=5.7.2=py37h60d8a13_0
         - py-lief=0.10.1=py37hd03d408_0
         - pycosat=0.6.3=py37h9bfed18_1004
-        - python=3.7.8=ha0cf8a8_0_cpython
+        - python=3.7.8=hc9dea61_1_cpython
         - pyyaml=5.3.1=py37h9bfed18_0
         - readline=8.0=h0678c8f_2
         - ripgrep=12.1.1=h0b31af3_0
         - ruamel_yaml=0.15.80=py37h9bfed18_1001
-        - sqlite=3.32.3=h93121df_1
-        - tk=8.6.10=hbbe82c9_0
-        - xz=5.2.5=h0b31af3_1
+        - sqlite=3.32.3=h960bd1c_1
+        - tk=8.6.10=hb0a8c7a_0
+        - xz=5.2.5=haf1e3a3_1
         - yaml=0.2.5=h0b31af3_0
-        - zlib=1.2.11=h0b31af3_1006
-        - zstd=1.4.5=h0384e3a_2
+        - zlib=1.2.11=1007
+        - zstd=1.4.5=h289c70a_2
       win-64:
         - brotlipy=0.7.0=py37h4ab8f01_1000
-        - bzip2=1.0.8=hfa6e2cd_2
+        - bzip2=1.0.6=vc14hdec8e7a_1
         - cffi=1.14.1=py37h26f1ce3_0
-        - conda-package-handling=1.6.0=py37h702c6c1_2
+        - conda-package-handling=1.7.0=py37h4ab8f01_4
         - cryptography=3.0=py37h26f1ce3_0
-        - libarchive=3.3.3=h0c0e0cf_1008
-        - libiconv=1.15=hfa6e2cd_1006
+        - libarchive=3.3.3=h4890af2_1006
+        - libiconv=1.15=vc14h29686d3_5
         - liblief=0.10.1=ha925a31_0
         - libxml2=2.9.10=h5d81f1c_2
-        - lz4-c=1.9.2=h62dcd97_1
-        - lzo=2.10=hfa6e2cd_1000
+        - lz4-c=1.8.3=he025d50_1001
+        - lzo=2.10=vc14h0a64fa6_1
         - m2w64-gcc-libgfortran=5.3.0=6
         - m2w64-gcc-libs-core=5.3.0=7
         - m2w64-gcc-libs=5.3.0=7
@@ -572,17 +572,17 @@ env_specs:
         - psutil=5.7.2=py37h4ab8f01_0
         - py-lief=0.10.1=py37ha925a31_0
         - pycosat=0.6.3=py37h8055547_1004
-        - python=3.7.8=h60c2a47_0_cpython
+        - python=3.7.8=h60c2a47_1_cpython
         - pywin32=227=py37hfa6e2cd_0
-        - pyyaml=5.3.1=py37h8055547_0
+        - pyyaml=5.1.2=py37hfa6e2cd_0
         - ripgrep=12.1.1=h301d43c_0
-        - ruamel_yaml=0.15.80=py37h8055547_1001
+        - ruamel_yaml=0.15.71=py37hfa6e2cd_1000
         - sqlite=3.32.3=he774522_1
         - vc=14.1=h869be7e_1
         - vs2015_runtime=14.16.27012=h30e32a0_2
         - win_inet_pton=1.1.0=py37_0
         - wincertstore=0.2=py37_1003
         - xz=5.2.5=h62dcd97_1
-        - yaml=0.2.5=he774522_0
-        - zlib=1.2.11=h2fa13f4_1006
-        - zstd=1.4.5=h1f3a1b7_2
+        - yaml=0.1.7=vc14h4cb57cf_1
+        - zlib=1.2.11=vc14h1cdd9ab_1
+        - zstd=1.4.4=hd8a0e53_2
