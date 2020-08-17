@@ -17,8 +17,6 @@ UNIX = not WIN
 
 # CI jank
 SKIP_CONDA_PREFLIGHT = bool(json.loads(os.environ.get("SKIP_CONDA_PREFLIGHT", "false")))
-SKIP_DRAWIO = bool(json.loads(os.environ.get("SKIP_DRAWIO", "false")))
-SKIP_SUBMODULES = SKIP_DRAWIO
 
 
 # find root
@@ -100,7 +98,6 @@ DIST_CONDA = DIST / "conda-bld"
 
 # built files
 OK_RELEASE = BUILD / "release.ok"
-OK_SUBMODULES = BUILD / "submodules.ok"
 OK_PREFLIGHT_CONDA = BUILD / "preflight.conda.ok"
 OK_PREFLIGHT_KERNEL = BUILD / "preflight.kernel.ok"
 OK_PREFLIGHT_LAB = BUILD / "preflight.lab.ok"
@@ -125,12 +122,3 @@ EXAMPLE_HTML = [DIST_NBHTML / p.name.replace(".ipynb", ".html") for p in EXAMPLE
 CONDA_PACKAGE = (
     DIST_CONDA / "noarch" / f"ipyradiant-{PY_VERSION}-py_{CONDA_BUILD_NO}.tar.bz2"
 )
-
-# vendor stuff
-if not SKIP_DRAWIO:
-    DRAWIO = VENDOR / "jupyterlab-drawio"
-    DRAWIO_INTEGRITY = DRAWIO / "node_modules" / ".yarn-integrity"
-    DRAWIO_PKG_JSON = DRAWIO / "package.json"
-    DRAWIO_VERSION = "0.7.0"
-    DRAWIO_TARBALL = DRAWIO / f"jupyterlab-drawio-{DRAWIO_VERSION}.tgz"
-    DRAWIO_LAB_STATIC = LAB_STATIC / "node_modules" / "jupyterlab-drawio"

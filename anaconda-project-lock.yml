@@ -19,7 +19,7 @@ env_specs:
     locked: false
   dev:
     locked: true
-    env_spec_hash: 5c882094b761b7c779576dd28b4f15d287cc091e
+    env_spec_hash: 7ef0cbc2671ab797cbc70c36f9106c69d1838f72
     platforms:
       - linux-64
       - osx-64
@@ -57,7 +57,7 @@ env_specs:
         - imageio=2.9.0=py_0
         - importlib-metadata=1.7.0=py37hc8dfbb8_0
         - importlib_metadata=1.7.0=0
-        - importnb=0.6.1=py37hc8dfbb8_2
+        - importnb=0.6.2=py37hc8dfbb8_0
         - iniconfig=1.0.1=pyh9f0ad1d_0
         - ipycytoscape=1.0.3=py_0
         - ipython=7.17.0=py37hc6149b9_0
@@ -71,7 +71,7 @@ env_specs:
         - jupyter_bokeh=2.0.3=py_0
         - jupyter_client=6.1.6=py_0
         - jupyter_core=4.6.3=py37hc8dfbb8_1
-        - jupyterlab=2.2.2=py_0
+        - jupyterlab=2.2.4=py_0
         - jupyterlab_server=1.2.0=py_0
         - keepalive=0.5=py_1
         - locket=0.2.0=py_2
@@ -91,10 +91,10 @@ env_specs:
         - parso=0.7.1=pyh9f0ad1d_0
         - partd=1.1.0=py_0
         - pickleshare=0.7.5=py37hc8dfbb8_1001
-        - pip=20.2.1=py_0
+        - pip=20.2.2=py_0
         - pluggy=0.13.1=py37hc8dfbb8_2
         - prometheus_client=0.8.0=pyh9f0ad1d_0
-        - prompt-toolkit=3.0.5=py_1
+        - prompt-toolkit=3.0.6=py_0
         - py=1.9.0=pyh9f0ad1d_0
         - pycparser=2.20=pyh9f0ad1d_2
         - pyct-core=0.4.6=py_0
@@ -117,7 +117,7 @@ env_specs:
         - requests=2.24.0=pyh9f0ad1d_0
         - requests_cache=0.4.13=py_0
         - send2trash=1.5.0=py_0
-        - setuptools=49.2.1=py37hc8dfbb8_0
+        - setuptools=49.3.1=py37hc8dfbb8_0
         - six=1.15.0=pyh9f0ad1d_0
         - sortedcontainers=2.2.2=pyh9f0ad1d_0
         - sparqlwrapper=1.8.5=py37hc8dfbb8_1003
@@ -150,7 +150,7 @@ env_specs:
       linux-64:
         - _libgcc_mutex=0.1=conda_forge
         - _openmp_mutex=4.5=1_gnu
-        - argon2-cffi=20.1.0=py37h8f50634_0
+        - argon2-cffi=20.1.0=py37h8f50634_1
         - blosc=1.20.0=he1b5a44_0
         - brotli=1.0.7=he1b5a44_1004
         - brotlipy=0.7.0=py37h8f50634_1000
@@ -217,11 +217,11 @@ env_specs:
         - yaml=0.2.5=h516909a_0
         - zeromq=4.3.2=he1b5a44_3
         - zfp=0.5.5=he1b5a44_1
-        - zlib=1.2.11=h516909a_1006
+        - zlib=1.2.11=h516909a_1007
         - zstd=1.4.5=h6597ccf_2
       osx-64:
         - appnope=0.1.0=py37hc8dfbb8_1001
-        - argon2-cffi=20.1.0=py37h60d8a13_0
+        - argon2-cffi=20.1.0=py37h60d8a13_1
         - blosc=1.20.0=hb1e8313_0
         - brotli=1.0.7=h4a8c4bd_1004
         - brotlipy=0.7.0=py37h9bfed18_1000
@@ -286,10 +286,10 @@ env_specs:
         - yaml=0.2.5=h0b31af3_0
         - zeromq=4.3.2=h4a8c4bd_3
         - zfp=0.5.5=h4a8c4bd_1
-        - zlib=1.2.11=h0b31af3_1006
+        - zlib=1.2.11=1007
         - zstd=1.4.5=h0384e3a_2
       win-64:
-        - argon2-cffi=20.1.0=py37h4ab8f01_0
+        - argon2-cffi=20.1.0=py37h4ab8f01_1
         - atomicwrites=1.4.0=pyh9f0ad1d_0
         - blas=1.0=mkl
         - blosc=1.20.0=ha925a31_0
@@ -367,7 +367,7 @@ env_specs:
         - yaml=0.2.5=he774522_0
         - zeromq=4.3.2=ha925a31_3
         - zfp=0.5.5=ha925a31_1
-        - zlib=1.2.11=h2fa13f4_1006
+        - zlib=1.2.11=h62dcd97_1007
         - zstd=1.4.5=h1f3a1b7_2
   qa:
     locked: true
