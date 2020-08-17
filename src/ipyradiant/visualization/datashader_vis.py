@@ -9,7 +9,10 @@ from holoviews.operation.datashader import bundle_graph
 from rdflib import Graph, URIRef
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
 
+
 from .base import NXBase
+
+hv.extension("bokeh", logo=False)
 
 
 class DatashaderVisualizer(NXBase):
@@ -30,11 +33,7 @@ class DatashaderVisualizer(NXBase):
 
     @T.default("output")
     def _make_default_output(self):
-        output = W.Output()
-        with output:
-            hv.extension("bokeh")
-        output.clear_output()
-        return output
+        return W.Output()
 
     @T.default("edge_tooltips")
     def _make_edge_tooltip(self):
