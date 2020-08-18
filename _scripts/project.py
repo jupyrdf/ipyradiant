@@ -47,6 +47,8 @@ CHANGELOG = ROOT / "CHANGELOG.md"
 PY = ["python"]
 PYM = [*PY, "-m"]
 PIP = [*PYM, "pip"]
+PREFLIGHT = [*PYM, "_scripts.preflight"]
+
 
 JLPM = ["jlpm"]
 JLPM_INSTALL = [*JLPM, "--ignore-optional", "--prefer-offline"]

@@ -6,6 +6,10 @@
 
     See `doit list` for more options.
 """
+
+# Copyright (c) 2020 ipyradiant contributors.
+# Distributed under the terms of the Modified BSD License.
+
 import os
 import subprocess
 
@@ -41,7 +45,7 @@ def task_preflight():
             actions=(
                 [_echo_ok("skipping preflight, hope you know what you're doing!")]
                 if P.SKIP_CONDA_PREFLIGHT
-                else [["python", "-m", "_scripts.preflight", "conda"]]
+                else [[*P.PREFLIGHT, "conda"]]
             ),
         ),
         P.OK_PREFLIGHT_CONDA,
@@ -51,7 +55,7 @@ def task_preflight():
         dict(
             name="kernel",
             file_dep=[*file_dep, P.OK_ENV["dev"]],
-            actions=[[*P.APR_DEV, "python", "-m", "_scripts.preflight", "kernel"]],
+            actions=[[*P.APR_DEV, *P.PREFLIGHT, "kernel"]],
         ),
         P.OK_PREFLIGHT_KERNEL,
     )
@@ -60,7 +64,7 @@ def task_preflight():
         dict(
             name="lab",
             file_dep=[*file_dep, P.LAB_INDEX, P.OK_ENV["dev"]],
-            actions=[[*P.APR_DEV, "python", "-m", "_scripts.preflight", "lab"]],
+            actions=[[*P.APR_DEV, *P.PREFLIGHT, "lab"]],
         ),
         P.OK_PREFLIGHT_LAB,
     )
@@ -68,8 +72,8 @@ def task_preflight():
     yield _ok(
         dict(
             name="release",
-            file_dep=[P.CHANGELOG, P.VERSION_PY, P.SDIST, P.WHEEL],
-            actions=[[*P.APR_DEV, "python", "-m", "_scripts.preflight", "release"]],
+            file_dep=[P.CHANGELOG, P.VERSION_PY, P.SDIST, P.WHEEL, *P.ALL_PY],
+            actions=[[*P.APR_DEV, *P.PREFLIGHT, "release"]],
         ),
         P.OK_PREFLIGHT_RELEASE,
     )
@@ -208,7 +212,7 @@ def task_test():
             name=f"nb:{nb.name}".replace(" ", "_").replace(".ipynb", ""),
             file_dep=[
                 *P.EXAMPLE_IPYNB,
-                P.OK_NBLINT,
+                P.OK_LINT,
                 P.OK_ENV["dev"],
                 P.OK_PIP_INSTALL,
                 P.OK_PREFLIGHT_KERNEL,
@@ -361,7 +365,8 @@ def task_all():
     """ do everything except start lab
     """
     return dict(
-        file_dep=[P.OK_RELEASE, P.OK_PREFLIGHT_LAB], actions=([_echo_ok("ALL GOOD")]),
+        file_dep=[P.OK_RELEASE, P.OK_PREFLIGHT_LAB, P.OK_PREFLIGHT_RELEASE],
+        actions=([_echo_ok("ALL GOOD")]),
     )
 
 

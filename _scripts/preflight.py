@@ -2,6 +2,10 @@
 
     be careful about imports here:
 """
+
+# Copyright (c) 2020 ipyradiant contributors.
+# Distributed under the terms of the Modified BSD License.
+
 import json
 import os
 import re
