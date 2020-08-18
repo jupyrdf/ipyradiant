@@ -12,6 +12,7 @@ the Jupyter notebook.
   https://github.com/jupyrdf/ipyradiant/workflows/.github/workflows/ciV0.yml/badge.svg
 [status-link]: https://github.com/jupyrdf/ipyradiant/actions
 
+Powered by [ipyctoscape](https://github.com/QuantStack/ipycytoscape), [datashader](https://datashader.org/), and [holoviews](http://holoviews.org/).
 
 ## Visualization Widgets
 `ipyradiant` includes several widgets for visualizing RDF graphs that can be accessed through the examples.
