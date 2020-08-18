@@ -15,6 +15,8 @@ from . import project as P
 
 NODE = [shutil.which("node") or shutil.which("node.exe") or shutil.which("node.cmd")]
 
+NB_METADATA_KEYS = ["kernelspec", "language_info"]
+
 
 def blacken(source):
     """ apply black to a source string
@@ -27,28 +29,25 @@ def nblint_one(nb_node):
     """
     changes = 0
     has_empty = 0
+    nb_metadata_keys = list(nb_node.metadata.keys())
+    for key in nb_metadata_keys:
+        if key not in NB_METADATA_KEYS:
+            nb_node.metadata.pop(key)
     for cell in nb_node.cells:
         cell_type = cell["cell_type"]
         source = "".join(cell["source"])
         if not source.strip():
             has_empty += 1
         if cell_type == "markdown":
+            args = [
+                *P.PRETTIER,
+                "--stdin-filepath",
+                "foo.md",
+                "--prose-wrap",
+                "always",
+            ]
             prettier = subprocess.Popen(
-                list(
-                    map(
-                        str,
-                        [
-                            *NODE,
-                            *P.PRETTIER,
-                            "--stdin-filepath",
-                            "foo.md",
-                            "--prose-wrap",
-                            "always",
-                        ],
-                    )
-                ),
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
+                list(map(str, args)), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             )
             out, _err = prettier.communicate(source.encode("utf-8"))
             new = out.decode("utf-8").rstrip()

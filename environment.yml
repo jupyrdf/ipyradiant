@@ -1,16 +1,19 @@
 name: ipyradiant
 
 channels:
-  - conda-forge
-  - msys2
+  - https://conda.anaconda.org/conda-forge
+  - https://conda.anaconda.org/anaconda
+  - https://conda.anaconda.org/msys2
 
 dependencies:
   - bqplot
   - datashader
+  - hvplot
+  - importnb
   - ipycytoscape
   - ipywidgets
   - jupyter_bokeh
-  - jupyterlab ==2.2.2
+  - jupyterlab ==2.2.4
   - networkx
   - nodejs >=12,<13.0.0a0
   - numpy
@@ -21,3 +24,4 @@ dependencies:
   - qgrid
   - rdflib-jsonld
   - requests_cache
+  - scikit-image

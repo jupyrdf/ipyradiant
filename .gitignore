@@ -8,6 +8,7 @@ __pycache__/
 .vscode/
 .yarn-packages/
 *.egg-info/
+*.log
 *.sqlite
 *.sqlite
 *.tgz

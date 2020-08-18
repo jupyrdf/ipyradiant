@@ -24,12 +24,17 @@ requirements:
     - python >=3.6
     - pip
   run:
+    - bokeh
+    - datashader
+    - holoviews
     - ipycytoscape >=1.0.3
     - ipywidgets
+    - networkx
     - pandas
+    - python >=3.6
     - qgrid
     - rdflib
-    - python >=3.6
+    - rdflib-jsonld
 
 test:
   requires:

@@ -16,21 +16,6 @@ commands:
     windows: *labBuild
     env_spec: dev
 
-  drawio:setup:
-    description: setup jupyterlab-drawio
-    unix: &drawioSetup >-
-      cd vendor/jupyterlab-drawio && git submodule update --init && jlpm
-      --ignore-optional
-    windows: *drawioSetup
-    env_spec: dev
-
-  drawio:build:
-    description: build the vendored jupyterlab-drawio with SVG, notebook support
-    unix: &drawioBuild >-
-      cd vendor/jupyterlab-drawio && jlpm build && npm pack .
-    windows: *drawioBuild
-    env_spec: dev
-
 env_specs:
   dev:
     platforms:
@@ -51,10 +36,11 @@ env_specs:
       - osx-64
       - win-64
     channels:
-      - conda-forge
-      - msys2
+      - https://conda.anaconda.org/conda-forge
+      - https://conda.anaconda.org/anaconda
+      - https://conda.anaconda.org/msys2
     packages:
-      - conda >=4.8.3,<4.9.0a0
+      - conda ==4.8.3
       - conda-build <3.19.0a0
       - conda-verify
       - pip
@@ -68,8 +54,9 @@ env_specs:
       - osx-64
       - win-64
     channels:
-      - conda-forge
-      - msys2
+      - https://conda.anaconda.org/conda-forge
+      - https://conda.anaconda.org/anaconda
+      - https://conda.anaconda.org/msys2
     packages:
       - black
       - flake8
@@ -78,26 +65,32 @@ env_specs:
       - nodejs >=12,<13.0.0a0
       - pyflakes
       - python >=3.7,<3.8.0a0
+      - yarn >=1,<2
 
   ipyradiant:
     description: minimal binder environment (from environment.yml)
     channels:
-      - conda-forge
-      - msys2
+      - https://conda.anaconda.org/conda-forge
+      - https://conda.anaconda.org/anaconda
+      - https://conda.anaconda.org/msys2
     packages:
+      - bokeh
       - bqplot
       - datashader
+      - hvplot
+      - importnb
       - ipycytoscape
       - ipywidgets
       - jupyter_bokeh
-      - jupyterlab ==2.2.2
+      - jupyterlab ==2.2.4
       - networkx
       - nodejs >=12,<13.0.0a0
       - numpy
       - pip
       - pyld
       - pyshacl
-      - python >=3.6
+      - python >=3.6 # underspecified so binder does whatever's clever
       - qgrid
       - rdflib-jsonld
       - requests_cache
+      - scikit-image

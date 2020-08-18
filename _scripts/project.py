@@ -6,6 +6,7 @@ import json
 import os
 import platform
 import re
+import shutil
 from pathlib import Path
 
 # platform
@@ -16,8 +17,6 @@ UNIX = not WIN
 
 # CI jank
 SKIP_CONDA_PREFLIGHT = bool(json.loads(os.environ.get("SKIP_CONDA_PREFLIGHT", "false")))
-SKIP_DRAWIO = bool(json.loads(os.environ.get("SKIP_DRAWIO", "false")))
-SKIP_SUBMODULES = SKIP_DRAWIO
 
 
 # find root
@@ -38,6 +37,7 @@ BUILD = ROOT / "build"
 DIST = ROOT / "dist"
 RECIPE = ROOT / "conda.recipe"
 ENVS = ROOT / "envs"
+PROJ = ROOT / "anaconda-project.yml"
 PROJ_LOCK = ROOT / "anaconda-project-lock.yml"
 VENDOR = ROOT / "vendor"
 
@@ -48,6 +48,7 @@ PIP = [*PYM, "pip"]
 
 JLPM = ["jlpm"]
 JLPM_INSTALL = [*JLPM, "--ignore-optional", "--prefer-offline"]
+YARN = [shutil.which("yarn") or shutil.which("yarn.cmd")]
 LAB_EXT = ["jupyter", "labextension"]
 CONDA_BUILD = ["conda-build"]
 LAB = ["jupyter", "lab"]
@@ -57,7 +58,7 @@ APR = [*AP, "run", "--env-spec"]
 APR_DEV = [*APR, "dev"]
 APR_BUILD = [*APR, "build"]
 APR_QA = [*APR, "qa"]
-PRETTIER = [str(NODE_MODULES / ".bin" / "prettier")]
+PRETTIER = [*YARN, "--silent", "prettier"]
 
 # env stuff
 OK_ENV = {env: BUILD / f"prep_{env}.ok" for env in ["build", "qa", "dev"]}
@@ -97,6 +98,7 @@ META_YAML = RECIPE / "meta.yaml"
 DIST_CONDA = DIST / "conda-bld"
 
 # built files
+OK_RELEASE = BUILD / "release.ok"
 OK_PREFLIGHT_CONDA = BUILD / "preflight.conda.ok"
 OK_PREFLIGHT_KERNEL = BUILD / "preflight.kernel.ok"
 OK_PREFLIGHT_LAB = BUILD / "preflight.lab.ok"
@@ -121,12 +123,3 @@ EXAMPLE_HTML = [DIST_NBHTML / p.name.replace(".ipynb", ".html") for p in EXAMPLE
 CONDA_PACKAGE = (
     DIST_CONDA / "noarch" / f"ipyradiant-{PY_VERSION}-py_{CONDA_BUILD_NO}.tar.bz2"
 )
-
-# vendor stuff
-if not SKIP_DRAWIO:
-    DRAWIO = VENDOR / "jupyterlab-drawio"
-    DRAWIO_INTEGRITY = DRAWIO / "node_modules" / ".yarn-integrity"
-    DRAWIO_PKG_JSON = DRAWIO / "package.json"
-    DRAWIO_VERSION = "0.7.0"
-    DRAWIO_TARBALL = DRAWIO / f"jupyterlab-drawio-{DRAWIO_VERSION}.tgz"
-    DRAWIO_LAB_STATIC = LAB_STATIC / "node_modules" / "jupyterlab-drawio"

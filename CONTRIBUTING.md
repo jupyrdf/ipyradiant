@@ -40,10 +40,12 @@ source ~/mc3/envs/ipyradiant-base/bin/activate
 ## Get To a Running Lab
 
 ```bash
+doit preflight:lab
 doit lab
 ```
 
 - open the browser with the URL shown
+- open `index.ipynb` for a landing page with links to examples
 
 ## Get Ready for a Release
 
@@ -53,3 +55,13 @@ doit release
 
 - fix the things that break, keep running until it completes
 - this won't actually release anything
+
+## Quick Review a PR
+
+```bash
+git clean -dxf
+doit all
+```
+
+- go get a coffee
+- runs `preflight:lab` and `release`

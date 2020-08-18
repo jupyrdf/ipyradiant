@@ -7,11 +7,12 @@
     See `doit list` for more options.
 """
 import os
-import shutil
 import subprocess
 
 import _scripts.project as P
-from doit.tools import PythonInteractiveAction, config_changed, result_dep
+from doit.action import CmdAction
+from doit.tools import PythonInteractiveAction, config_changed
+from yaml import safe_load
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
 
@@ -22,25 +23,9 @@ DOIT_CONFIG = {
     "default_tasks": ["binder"],
 }
 
-if not P.SKIP_SUBMODULES:
+COMMIT = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8")
 
-    def task_submodules():
-        """ ensure submodules are available
-        """
-        subs = (
-            subprocess.check_output(["git", "submodule"]).decode("utf-8").splitlines()
-        )
-
-        def _clean():
-            """ clean drawio, as it gets patched in-place
-            """
-            if any([x.startswith("-") for x in subs]) and P.DRAWIO.exists():
-                shutil.rmtree(P.DRAWIO)
-
-        return dict(
-            uptodate=[config_changed({"subs": subs})],
-            actions=[_clean, ["git", "submodule", "update", "--init", "--recursive"]],
-        )
+PROJ = safe_load(P.PROJ.read_text(encoding="utf-8"))
 
 
 def task_preflight():
@@ -50,7 +35,7 @@ def task_preflight():
 
     yield _ok(
         dict(
-            uptodate=[] if P.SKIP_SUBMODULES else [result_dep("submodules")],
+            uptodate=[config_changed({"commit": COMMIT})],
             name="conda",
             file_dep=file_dep,
             actions=(
@@ -112,16 +97,18 @@ def task_env():
 def task_release():
     """ everything we'd need to do to release (except release)
     """
-    return dict(
-        file_dep=[
-            P.LAB_INDEX,
-            P.OK_PIP_INSTALL_E,
-            P.OK_LINT,
-            P.WHEEL,
-            P.CONDA_PACKAGE,
-            *P.EXAMPLE_HTML,
-        ],
-        actions=[_echo_ok("ready to release")],
+    return _ok(
+        dict(
+            file_dep=[
+                P.OK_PIP_INSTALL_E,
+                P.OK_LINT,
+                P.WHEEL,
+                P.CONDA_PACKAGE,
+                *P.EXAMPLE_HTML,
+            ],
+            actions=[_echo_ok("ready to release")],
+        ),
+        P.OK_RELEASE,
     )
 
 
@@ -147,26 +134,6 @@ def task_setup():
         targets=[P.YARN_INTEGRITY],
     )
 
-    if not P.SKIP_DRAWIO:
-
-        def _clean():
-            subprocess.call(["git", "clean", "-dxf"], cwd=str(P.DRAWIO))
-
-        yield dict(
-            name="drawio_setup",
-            uptodate=[result_dep("submodules")],
-            file_dep=[P.DRAWIO_PKG_JSON, P.OK_ENV["dev"]],
-            actions=[_clean, [*P.APR_DEV, "drawio:setup"]],
-            targets=[P.DRAWIO_INTEGRITY],
-        )
-
-        yield dict(
-            name="drawio_build",
-            file_dep=[P.DRAWIO_INTEGRITY, P.DRAWIO_PKG_JSON],
-            actions=[[*P.APR_DEV, "drawio:build"]],
-            targets=[P.DRAWIO_TARBALL],
-        )
-
 
 def task_build():
     """ build packages
@@ -189,8 +156,7 @@ def task_build():
                 *P.CONDA_BUILD,
                 "--output-folder",
                 P.DIST_CONDA,
-                "-c",
-                "conda-forge",
+                *_channel_args(),
                 P.RECIPE,
             ]
         ],
@@ -199,30 +165,41 @@ def task_build():
 
 
 def task_test():
-    """ testing
+    """ run all the notebooks
     """
-    yield dict(
-        name="nbsmoke",
-        file_dep=[
-            *P.EXAMPLE_IPYNB,
-            P.OK_NBLINT,
-            P.OK_ENV["dev"],
-            P.OK_PIP_INSTALL_E,
-            P.OK_PREFLIGHT_KERNEL,
-        ],
-        actions=[
-            [
+
+    def _nb_test(nb):
+        def _test():
+            env = dict(os.environ)
+            env.update(IPYRADIANT_TESTING="true")
+            args = [
                 *P.APR_DEV,
                 "jupyter",
                 "nbconvert",
                 "--output-dir",
                 P.DIST_NBHTML,
                 "--execute",
-                *P.EXAMPLE_IPYNB,
+                "--ExecutePreprocessor.timeout=1200",
+                nb,
             ]
-        ],
-        targets=P.EXAMPLE_HTML,
-    )
+            return CmdAction(args, env=env, shell=False)
+
+        return dict(
+            name=f"nb:{nb.name}".replace(" ", "_").replace(".ipynb", ""),
+            file_dep=[
+                *P.EXAMPLE_IPYNB,
+                P.OK_NBLINT,
+                P.OK_ENV["dev"],
+                P.OK_PIP_INSTALL_E,
+                P.OK_PREFLIGHT_KERNEL,
+                *P.ALL_PY_SRC,
+            ],
+            actions=[_test()],
+            targets=[P.DIST_NBHTML / nb.name.replace(".ipynb", ".html")],
+        )
+
+    for nb in P.EXAMPLE_IPYNB:
+        yield _nb_test(nb)
 
 
 def task_lint():
@@ -304,22 +281,16 @@ def task_lab_build():
         if line and not line.startswith("#")
     ]
 
-    if not P.SKIP_DRAWIO:
-        exts += [P.DRAWIO_TARBALL]
-
     def _clean():
-        subprocess.call([*P.APR_DEV, "jlpm", "cache", "clean"])
-        subprocess.call([*P.APR_DEV, *P.LAB, "clean", "--all"])
+        _call([*P.APR_DEV, "jlpm", "cache", "clean"])
+        _call([*P.APR_DEV, *P.LAB, "clean", "--all"])
 
         return True
 
     def _build():
-        return subprocess.call([*P.APR_DEV, "lab:build"]) == 0
+        return _call([*P.APR_DEV, "lab:build"]) == 0
 
     file_dep = [P.EXTENSIONS, P.OK_ENV["dev"]]
-
-    if not P.SKIP_DRAWIO:
-        file_dep += [P.DRAWIO_TARBALL]
 
     yield dict(
         name="extensions",
@@ -345,7 +316,9 @@ def task_lab():
     """
 
     def lab():
-        proc = subprocess.Popen([*P.APR_DEV, "lab"], stdin=subprocess.PIPE)
+        proc = subprocess.Popen(
+            list(map(str, [*P.APR_DEV, "lab"])), stdin=subprocess.PIPE
+        )
 
         try:
             proc.wait()
@@ -355,11 +328,20 @@ def task_lab():
             proc.communicate(b"y\n")
 
         proc.wait()
+        return True
 
     return dict(
         uptodate=[lambda: False],
         file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL_E, P.OK_PREFLIGHT_LAB],
         actions=[PythonInteractiveAction(lab)],
+    )
+
+
+def task_all():
+    """ do everything except start lab
+    """
+    return dict(
+        file_dep=[P.OK_RELEASE, P.OK_PREFLIGHT_LAB], actions=([_echo_ok("ALL GOOD")]),
     )
 
 
@@ -379,3 +361,17 @@ def _ok(task, ok):
         lambda: [ok.parent.mkdir(exist_ok=True), ok.write_text("ok"), True][-1],
     ]
     return task
+
+
+def _call(args, **kwargs):
+    if "cwd" in kwargs:
+        kwargs["cwd"] = str(kwargs["cwd"])
+    if "env" in kwargs:
+        kwargs["env"] = {k: str(v) for k, v in kwargs["env"].items()}
+    args = list(map(str, args))
+    print("\n>>>", " ".join(args), "\n", flush=True)
+    return subprocess.call(args, **kwargs)
+
+
+def _channel_args(env="ipyradiant"):
+    return sum([["-c", c] for c in PROJ["env_specs"][env]["channels"]], [])
