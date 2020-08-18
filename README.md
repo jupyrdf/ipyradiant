@@ -26,7 +26,7 @@ the Jupyter notebook.
 ## Installation
 ```bash
 pip install ipyradiant
-jupyter labextension install @jupyrdf/jupyter-radiant
+jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-cytoscape @pyviz/jupyterlab_pyviz
 ```
 
 > For additional information, see [CONTRIBUTING.md](./CONTRIBUTING.md)
