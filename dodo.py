@@ -113,11 +113,12 @@ def task_release():
     return _ok(
         dict(
             file_dep=[
-                P.OK_PIP_INSTALL,
-                P.OK_LINT,
-                P.WHEEL,
-                P.CONDA_PACKAGE,
                 *P.EXAMPLE_HTML,
+                P.CONDA_PACKAGE,
+                P.OK_LINT,
+                P.OK_PIP_INSTALL,
+                P.OK_PREFLIGHT_RELEASE,
+                P.WHEEL,
             ],
             actions=[_echo_ok("ready to release")],
         ),
@@ -365,8 +366,7 @@ def task_all():
     """ do everything except start lab
     """
     return dict(
-        file_dep=[P.OK_RELEASE, P.OK_PREFLIGHT_LAB, P.OK_PREFLIGHT_RELEASE],
-        actions=([_echo_ok("ALL GOOD")]),
+        file_dep=[P.OK_RELEASE, P.OK_PREFLIGHT_LAB], actions=([_echo_ok("ALL GOOD")]),
     )
 
 
