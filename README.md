@@ -23,6 +23,15 @@ the Jupyter notebook.
  ![TabApp screencast](https://user-images.githubusercontent.com/32652349/90517340-44148a80-e133-11ea-9ee4-add09ee2c0d4.gif)
 
 
+## Prerequisites
+- `python >=3.6`
+
+`ipyradiant`'s python dependencies will install their required `nbextensions` for Notebook Classic.
+
+For JupyterLab support, ensure you have the following installed:
+- `jupyterlab >=1`
+- `nodejs >=10`
+
 ## Installation
 ```bash
 pip install ipyradiant
