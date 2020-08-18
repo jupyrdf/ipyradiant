@@ -65,6 +65,15 @@ def task_preflight():
         P.OK_PREFLIGHT_LAB,
     )
 
+    yield _ok(
+        dict(
+            name="release",
+            file_dep=[P.CHANGELOG, P.VERSION_PY, P.SDIST, P.WHEEL],
+            actions=[[*P.APR_DEV, "python", "-m", "_scripts.preflight", "release"]],
+        ),
+        P.OK_PREFLIGHT_RELEASE,
+    )
+
 
 def task_binder():
     """ get to a minimal interactive environment
@@ -72,7 +81,7 @@ def task_binder():
     return dict(
         file_dep=[
             P.LAB_INDEX,
-            P.OK_PIP_INSTALL_E,
+            P.OK_PIP_INSTALL,
             P.OK_PREFLIGHT_KERNEL,
             P.OK_PREFLIGHT_LAB,
         ],
@@ -100,7 +109,7 @@ def task_release():
     return _ok(
         dict(
             file_dep=[
-                P.OK_PIP_INSTALL_E,
+                P.OK_PIP_INSTALL,
                 P.OK_LINT,
                 P.WHEEL,
                 P.CONDA_PACKAGE,
@@ -115,16 +124,27 @@ def task_release():
 def task_setup():
     """ perform all setup activities
     """
+
+    _install = ["--no-deps", "--ignore-installed", "-vv"]
+
+    if P.INSTALL_ARTIFACT == "wheel":
+        _install += [P.WHEEL]
+    elif P.INSTALL_ARTIFACT == "sdist":
+        _install += [P.SDIST]
+    else:
+        _install += ["-e", "."]
+
     yield _ok(
         dict(
             name="py",
             file_dep=[P.SETUP_PY, P.SETUP_CFG, P.OK_ENV["dev"]],
+            uptodate=[config_changed({"artifact": P.INSTALL_ARTIFACT})],
             actions=[
-                [*P.APR_DEV, *P.PIP, "install", "-e", ".", "--no-deps"],
+                [*P.APR_DEV, *P.PIP, "install", *_install],
                 [*P.APR_DEV, *P.PIP, "check"],
             ],
         ),
-        P.OK_PIP_INSTALL_E,
+        P.OK_PIP_INSTALL,
     )
 
     yield dict(
@@ -190,7 +210,7 @@ def task_test():
                 *P.EXAMPLE_IPYNB,
                 P.OK_NBLINT,
                 P.OK_ENV["dev"],
-                P.OK_PIP_INSTALL_E,
+                P.OK_PIP_INSTALL,
                 P.OK_PREFLIGHT_KERNEL,
                 *P.ALL_PY_SRC,
             ],
@@ -332,7 +352,7 @@ def task_lab():
 
     return dict(
         uptodate=[lambda: False],
-        file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL_E, P.OK_PREFLIGHT_LAB],
+        file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL, P.OK_PREFLIGHT_LAB],
         actions=[PythonInteractiveAction(lab)],
     )
 
