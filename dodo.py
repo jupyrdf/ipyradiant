@@ -141,7 +141,7 @@ def task_setup():
     yield _ok(
         dict(
             name="py",
-            file_dep=[P.SETUP_PY, P.SETUP_CFG, P.OK_ENV["dev"]],
+            file_dep=[P.SETUP_PY, P.SETUP_CFG, P.OK_ENV["dev"], P.WHEEL, P.SDIST],
             uptodate=[config_changed({"artifact": P.INSTALL_ARTIFACT})],
             actions=[
                 [*P.APR_DEV, *P.PIP, "install", *_install],
