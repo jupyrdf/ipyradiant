@@ -69,6 +69,13 @@ jobs:
         shell: cmd /C CALL {0}
         run: call .ci\win.bat release
 
+      - name: publish (linux)
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipyradiant dist ${{ github.run_number }}
+          path: ./dist
+
   ui:
     name: UI
     runs-on: ${{ matrix.os }}

@@ -182,6 +182,8 @@ def preflight(stage):
         return preflight_kernel()
     elif stage == "lab":
         return preflight_lab()
+    elif stage == "release":
+        return preflight_release()
 
     print(f"Don't know how to preflight: {stage}")
     return 1
