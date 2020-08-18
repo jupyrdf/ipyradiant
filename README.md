@@ -24,11 +24,11 @@ the Jupyter notebook.
 
 
 ## Installation
-
-> For now, see [CONTRIBUTING.md](./CONTRIBUTING.md)
-
 ```bash
-# TBD
-# pip install ipyradiant
-# jupyter labextension install jupyter-radiant
+pip install ipyradiant
+jupyter labextension install @jupyrdf/jupyter-radiant
 ```
+
+> For additional information, see [CONTRIBUTING.md](./CONTRIBUTING.md)
+
+
