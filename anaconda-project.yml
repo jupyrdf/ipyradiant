@@ -80,7 +80,7 @@ env_specs:
       - importnb
       - ipycytoscape
       - ipywidgets
-      - jupyterlab ==2.2.4
+      - jupyterlab ==2.2.5
       - networkx
       - nodejs >=12,<13.0.0a0
       - numpy
