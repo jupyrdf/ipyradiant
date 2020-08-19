@@ -36,7 +36,7 @@ For JupyterLab support, ensure you have the following installed:
 ## Installation
 ```bash
 pip install ipyradiant
-jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-cytoscape @pyviz/jupyterlab_pyviz
+jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-cytoscape @pyviz/jupyterlab_pyviz qgrid2
 ```
 
 > For additional information, see [CONTRIBUTING.md](./CONTRIBUTING.md)
