@@ -77,7 +77,6 @@ class CytoscapeVisualizer(VisualizerBase):
             lambda x: "visible" if x else "hidden",
         )
         self.children = [
-            W.HTML("<h1>Cytoscape Visualization</h1>"),
             self.cyto_widget,
         ]
 
@@ -97,11 +96,19 @@ class CytoscapeVisualizer(VisualizerBase):
 
     @T.observe("graph")
     def update_cyto_widget_graph(self, change):
-        for node in list(self.cyto_widget.graph.nodes):
-            self.cyto_widget.graph.remove_node(node)
-        if len(self.cyto_widget.graph.nodes) != 0:
-            with self.log:
-                print("Unexpected number of nodes remaining after graph cleared.")
+        try:
+            self.cyto_widget.headless = True
+            for edge in list(self.cyto_widget.graph.edges):
+                self.cyto_widget.graph.remove_edge(edge)
+
+            for node in list(self.cyto_widget.graph.nodes):
+                self.cyto_widget.graph.remove_node(node)
+
+            if len(self.cyto_widget.graph.nodes) != 0:
+                with self.log:
+                    print("Unexpected number of nodes remaining after graph cleared.")
+        finally:
+            self.cyto_widget.headless = False
         new_json = self.build_cytoscape_json(change.new)
         self.cyto_widget.graph.add_graph_from_json(new_json, directed=True)
 

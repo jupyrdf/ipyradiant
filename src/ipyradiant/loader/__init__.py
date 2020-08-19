@@ -3,5 +3,7 @@
 # Copyright (c) 2020 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-__all__ = ["LoadWidget"]
-from .loader import LoadWidget
+__all__ = ["FileManager", "UpLoader", "PathLoader"]
+from .manager import FileManager
+from .path import PathLoader
+from .upload import UpLoader
