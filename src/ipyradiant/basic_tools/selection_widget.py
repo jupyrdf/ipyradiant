@@ -1,5 +1,6 @@
-import ipywidgets as ipyw
 import traitlets as trt
+
+import ipywidgets as ipyw
 
 
 class PredicateSelectionWidget(ipyw.HBox):
