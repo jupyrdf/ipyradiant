@@ -1,5 +1,8 @@
 """ the main query widget
 """
+# Copyright (c) 2020 ipyradiant contributors.
+# Distributed under the terms of the Modified BSD License.
+
 import re
 
 import traitlets as T

@@ -1,9 +1,7 @@
-@bokeh/jupyter_bokeh
 @deathbeds/jupyterlab-drawio-notebook@0.8.0-alpha1
 @deathbeds/jupyterlab-drawio-webpack@13.6.2-alpha1
 @deathbeds/jupyterlab-drawio@0.8.0-alpha1
 @jupyter-widgets/jupyterlab-manager
 @pyviz/jupyterlab_pyviz
-bqplot
 jupyter-cytoscape
 qgrid2
