@@ -1,3 +1,6 @@
+# Copyright (c) 2020 ipyradiant contributors.
+# Distributed under the terms of the Modified BSD License.
+
 from rdflib import Graph, util
 from rdflib.plugin import Parser, Serializer, register
 
