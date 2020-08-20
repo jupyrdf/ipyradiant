@@ -64,11 +64,11 @@ class MultiPanelSelect(ipyw.HBox):
         self.data = kwargs["data"]
 
         self.column_one = ipyw.VBox(
-            children=[ipyw.HTML("<h1>Available Things</h1>"), self.available_things,]
+            children=[ipyw.HTML("<h1>Available Things</h1>"), self.available_things]
         )
         self.column_two = ipyw.VBox(children=[self.add_button, self.remove_button])
         self.column_three = ipyw.VBox(
-            children=[ipyw.HTML("<h1>Selected Things</h1>"), self.selected_things,]
+            children=[ipyw.HTML("<h1>Selected Things</h1>"), self.selected_things]
         )
 
         self.add_button.style.button_color = "lightgreen"
