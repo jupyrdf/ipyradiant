@@ -85,11 +85,22 @@ LAB_LOCK = LAB_STAGING / "yarn.lock"
 LAB_STATIC = LAB_APP_DIR / "static"
 LAB_INDEX = LAB_STATIC / "index.html"
 
+
+def _not_checkpoint(paths):
+    """ filter out paths that are in .ipynb_checkpoints
+    """
+    return sorted(
+        [p for p in paths if not p.is_dir() and ".ipynb_checkpoints" not in str(p)]
+    )
+
+
 # tests
 EXAMPLES = ROOT / "examples"
-EXAMPLE_IPYNB = [
-    p for p in EXAMPLES.rglob("*.ipynb") if ".ipynb_checkpoints" not in str(p)
+EXAMPLE_DATA = EXAMPLES / "data"
+EXAMPLE_DATASETS = [
+    p for p in _not_checkpoint(EXAMPLE_DATA.glob("*")) if not p.name.endswith("*.md")
 ]
+EXAMPLE_IPYNB = _not_checkpoint(EXAMPLES.rglob("*.ipynb"))
 EXAMPLE_PY = [*EXAMPLES.rglob("*.py")]
 DIST_NBHTML = DIST / "nbsmoke"
 
@@ -98,7 +109,7 @@ ALL_PY_SRC = [*PY_SRC.rglob("*.py")]
 ALL_PY = [DODO, *ALL_PY_SRC, *EXAMPLE_PY, *SCRIPTS.rglob("*.py")]
 ALL_YML = [*ROOT.glob("*.yml"), *CI.rglob("*.yml")]
 ALL_JSON = [*ROOT.glob("*.json")]
-ALL_MD = [*ROOT.glob("*.md")]
+ALL_MD = [*ROOT.glob("*.md"), *EXAMPLE_DATA.glob("*.md")]
 ALL_PRETTIER = [*ALL_YML, *ALL_JSON, *ALL_MD]
 
 # conda
