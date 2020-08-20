@@ -1,5 +1,8 @@
 """ packaging information for ipyradiant
 """
+# Copyright (c) 2020 ipyradiant contributors.
+# Distributed under the terms of the Modified BSD License.
+
 import re
 import sys
 from pathlib import Path

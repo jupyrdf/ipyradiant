@@ -75,14 +75,12 @@ env_specs:
       - https://conda.anaconda.org/msys2
     packages:
       - bokeh
-      - bqplot
       - datashader
       - hvplot
       - importnb
       - ipycytoscape
       - ipywidgets
-      - jupyter_bokeh
-      - jupyterlab ==2.2.4
+      - jupyterlab ==2.2.5
       - networkx
       - nodejs >=12,<13.0.0a0
       - numpy

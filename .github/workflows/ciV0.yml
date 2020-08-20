@@ -9,6 +9,7 @@ on:
 env:
   PYTHONUNBUFFERED: 1
   SKIP_CONDA_PREFLIGHT: 1
+  INSTALL_ARTIFACT: wheel
 
 jobs:
   ci:
@@ -22,17 +23,26 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: configure line endings
+        run: |
+          git config --global core.autocrlf false
 
-      - uses: actions/cache@v1
+      - name: git checkout
+        uses: actions/checkout@v2
+
+      - name: cache (conda)
+        uses: actions/cache@v1
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-conda-ci-${{ hashFiles('anaconda-project-lock.yml') }}
+          key:
+            ${{ runner.os }}-conda-ci-${{ hashFiles('anaconda-project-lock.yml',
+            '.ci/environment.yml') }}
           restore-keys: |
             ${{ runner.os }}-conda-ci-
             ${{ runner.os }}-conda-
 
-      - uses: actions/cache@v1
+      - name: cache (yarn)
+        uses: actions/cache@v1
         with:
           path: .yarn-packages
           key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
@@ -40,7 +50,8 @@ jobs:
             yarn-${{ runner.os }}-
             yarn-
 
-      - uses: goanpeca/setup-miniconda@v1.6.0
+      - name: env (conda)
+        uses: goanpeca/setup-miniconda@v1.6.0
         with:
           activate-environment: ipyradiant-base
           auto-activate-base: false
@@ -48,13 +59,22 @@ jobs:
           show-channel-urls: true
           use-only-tar-bz2: true
 
-      - if: ${{ !contains(matrix.os, 'windows') }}
+      - name: build (linux/macos)
+        if: ${{ !contains(matrix.os, 'windows') }}
         shell: bash -l {0}
-        run: doit -n4 release || doit release
+        run: INSTALL_ARTIFACT=sdist doit -n4 release || doit release
 
-      - if: ${{ contains(matrix.os, 'windows') }}
+      - name: build (windows)
+        if: ${{ contains(matrix.os, 'windows') }}
         shell: cmd /C CALL {0}
         run: call .ci\win.bat release
+
+      - name: publish (linux)
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipyradiant dist ${{ github.run_number }}
+          path: ./dist
 
   ui:
     name: UI
@@ -67,9 +87,15 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: configure line endings
+        run: |
+          git config --global core.autocrlf false
 
-      - uses: actions/cache@v1
+      - name: git checkout
+        uses: actions/checkout@v2
+
+      - name: cache (conda)
+        uses: actions/cache@v1
         with:
           path: ~/conda_pkgs_dir
           key: ${{ runner.os }}-conda-ui-${{ hashFiles('anaconda-project-lock.yml') }}
@@ -77,7 +103,8 @@ jobs:
             ${{ runner.os }}-conda-ui-
             ${{ runner.os }}-conda-
 
-      - uses: actions/cache@v1
+      - name: cache (yarn)
+        uses: actions/cache@v1
         with:
           path: .yarn-packages
           key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
@@ -85,7 +112,8 @@ jobs:
             yarn-${{ runner.os }}-
             yarn-
 
-      - uses: goanpeca/setup-miniconda@v1.6.0
+      - name: env (conda)
+        uses: goanpeca/setup-miniconda@v1.6.0
         with:
           activate-environment: ipyradiant-base
           auto-activate-base: false
@@ -93,10 +121,12 @@ jobs:
           show-channel-urls: true
           use-only-tar-bz2: true
 
-      - if: ${{ !contains(matrix.os, 'windows') }}
+      - name: dev (linux/macos)
+        if: ${{ !contains(matrix.os, 'windows') }}
         shell: bash -l {0}
         run: doit -n4 preflight:lab || doit preflight:lab
 
-      - if: ${{ contains(matrix.os, 'windows') }}
+      - name: dev (windows)
+        if: ${{ contains(matrix.os, 'windows') }}
         shell: cmd /C CALL {0}
         run: call .ci\win.bat preflight:lab

@@ -1,5 +1,9 @@
 """ linter and formatter of notebooks
 """
+# Copyright (c) 2020 ipyradiant contributors.
+# Distributed under the terms of the Modified BSD License.
+
+
 import json
 import shutil
 import subprocess

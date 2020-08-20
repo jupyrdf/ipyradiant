@@ -6,6 +6,10 @@
 
     See `doit list` for more options.
 """
+
+# Copyright (c) 2020 ipyradiant contributors.
+# Distributed under the terms of the Modified BSD License.
+
 import os
 import subprocess
 
@@ -41,7 +45,7 @@ def task_preflight():
             actions=(
                 [_echo_ok("skipping preflight, hope you know what you're doing!")]
                 if P.SKIP_CONDA_PREFLIGHT
-                else [["python", "-m", "_scripts.preflight", "conda"]]
+                else [[*P.PREFLIGHT, "conda"]]
             ),
         ),
         P.OK_PREFLIGHT_CONDA,
@@ -51,7 +55,7 @@ def task_preflight():
         dict(
             name="kernel",
             file_dep=[*file_dep, P.OK_ENV["dev"]],
-            actions=[[*P.APR_DEV, "python", "-m", "_scripts.preflight", "kernel"]],
+            actions=[[*P.APR_DEV, *P.PREFLIGHT, "kernel"]],
         ),
         P.OK_PREFLIGHT_KERNEL,
     )
@@ -60,9 +64,18 @@ def task_preflight():
         dict(
             name="lab",
             file_dep=[*file_dep, P.LAB_INDEX, P.OK_ENV["dev"]],
-            actions=[[*P.APR_DEV, "python", "-m", "_scripts.preflight", "lab"]],
+            actions=[[*P.APR_DEV, *P.PREFLIGHT, "lab"]],
         ),
         P.OK_PREFLIGHT_LAB,
+    )
+
+    yield _ok(
+        dict(
+            name="release",
+            file_dep=[P.CHANGELOG, P.VERSION_PY, P.SDIST, P.WHEEL, *P.ALL_PY],
+            actions=[[*P.APR_DEV, *P.PREFLIGHT, "release"]],
+        ),
+        P.OK_PREFLIGHT_RELEASE,
     )
 
 
@@ -72,7 +85,7 @@ def task_binder():
     return dict(
         file_dep=[
             P.LAB_INDEX,
-            P.OK_PIP_INSTALL_E,
+            P.OK_PIP_INSTALL,
             P.OK_PREFLIGHT_KERNEL,
             P.OK_PREFLIGHT_LAB,
         ],
@@ -100,11 +113,12 @@ def task_release():
     return _ok(
         dict(
             file_dep=[
-                P.OK_PIP_INSTALL_E,
-                P.OK_LINT,
-                P.WHEEL,
-                P.CONDA_PACKAGE,
                 *P.EXAMPLE_HTML,
+                P.CONDA_PACKAGE,
+                P.OK_LINT,
+                P.OK_PIP_INSTALL,
+                P.OK_PREFLIGHT_RELEASE,
+                P.WHEEL,
             ],
             actions=[_echo_ok("ready to release")],
         ),
@@ -115,16 +129,27 @@ def task_release():
 def task_setup():
     """ perform all setup activities
     """
+
+    _install = ["--no-deps", "--ignore-installed", "-vv"]
+
+    if P.INSTALL_ARTIFACT == "wheel":
+        _install += [P.WHEEL]
+    elif P.INSTALL_ARTIFACT == "sdist":
+        _install += [P.SDIST]
+    else:
+        _install += ["-e", "."]
+
     yield _ok(
         dict(
             name="py",
-            file_dep=[P.SETUP_PY, P.SETUP_CFG, P.OK_ENV["dev"]],
+            file_dep=[P.SETUP_PY, P.SETUP_CFG, P.OK_ENV["dev"], P.WHEEL, P.SDIST],
+            uptodate=[config_changed({"artifact": P.INSTALL_ARTIFACT})],
             actions=[
-                [*P.APR_DEV, *P.PIP, "install", "-e", ".", "--no-deps"],
+                [*P.APR_DEV, *P.PIP, "install", *_install],
                 [*P.APR_DEV, *P.PIP, "check"],
             ],
         ),
-        P.OK_PIP_INSTALL_E,
+        P.OK_PIP_INSTALL,
     )
 
     yield dict(
@@ -188,9 +213,9 @@ def task_test():
             name=f"nb:{nb.name}".replace(" ", "_").replace(".ipynb", ""),
             file_dep=[
                 *P.EXAMPLE_IPYNB,
-                P.OK_NBLINT,
+                P.OK_LINT,
                 P.OK_ENV["dev"],
-                P.OK_PIP_INSTALL_E,
+                P.OK_PIP_INSTALL,
                 P.OK_PREFLIGHT_KERNEL,
                 *P.ALL_PY_SRC,
             ],
@@ -332,7 +357,7 @@ def task_lab():
 
     return dict(
         uptodate=[lambda: False],
-        file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL_E, P.OK_PREFLIGHT_LAB],
+        file_dep=[P.LAB_INDEX, P.OK_PIP_INSTALL, P.OK_PREFLIGHT_LAB],
         actions=[PythonInteractiveAction(lab)],
     )
 

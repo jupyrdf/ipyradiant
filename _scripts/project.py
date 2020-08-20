@@ -2,6 +2,10 @@
 
     this should not import anything not in py36+ stdlib, or any local paths
 """
+
+# Copyright (c) 2020 ipyradiant contributors.
+# Distributed under the terms of the Modified BSD License.
+
 import json
 import os
 import platform
@@ -17,7 +21,8 @@ UNIX = not WIN
 
 # CI jank
 SKIP_CONDA_PREFLIGHT = bool(json.loads(os.environ.get("SKIP_CONDA_PREFLIGHT", "false")))
-
+# one of: None, wheel or sdist
+INSTALL_ARTIFACT = os.environ.get("INSTALL_ARTIFACT")
 
 # find root
 SCRIPTS = Path(__file__).parent.resolve()
@@ -40,11 +45,14 @@ ENVS = ROOT / "envs"
 PROJ = ROOT / "anaconda-project.yml"
 PROJ_LOCK = ROOT / "anaconda-project-lock.yml"
 VENDOR = ROOT / "vendor"
+CHANGELOG = ROOT / "CHANGELOG.md"
 
 # tools
 PY = ["python"]
 PYM = [*PY, "-m"]
 PIP = [*PYM, "pip"]
+PREFLIGHT = [*PYM, "_scripts.preflight"]
+
 
 JLPM = ["jlpm"]
 JLPM_INSTALL = [*JLPM, "--ignore-optional", "--prefer-offline"]
@@ -77,11 +85,22 @@ LAB_LOCK = LAB_STAGING / "yarn.lock"
 LAB_STATIC = LAB_APP_DIR / "static"
 LAB_INDEX = LAB_STATIC / "index.html"
 
+
+def _not_checkpoint(paths):
+    """ filter out paths that are in .ipynb_checkpoints
+    """
+    return sorted(
+        [p for p in paths if not p.is_dir() and ".ipynb_checkpoints" not in str(p)]
+    )
+
+
 # tests
 EXAMPLES = ROOT / "examples"
-EXAMPLE_IPYNB = [
-    p for p in EXAMPLES.rglob("*.ipynb") if ".ipynb_checkpoints" not in str(p)
+EXAMPLE_DATA = EXAMPLES / "data"
+EXAMPLE_DATASETS = [
+    p for p in _not_checkpoint(EXAMPLE_DATA.glob("*")) if not p.name.endswith("*.md")
 ]
+EXAMPLE_IPYNB = _not_checkpoint(EXAMPLES.rglob("*.ipynb"))
 EXAMPLE_PY = [*EXAMPLES.rglob("*.py")]
 DIST_NBHTML = DIST / "nbsmoke"
 
@@ -90,7 +109,7 @@ ALL_PY_SRC = [*PY_SRC.rglob("*.py")]
 ALL_PY = [DODO, *ALL_PY_SRC, *EXAMPLE_PY, *SCRIPTS.rglob("*.py")]
 ALL_YML = [*ROOT.glob("*.yml"), *CI.rglob("*.yml")]
 ALL_JSON = [*ROOT.glob("*.json")]
-ALL_MD = [*ROOT.glob("*.md")]
+ALL_MD = [*ROOT.glob("*.md"), *EXAMPLE_DATA.glob("*.md")]
 ALL_PRETTIER = [*ALL_YML, *ALL_JSON, *ALL_MD]
 
 # conda
@@ -102,6 +121,7 @@ OK_RELEASE = BUILD / "release.ok"
 OK_PREFLIGHT_CONDA = BUILD / "preflight.conda.ok"
 OK_PREFLIGHT_KERNEL = BUILD / "preflight.kernel.ok"
 OK_PREFLIGHT_LAB = BUILD / "preflight.lab.ok"
+OK_PREFLIGHT_RELEASE = BUILD / "preflight.release.ok"
 NBLINT_HASHES = BUILD / "nblint.hashes"
 OK_BLACK = BUILD / "black.ok"
 OK_FLAKE8 = BUILD / "flake8.ok"
@@ -109,7 +129,7 @@ OK_ISORT = BUILD / "isort.ok"
 OK_LINT = BUILD / "lint.ok"
 OK_PYFLAKES = BUILD / "pyflakes.ok"
 OK_NBLINT = BUILD / "nblint.ok"
-OK_PIP_INSTALL_E = BUILD / "pip_install_e.ok"
+OK_PIP_INSTALL = BUILD / "pip_install.ok"
 OK_PRETTIER = BUILD / "prettier.ok"
 
 # derived info

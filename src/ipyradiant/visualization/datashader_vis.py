@@ -1,3 +1,6 @@
+# Copyright (c) 2020 ipyradiant contributors.
+# Distributed under the terms of the Modified BSD License.
+
 import traitlets as T
 
 import holoviews as hv
@@ -132,6 +135,7 @@ class DatashaderVisualizer(NXBase):
 
     @T.observe("_nx_layout", "sparql", "graph", "graph_layout_params")
     def changed_layout(self, change):
+        self.selected_nodes = []
         if self.graph is None:
             self.output_graph = None
             self.display_datashader_vis(self.output_graph)
