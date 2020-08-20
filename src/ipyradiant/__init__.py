@@ -2,7 +2,7 @@
 """
 
 from ._version import __version__
-from .basic_tools import PredicateSelectionWidget
+from .basic_tools import MultiPanelSelect
 from .loader import LoadWidget
 from .query import QueryWidget
 from .visualization import CytoscapeVisualizer, DatashaderVisualizer, LayoutSelector
@@ -14,5 +14,5 @@ __all__ = [
     "CytoscapeVisualizer",
     "DatashaderVisualizer",
     "LayoutSelector",
-    "PredicateSelectionWidget",
+    "MultiPanelSelect",
 ]

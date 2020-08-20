@@ -1,4 +1,4 @@
 """basic tooling widgets
 """
-__all__ = ["PredicateSelectionWidget"]
-from .selection_widget import PredicateSelectionWidget
+__all__ = ["MultiPanelSelect"]
+from .selection_widget import MultiPanelSelect
