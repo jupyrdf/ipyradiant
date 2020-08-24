@@ -65,3 +65,17 @@ doit all
 
 - go get a coffee
 - runs `preflight:lab` and `release`
+
+## Releasing
+
+- After merging to `master`, download the `ipyradiant` dist artifacts after a successful
+  CI run
+- Check out `master`
+- Extract and inspect the files in `./dist`.
+- Ensure you have credentials for `pypi`
+
+```bash
+anaconda-project run --env-spec build twine upload dist/ipyradiant-*
+```
+
+- Tag appropriately through the web UI

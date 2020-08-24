@@ -114,7 +114,6 @@ def task_release():
         dict(
             file_dep=[
                 *P.EXAMPLE_HTML,
-                P.CONDA_PACKAGE,
                 P.OK_LINT,
                 P.OK_PIP_INSTALL,
                 P.OK_PREFLIGHT_RELEASE,
@@ -171,21 +170,6 @@ def task_build():
             [*P.APR_BUILD, *P.PY, "setup.py", "bdist_wheel"],
         ],
         targets=[P.WHEEL, P.SDIST],
-    )
-    yield dict(
-        name="conda",
-        file_dep=[P.SDIST, P.META_YAML],
-        actions=[
-            [
-                *P.APR_BUILD,
-                *P.CONDA_BUILD,
-                "--output-folder",
-                P.DIST_CONDA,
-                *_channel_args(),
-                P.RECIPE,
-            ]
-        ],
-        targets=[P.CONDA_PACKAGE],
     )
 
 
