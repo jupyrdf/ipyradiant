@@ -9,4 +9,6 @@ dependencies:
   - anaconda-project =0.8.4
   - conda >=4.8,<4.9
   - doit =0.32
+  - pip
   - python >=3.7,<3.8
+  - twine
