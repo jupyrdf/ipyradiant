@@ -1,31 +1,25 @@
 # ipyradiant
 
-[![Binder][]][binder-link] [![status][]][status-link]
+[Jupyter Widgets][widgets] for [RDF][rdf] graph interaction, querying, and visualization in [JupyterLab][jupyterlab].
 
-Jupyter Widgets for RDF graph interaction, querying, and visualization in JupyterLab and
-the Jupyter notebook.
+|                                        Install                                        |            Demo             |        Build        |                          Docs                           |
+| :-----------------------------------------------------------------------------------: | :-------------------------: | :-----------------: | :-----------------------------------------------------: |
+| [![pypi-badge][]][pypi] <br/> [![conda-badge]][conda-forge] | [![binder-badge][]][binder] | [![ci-badge][]][ci] | [CHANGELOG][] <br/> [CONTRIBUTING][] <br/> [examples][] |
 
-[binder]: https://mybinder.org/badge_logo.svg
-[binder-link]:
-  https://mybinder.org/v2/gh/jupyrdf/ipyradiant/master?urlpath=lab/tree/index.ipynb
-[status]:
-  https://github.com/jupyrdf/ipyradiant/workflows/.github/workflows/ciV0.yml/badge.svg
-[status-link]: https://github.com/jupyrdf/ipyradiant/actions
-
-Powered by [ipyctoscape](https://github.com/QuantStack/ipycytoscape),
-[datashader](https://datashader.org/), and [holoviews](http://holoviews.org/).
+Powered by [ipyctoscape][ipycytoscape],
+[datashader][datashader], and [holoviews][holoviews].
 
 ## Visualization Widgets
 
 `ipyradiant` includes several widgets for visualizing RDF graphs that can be accessed
 through the examples.
-![datashader screencast](https://user-images.githubusercontent.com/32652349/90517352-470f7b00-e133-11ea-8cb8-8e810198ced0.gif)
+![datashader screencast][screencast1]
 
 ## Example Tooling Widgets
 
 `ipyradiant` includes examples where visualization and utility widgets are linked into
 example tooling.
-![TabApp screencast](https://user-images.githubusercontent.com/32652349/90517340-44148a80-e133-11ea-9ee4-add09ee2c0d4.gif)
+![TabApp screencast][screencast2]
 
 ## Prerequisites
 
@@ -46,4 +40,32 @@ pip install ipyradiant
 jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-cytoscape @pyviz/jupyterlab_pyviz qgrid2
 ```
 
-> For additional information, see [CONTRIBUTING.md](./CONTRIBUTING.md)
+> For additional information, see [CONTRIBUTING.md][contributing]
+
+## Open Source
+
+This work is licensed under the [BSD-3-Clause License][license]. 
+
+[license]: https://github.com/jupyrdf/ipyradiant/tree/master/LICENSE
+[examples]: https://github.com/jupyrdf/ipyradiant/tree/master/index.ipynb
+[contributing]: https://github.com/jupyrdf/ipyradiant/tree/master/CONTRIBUTING.md
+[changelog]: https://github.com/jupyrdf/ipyradiant/tree/master/CHANGELOG.md
+[ci-badge]: https://github.com/jupyrdf/ipyradiant/workflows/CI/badge.svg
+[ci]: https://github.com/jupyrdf/ipyradiant/actions?query=workflow%3ACI+branch%3Amaster
+[datashader]: https://datashader.org/
+[binder-badge]: https://mybinder.org/badge_logo.svg
+[binder]:
+  https://mybinder.org/v2/gh/jupyrdf/ipyradiant/master?urlpath=lab/tree/index.ipynb
+[holoviews]: http://holoviews.org/
+[ipycytoscape]: https://github.com/QuantStack/ipycytoscape
+[jupyterlab]: https://github.com/jupyterlab/jupyterlab
+[widgets]: https://jupyter.org/widgets
+[rdf]: https://www.w3.org/RDF/
+[screencast1]:
+  https://user-images.githubusercontent.com/32652349/90517352-470f7b00-e133-11ea-8cb8-8e810198ced0.gif
+[screencast2]:
+  https://user-images.githubusercontent.com/32652349/90517340-44148a80-e133-11ea-9ee4-add09ee2c0d4.gif
+[pypi]: https://pypi.org/project/ipyradiant
+[pypi-badge]: https://img.shields.io/pypi/v/ipyradiant
+[conda-badge]: https://img.shields.io/conda/vn/conda-forge/ipyradiant
+[conda-forge]: https://anaconda.org/conda-forge/ipyradiant/
