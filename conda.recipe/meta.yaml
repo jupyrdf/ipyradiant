@@ -1,5 +1,5 @@
 {% set name = "ipyradiant" %}
-{% set version = "0.1.0" %}
+{% set version = "0.1.1" %}
 {% set dist = name ~ "-" ~ version %}
 {% set fname = dist ~ ".tar.gz" %}
 
