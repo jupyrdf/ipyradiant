@@ -40,7 +40,6 @@ CI = ROOT / ".github"
 DODO = ROOT / "dodo.py"
 BUILD = ROOT / "build"
 DIST = ROOT / "dist"
-RECIPE = ROOT / "conda.recipe"
 ENVS = ROOT / "envs"
 PROJ = ROOT / "anaconda-project.yml"
 PROJ_LOCK = ROOT / "anaconda-project-lock.yml"
@@ -113,7 +112,6 @@ ALL_MD = [*ROOT.glob("*.md"), *EXAMPLE_DATA.glob("*.md")]
 ALL_PRETTIER = [*ALL_YML, *ALL_JSON, *ALL_MD]
 
 # conda
-META_YAML = RECIPE / "meta.yaml"
 DIST_CONDA = DIST / "conda-bld"
 
 # built files
@@ -134,12 +132,8 @@ OK_PRETTIER = BUILD / "prettier.ok"
 
 # derived info
 PY_VERSION = re.findall(r'''__version__ = "(.*)"''', VERSION_PY.read_text())[0]
-CONDA_BUILD_NO = re.findall(r"""number: (\d+)""", META_YAML.read_text())[0]
 
 # built artifacts
 SDIST = DIST / f"ipyradiant-{PY_VERSION}.tar.gz"
 WHEEL = DIST / f"ipyradiant-{PY_VERSION}-py3-none-any.whl"
 EXAMPLE_HTML = [DIST_NBHTML / p.name.replace(".ipynb", ".html") for p in EXAMPLE_IPYNB]
-CONDA_PACKAGE = (
-    DIST_CONDA / "noarch" / f"ipyradiant-{PY_VERSION}-py_{CONDA_BUILD_NO}.tar.bz2"
-)
