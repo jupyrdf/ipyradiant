@@ -33,10 +33,24 @@ For JupyterLab support, ensure you have the following installed:
 - `jupyterlab >=1`
 - `nodejs >=10`
 
-## Installation
+## Install
+
+### `ipyradiant` with `conda` (recommended)
+
+```bash
+conda install -c conda-forge ipyradiant
+```
+
+### `ipyradiant` with `pip`
 
 ```bash
 pip install ipyradiant
+```
+
+### JupyterLab Extensions
+
+Install the lab extensions that `ipyradiant` depends on. 
+```bash
 jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-cytoscape @pyviz/jupyterlab_pyviz qgrid2
 ```
 
@@ -62,7 +76,7 @@ This work is licensed under the [BSD-3-Clause License][license].
 [widgets]: https://jupyter.org/widgets
 [rdf]: https://www.w3.org/RDF/
 [screencast1]:
-  https://user-images.githubusercontent.com/32652349/90517352-470f7b00-e133-11ea-8cb8-8e810198ced0.gif
+  https://user-images.githubusercontent.com/32652349/91210101-b6104500-e6da-11ea-9db2-967d2426c630.gif
 [screencast2]:
   https://user-images.githubusercontent.com/32652349/90517340-44148a80-e133-11ea-9ee4-add09ee2c0d4.gif
 [pypi]: https://pypi.org/project/ipyradiant
