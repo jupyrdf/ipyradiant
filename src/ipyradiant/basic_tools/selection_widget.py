@@ -64,17 +64,36 @@ class MultiPanelSelect(ipyw.HBox):
         self.selected_things.options = self.selected_things_list
 
     def __init__(self, *args, **kwargs):
+        """ A multi-select widget that uses multiple panels to improve widget state
+            clarity.
+
+            Available kwargs:
+              :data: the list of things that will appear in the panels
+              :left_panel_text: the text to use when creating the left panel label
+              :right_panel_text: the text to use when creating the right panel label
+
+            TODO allow other types of data (e.g. dict)
+            TODO allow for more flexible styling
+        """
         super().__init__(*args, **kwargs)
         self.data = kwargs["data"]
+        self.left_panel_text = kwargs.get("left_panel_text", "Available Things")
+        self.right_panel_text = kwargs.get("right_panel_text", "Selected Things")
 
         self.column_one = ipyw.VBox(
-            children=[ipyw.HTML("<h1>Available Things</h1>"), self.available_things]
+            children=[
+                ipyw.HTML(f"<b>{self.left_panel_text}</b>"),
+                self.available_things,
+            ]
         )
         self.column_two = ipyw.VBox(children=[self.add_button, self.remove_button])
         self.column_three = ipyw.VBox(
-            children=[ipyw.HTML("<h1>Selected Things</h1>"), self.selected_things]
+            children=[
+                ipyw.HTML(f"<b>{self.right_panel_text}</b>"),
+                self.selected_things,
+            ]
         )
-
+        # TODO improve layout, design and stability
         self.add_button.style.button_color = "lightgreen"
         self.remove_button.style.button_color = "red"
         self.add_button.layout = ipyw.Layout(margin="100px 0px 0px 0px")
