@@ -60,9 +60,11 @@ class CytoscapeVisualizer(VisualizerBase):
 
     @T.default("cyto_widget")
     def _make_default_cyto_widget(self):
-        cyto_widget = CytoscapeWidget()
+        cyto_widget = CytoscapeWidget(box_select_enabled=True,)
         cyto_widget.on("node", "click", self.log_node_clicks)
         cyto_widget.on("edge", "click", self.log_edge_clicks)
+        cyto_widget.on("node", "boxselect", self.log_box_select)
+
         cyto_widget.set_style([self.node_style, self.edge_style])
         return cyto_widget
 
@@ -76,9 +78,16 @@ class CytoscapeVisualizer(VisualizerBase):
             (self.click_output_box.layout, "visibility"),
             lambda x: "visible" if x else "hidden",
         )
-        self.children = [
-            self.cyto_widget,
-        ]
+
+        if self.show_outputs == True:
+            self.children = [
+                self.cyto_widget,
+                self.click_output_box,
+            ]
+        else:
+            self.children = [
+                self.cyto_widget,
+            ]
 
     def log_node_clicks(self, node):
         self.selected_nodes = tuple([URIRef(node["data"]["id"])])
@@ -93,6 +102,10 @@ class CytoscapeVisualizer(VisualizerBase):
             print(f'edge source: {edge["data"]["source"]}')
             print(f'edge target: {edge["data"]["target"]}')
             print("-------------------------------")
+
+    def log_box_select(self, arg):
+        with self.click_output:
+            print(arg)
 
     @T.observe("graph")
     def update_cyto_widget_graph(self, change):
