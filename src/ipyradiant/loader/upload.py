@@ -12,8 +12,7 @@ from .util import SUFFIX_FORMAT_MAP
 
 
 class UpLoader(W.HBox, BaseLoader):
-    """ Loader that wraps a FileUpload
-    """
+    """Loader that wraps a FileUpload"""
 
     label = T.Instance(W.Label)
     file_upload = T.Instance(W.FileUpload)

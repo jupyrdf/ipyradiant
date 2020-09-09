@@ -23,14 +23,12 @@ NB_METADATA_KEYS = ["kernelspec", "language_info"]
 
 
 def blacken(source):
-    """ apply black to a source string
-    """
+    """apply black to a source string"""
     return black.format_str(source, mode=black.FileMode(line_length=88))
 
 
 def nblint_one(nb_node):
-    """ format/lint one notebook
-    """
+    """format/lint one notebook"""
     changes = 0
     has_empty = 0
     nb_metadata_keys = list(nb_node.metadata.keys())
@@ -51,7 +49,9 @@ def nblint_one(nb_node):
                 "always",
             ]
             prettier = subprocess.Popen(
-                list(map(str, args)), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                list(map(str, args)),
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
             )
             out, _err = prettier.communicate(source.encode("utf-8"))
             new = out.decode("utf-8").rstrip()
@@ -83,14 +83,12 @@ def nblint_one(nb_node):
 
 
 def nb_hash(nb_text):
-    """ hash one notebook
-    """
+    """hash one notebook"""
     return sha256(nb_text.encode("utf-8")).hexdigest()
 
 
 def nblint(nb_paths):
-    """ lint a number of notebook paths
-    """
+    """lint a number of notebook paths"""
     nb_hashes = {}
 
     if P.NBLINT_HASHES.exists():

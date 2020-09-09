@@ -33,8 +33,7 @@ PROJ = safe_load(P.PROJ.read_text(encoding="utf-8"))
 
 
 def task_preflight():
-    """ ensure a sane development environment
-    """
+    """ensure a sane development environment"""
     file_dep = [P.PROJ_LOCK, P.SCRIPTS / "preflight.py"]
 
     yield _ok(
@@ -80,8 +79,7 @@ def task_preflight():
 
 
 def task_binder():
-    """ get to a minimal interactive environment
-    """
+    """get to a minimal interactive environment"""
     return dict(
         file_dep=[
             P.LAB_INDEX,
@@ -94,8 +92,7 @@ def task_binder():
 
 
 def task_env():
-    """ prepare project envs
-    """
+    """prepare project envs"""
     envs = ["dev", "build", "qa"]
     for i, env in enumerate(envs):
         file_dep = [P.PROJ_LOCK, P.OK_PREFLIGHT_CONDA]
@@ -108,8 +105,7 @@ def task_env():
 
 
 def task_release():
-    """ everything we'd need to do to release (except release)
-    """
+    """everything we'd need to do to release (except release)"""
     return _ok(
         dict(
             file_dep=[
@@ -126,8 +122,7 @@ def task_release():
 
 
 def task_setup():
-    """ perform all setup activities
-    """
+    """perform all setup activities"""
 
     _install = ["--no-deps", "--ignore-installed", "-vv"]
 
@@ -160,8 +155,7 @@ def task_setup():
 
 
 def task_build():
-    """ build packages
-    """
+    """build packages"""
     yield dict(
         name="py",
         file_dep=[*P.ALL_PY_SRC, P.SETUP_CFG, P.SETUP_PY, P.OK_LINT, P.OK_ENV["build"]],
@@ -174,8 +168,7 @@ def task_build():
 
 
 def task_test():
-    """ run all the notebooks
-    """
+    """run all the notebooks"""
 
     def _nb_test(nb):
         def _test():
@@ -212,8 +205,7 @@ def task_test():
 
 
 def task_lint():
-    """ format all source files
-    """
+    """format all source files"""
 
     yield _ok(
         dict(
@@ -282,8 +274,7 @@ def task_lint():
 
 
 def task_lab_build():
-    """ do a "production" build of lab
-    """
+    """do a "production" build of lab"""
     exts = [
         line.strip()
         for line in P.EXTENSIONS.read_text().strip().splitlines()
@@ -321,8 +312,7 @@ def task_lab_build():
 
 
 def task_lab():
-    """ run JupyterLab "normally" (not watching sources)
-    """
+    """run JupyterLab "normally" (not watching sources)"""
 
     def lab():
         proc = subprocess.Popen(
@@ -347,10 +337,10 @@ def task_lab():
 
 
 def task_all():
-    """ do everything except start lab
-    """
+    """do everything except start lab"""
     return dict(
-        file_dep=[P.OK_RELEASE, P.OK_PREFLIGHT_LAB], actions=([_echo_ok("ALL GOOD")]),
+        file_dep=[P.OK_RELEASE, P.OK_PREFLIGHT_LAB],
+        actions=([_echo_ok("ALL GOOD")]),
     )
 
 

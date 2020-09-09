@@ -58,8 +58,8 @@ class NXBase(VisualizerBase):
 
     @T.default("_layouts")
     def _make_default_layouts(self):
-        """ these are leniently loaded, as the exact set of algorithms depends
-            heavily on the version of networkx installed
+        """these are leniently loaded, as the exact set of algorithms depends
+        heavily on the version of networkx installed
         """
         layouts = {}
         for layout_key in nx_layout.__all__:

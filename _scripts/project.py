@@ -86,8 +86,7 @@ LAB_INDEX = LAB_STATIC / "index.html"
 
 
 def _not_checkpoint(paths):
-    """ filter out paths that are in .ipynb_checkpoints
-    """
+    """filter out paths that are in .ipynb_checkpoints"""
     return sorted(
         [p for p in paths if not p.is_dir() and ".ipynb_checkpoints" not in str(p)]
     )
