@@ -11,7 +11,9 @@ python -m pip install -e . --no-cache-dir --no-deps
 jupyter labextension list
 jupyter labextension install $(cat labextensions.txt) --no-build --debug
 jupyter labextension list
-jupyter lab build --debug --dev-build=False --minimize=True || cat /tmp/jupyterlab-debug*.log
+jupyter lab build --debug --dev-build=False --minimize=True \
+    || echo "TODO: REMOVE. Lab build failed, continuing anyway... check /tmp for logs"
+jupyter labextension list
 
 # cleanup
 jupyter lab clean
