@@ -6,7 +6,7 @@ import types
 import traitlets as T
 
 import ipywidgets as W
-import networkx as nx
+import networkx.drawing.layout as nx_layout
 from rdflib import Graph, URIRef
 
 
@@ -42,37 +42,64 @@ class NXBase(VisualizerBase):
     """
     The visualization class for the NXLayouts. Used by the datashader visualizations.
 
-    :param _nx_layout: the desired networkx layout to be used.
-    :param _layouts: a dictionary mapping all the possible layouts to the corresponding networkx functions.
+    :param _nx_layout: the desired networkx layout function to be used.
+    :param _layouts: a dictionary mapping labels of known layouts to networkx functions.
     """
 
-    _layouts = {
-        "Kamada Kawai": nx.kamada_kawai_layout,
-        "Circular": nx.circular_layout,
-        "Planar": nx.planar_layout,
-        "Random": nx.random_layout,
-        "Shell": nx.shell_layout,
-        "Spectral": nx.spectral_layout,
-        "Spiral": nx.spiral_layout,
-        "Spring": nx.spring_layout,
-        # "Bipartite": nx.bipartite_layout,
-        # "Rescale": nx.rescale_layout,
-    }
+    NOT_HANDLED = ["bipartite_layout", "rescale_layout"]
+
+    _layouts = T.Dict()
 
     _nx_layout = T.Instance(types.FunctionType)
 
     @T.default("graph_layout_options")
     def _make_default_options(self):
-        return tuple(self._layouts.keys())
+        return tuple(self._layouts)
+
+    @T.default("_layouts")
+    def _make_default_layouts(self):
+        """ these are leniently loaded, as the exact set of algorithms depends
+            heavily on the version of networkx installed
+        """
+        layouts = {}
+        for layout_key in nx_layout.__all__:
+            if layout_key in self.NOT_HANDLED:
+                continue
+            try:
+                layout = getattr(nx_layout, layout_key)
+                label = _make_nx_layout_label(layout_key)
+                layouts[label] = layout
+            except Exception as err:
+                self.log.warning(
+                    "Expected to be able to load from networkx: %s\n%s", layout_key, err
+                )
+        return layouts
 
     @T.default("graph_layout")
     def _make_default_layout(self):
         return self.graph_layout_options[0]
 
-    @T.observe("graph_layout")
-    def _update_graph_layout(self, change):
-        self._nx_layout = self._layouts[self.graph_layout]
-
     @T.default("_nx_layout")
     def set_default_nx_layout(self):
         return self._layouts[self.graph_layout]
+
+    @T.observe("graph_layout")
+    def _update_graph_layout(self, change):
+        if change.new is None:
+            self._nx_layout = sorted(self._layouts.items())[0][1]
+            return
+
+        if change.new in self._layouts:
+            self._nx_layout = self._layouts[self.graph_layout]
+            return
+
+        try:
+            self._nx_layout = getattr(nx_layout, change.new)
+        except Exception as err:
+            self.log.warning("Could not load from networkx: %s\n%s", change.new, err)
+
+
+def _make_nx_layout_label(layout_key):
+    words = layout_key.replace("_layout", "").split("_")
+    titled = [w[0].upper() + w[1:] for w in words]
+    return " ".join(titled)
