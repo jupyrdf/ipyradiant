@@ -9,10 +9,10 @@ dependencies:
   - datashader
   - hvplot
   - importnb
-  - ipycytoscape
+  - ipycytoscape >=1.0.3
   - ipywidgets
   - jupyterlab ==2.2.5
-  - networkx
+  - networkx >=2
   - nodejs >=12,<13.0.0a0
   - numpy
   - pip

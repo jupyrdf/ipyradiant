@@ -41,7 +41,9 @@ class MultiPanelSelect(ipyw.HBox):
 
     @trt.default("add_button")
     def _make_add_button(self):
-        return ipyw.Button(description="Add",)
+        return ipyw.Button(
+            description="Add",
+        )
 
     @trt.default("remove_button")
     def _make_remove_button(self):
@@ -64,16 +66,16 @@ class MultiPanelSelect(ipyw.HBox):
         self.selected_things.options = self.selected_things_list
 
     def __init__(self, *args, **kwargs):
-        """ A multi-select widget that uses multiple panels to improve widget state
-            clarity.
+        """A multi-select widget that uses multiple panels to improve widget state
+        clarity.
 
-            Available kwargs:
-              :data: the list of things that will appear in the panels
-              :left_panel_text: the text to use when creating the left panel label
-              :right_panel_text: the text to use when creating the right panel label
+        Available kwargs:
+          :data: the list of things that will appear in the panels
+          :left_panel_text: the text to use when creating the left panel label
+          :right_panel_text: the text to use when creating the right panel label
 
-            TODO allow other types of data (e.g. dict)
-            TODO allow for more flexible styling
+        TODO allow other types of data (e.g. dict)
+        TODO allow for more flexible styling
         """
         super().__init__(*args, **kwargs)
         self.data = kwargs["data"]

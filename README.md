@@ -1,25 +1,24 @@
 # ipyradiant
 
-[Jupyter Widgets][widgets] for [RDF][rdf] graph interaction, querying, and visualization in [JupyterLab][jupyterlab].
+[Jupyter Widgets][widgets] for [RDF][rdf] graph interaction, querying, and visualization
+in [JupyterLab][jupyterlab].
 
-|                                        Install                                        |            Demo             |        Build        |                          Docs                           |
-| :-----------------------------------------------------------------------------------: | :-------------------------: | :-----------------: | :-----------------------------------------------------: |
+|                           Install                           |            Demo             |        Build        |                          Docs                           |
+| :---------------------------------------------------------: | :-------------------------: | :-----------------: | :-----------------------------------------------------: |
 | [![pypi-badge][]][pypi] <br/> [![conda-badge]][conda-forge] | [![binder-badge][]][binder] | [![ci-badge][]][ci] | [CHANGELOG][] <br/> [CONTRIBUTING][] <br/> [examples][] |
 
-Powered by [ipyctoscape][ipycytoscape],
-[datashader][datashader], and [holoviews][holoviews].
+Powered by [ipyctoscape][ipycytoscape], [datashader][datashader], and
+[holoviews][holoviews].
 
 ## Visualization Widgets
 
 `ipyradiant` includes several widgets for visualizing RDF graphs that can be accessed
-through the examples.
-![datashader screencast][screencast1]
+through the examples. ![datashader screencast][screencast1]
 
 ## Example Tooling Widgets
 
 `ipyradiant` includes examples where visualization and utility widgets are linked into
-example tooling.
-![TabApp screencast][screencast2]
+example tooling. ![TabApp screencast][screencast2]
 
 ## Prerequisites
 
@@ -49,7 +48,8 @@ pip install ipyradiant
 
 ### JupyterLab Extensions
 
-Install the lab extensions that `ipyradiant` depends on. 
+Install the lab extensions that `ipyradiant` depends on.
+
 ```bash
 jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-cytoscape @pyviz/jupyterlab_pyviz qgrid2
 ```
@@ -58,7 +58,7 @@ jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-cytosca
 
 ## Open Source
 
-This work is licensed under the [BSD-3-Clause License][license]. 
+This work is licensed under the [BSD-3-Clause License][license].
 
 [license]: https://github.com/jupyrdf/ipyradiant/tree/master/LICENSE
 [examples]: https://github.com/jupyrdf/ipyradiant/tree/master/index.ipynb
