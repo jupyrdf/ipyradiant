@@ -44,9 +44,17 @@ class NXBase(VisualizerBase):
 
     :param _nx_layout: the desired networkx layout function to be used.
     :param _layouts: a dictionary mapping labels of known layouts to networkx functions.
+
+    Notes:
+      - not all networkx layouts work without custom node/edge data or graph_layout_params
+        and are NOT_HANDLED by default, but can be set explicitly
     """
 
-    NOT_HANDLED = ["bipartite_layout", "rescale_layout"]
+    NOT_HANDLED = [
+        "bipartite_layout",
+        "multipartite_layout",
+        "rescale_layout",
+    ]
 
     _layouts = T.Dict()
 
