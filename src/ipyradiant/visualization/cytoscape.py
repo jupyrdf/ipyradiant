@@ -99,10 +99,18 @@ class CytoscapeVisualizer(VisualizerBase):
         try:
             self.cyto_widget.headless = True
             for edge in list(self.cyto_widget.graph.edges):
-                self.cyto_widget.graph.remove_edge(edge)
+                try:
+                    self.cyto_widget.graph.remove_edge(edge)
+                except Exception as err:
+                    with self.log:
+                        print(f"error removing node {edge}:\n{err}")
 
             for node in list(self.cyto_widget.graph.nodes):
-                self.cyto_widget.graph.remove_node(node)
+                try:
+                    self.cyto_widget.graph.remove_node(node)
+                except Exception as err:
+                    with self.log:
+                        print(f"error removing node {node}:\n{err}")
 
             if len(self.cyto_widget.graph.nodes) != 0:
                 with self.log:
