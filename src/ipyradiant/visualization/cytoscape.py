@@ -60,7 +60,9 @@ class CytoscapeVisualizer(VisualizerBase):
 
     @T.default("cyto_widget")
     def _make_default_cyto_widget(self):
-        cyto_widget = CytoscapeWidget(box_select_enabled=True,)
+        cyto_widget = CytoscapeWidget(
+            box_select_enabled=True,
+        )
         cyto_widget.on("node", "click", self.log_node_clicks)
         cyto_widget.on("edge", "click", self.log_edge_clicks)
         cyto_widget.on("node", "boxselect", self.log_box_select)
