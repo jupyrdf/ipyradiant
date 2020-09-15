@@ -47,6 +47,15 @@ class MultiPanelSelect(ipyw.HBox):
     def _make_remove_button(self):
         return ipyw.Button(description="Remove")
 
+    @trt.observe("data")
+    def _change_data(self, change):
+        self.available_things_list = self._make_available_things_list()
+
+    @trt.observe("available_things_list")
+    def _change_selector(self, change):
+        self.available_things = self._make_available_things()
+        self.children = self.children
+
     def on_add_clicked(self, *args):
         items_to_move = self.available_things.value
         for item in items_to_move:
