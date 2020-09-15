@@ -110,7 +110,9 @@ class LinkedLimitOffset(W.VBox):
     @T.default("limit_check")
     def make_default_limit_check(self):
         limit_check = W.Checkbox(
-            value=False, indent=False, layout=W.Layout(width="20px"),
+            value=False,
+            indent=False,
+            layout=W.Layout(width="20px"),
         )
         T.link((limit_check, "value"), (self, "limit_enabled"))
         return limit_check
@@ -129,7 +131,10 @@ class LinkedLimitOffset(W.VBox):
     @T.default("offset")
     def make_default_offset(self):
         offset = W.IntSlider(
-            description="Offset:", min=0, max=self.max_len, continuous_update=True,
+            description="Offset:",
+            min=0,
+            max=self.max_len,
+            continuous_update=True,
         )
         return offset
 

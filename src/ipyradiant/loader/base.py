@@ -11,9 +11,9 @@ from .util import guess_format
 
 
 class BaseLoader(W.Widget):
-    """ Base class for loaders.
+    """Base class for loaders.
 
-        Uses the metadata format from FileUpload
+    Uses the metadata format from FileUpload
     """
 
     description = T.Unicode()
@@ -32,9 +32,9 @@ class BaseLoader(W.Widget):
 
     @T.observe("file_upload_value")
     def process_files(self, change):
-        """ load a single graph from upload metadata
+        """load a single graph from upload metadata
 
-            TODO: support multiple graphs as a ConjunctiveGraph
+        TODO: support multiple graphs as a ConjunctiveGraph
         """
         g = Graph()
 

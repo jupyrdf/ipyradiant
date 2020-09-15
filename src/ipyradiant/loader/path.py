@@ -13,8 +13,7 @@ from .util import SUFFIX_FORMAT_MAP
 
 
 class PathLoader(W.HBox, BaseLoader):
-    """ Loader that selects from a list of files in a path
-    """
+    """Loader that selects from a list of files in a path"""
 
     label = T.Instance(W.Label)
     path = T.Union([T.Unicode(), T.Instance(Path)], allow_none=True)
@@ -38,8 +37,7 @@ class PathLoader(W.HBox, BaseLoader):
 
     @T.default("file_picker")
     def make_default_file_picker(self):
-        """ TODO: revisit for multiple files, e.g. checkboxes
-        """
+        """TODO: revisit for multiple files, e.g. checkboxes"""
         return W.Dropdown()
 
     def _file_picked(self, change=None):

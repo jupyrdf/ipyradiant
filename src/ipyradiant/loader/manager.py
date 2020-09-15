@@ -14,8 +14,7 @@ from .util import get_n_predicates, get_n_subjects
 
 
 class FileManager(W.VBox):
-    """ Wraps a file selector and stats
-    """
+    """Wraps a file selector and stats"""
 
     n_triples = T.Int()
     n_subjects = T.Int()

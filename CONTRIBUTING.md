@@ -68,8 +68,10 @@ doit all
 
 ## Releasing
 
-- After merging to `master`, download the `ipyradiant` dist artifacts after a successful
-  CI run
+- Start a release issue with version and release name
+  - Pick an unused, random radiance unit from [wikipedia][radiance-si-units]
+- After merging all PRs to `master`, download the `ipyradiant` dist artifacts after a
+  successful CI run
 - Check out `master`
 - Extract and inspect the files in `./dist`.
 - Ensure you have credentials for `pypi`
@@ -79,3 +81,6 @@ anaconda-project run --env-spec build twine upload dist/ipyradiant-*
 ```
 
 - Tag appropriately through the web UI
+- Complete `conda-forge` tasks
+
+[radiance-si-units]: https://en.wikipedia.org/wiki/Radiance#SI_radiometry_units
