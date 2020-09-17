@@ -81,7 +81,7 @@ class CytoscapeVisualizer(VisualizerBase):
             lambda x: "visible" if x else "hidden",
         )
 
-        if self.show_outputs == True:
+        if self.show_outputs is True:
             self.children = [
                 self.cyto_widget,
                 self.click_output_box,
