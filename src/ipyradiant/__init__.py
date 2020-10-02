@@ -7,6 +7,7 @@ from ._version import __version__
 from .basic_tools import MultiPanelSelect
 from .loader import FileManager, PathLoader, UpLoader
 from .query import QueryWidget
+from .remote_query import RemoteQueryWidget
 from .visualization import CytoscapeVisualizer, DatashaderVisualizer, LayoutSelector
 
 __all__ = [
@@ -17,6 +18,7 @@ __all__ = [
     "LayoutSelector",
     "PathLoader",
     "QueryWidget",
+    "RemoteQueryWidget",
     "UpLoader",
     "MultiPanelSelect",
 ]

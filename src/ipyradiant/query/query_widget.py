@@ -4,6 +4,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 import re
+import warnings
 
 import traitlets as T
 
@@ -47,9 +48,10 @@ class QueryWidget(W.VBox):
         # Get all namespaces from the widget string
         namespaces = self.NS_PATTERN.findall(self.query_constructor.namespaces)
 
-        res = self.graph.query(
-            self.query_constructor.formatted_query.value, initNs=dict(namespaces)
-        )
+        # RDFlib SERVICE patch -> to be removed in release>5.0.0
+        query_str = self.service_patch(self.query_constructor.formatted_query.value)
+
+        res = self.graph.query(query_str, initNs=dict(namespaces))
         self.current_dataframe = DataFrame(list(res))
         collapsed_data = DataFrame(list(res))
         for ii, row in collapsed_data.iterrows():
@@ -81,3 +83,11 @@ class QueryWidget(W.VBox):
         )
         button.on_click(self.run_query)
         return button
+
+    def service_patch(self, query_str):
+        if "SERVICE" in query_str:
+            query_str = query_str.replace("SERVICE", "service")
+            warnings.warn(
+                "SERVICE found in query. RDFlib currently only supports `service`, to be fixed in the next release>5.0.0"
+            )
+        return query_str
