@@ -68,9 +68,7 @@ class MultiPanelSelect(ipyw.HBox):
 
     @trt.default("add_button")
     def _make_add_button(self):
-        return ipyw.Button(
-            description="Add -->".center(12),
-        )
+        return ipyw.Button(description="Add -->".center(12),)
 
     @trt.default("remove_button")
     def _make_remove_button(self):
