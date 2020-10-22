@@ -4,7 +4,6 @@
 # Distributed under the terms of the Modified BSD License.
 
 import re
-import warnings
 
 import traitlets as T
 
@@ -13,6 +12,7 @@ import qgrid
 from pandas import DataFrame
 from rdflib import Graph, URIRef
 
+# from ipyradiant import service_patch_rdflib
 from .namespace_manager import collapse_namespace
 from .query_constructor import QueryConstructor
 
@@ -49,7 +49,8 @@ class QueryWidget(W.VBox):
         namespaces = self.NS_PATTERN.findall(self.query_constructor.namespaces)
 
         # RDFlib SERVICE patch -> to be removed in release>5.0.0
-        query_str = self.service_patch(self.query_constructor.formatted_query.value)
+        query_str = service_patch_rdflib(self.query_constructor.formatted_query.value)
+        print(query_str)
 
         res = self.graph.query(query_str, initNs=dict(namespaces))
         self.current_dataframe = DataFrame(list(res))
@@ -83,11 +84,3 @@ class QueryWidget(W.VBox):
         )
         button.on_click(self.run_query)
         return button
-
-    def service_patch(self, query_str):
-        if "SERVICE" in query_str:
-            query_str = query_str.replace("SERVICE", "service")
-            warnings.warn(
-                "SERVICE found in query. RDFlib currently only supports `service`, to be fixed in the next release>5.0.0"
-            )
-        return query_str
