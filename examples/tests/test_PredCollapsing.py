@@ -11,15 +11,15 @@ def test_graph():
     graph.add(
         (
             rdflib.URIRef("www.testing.com/Luke"),
-            rdflib.URIRef("www.testing.com/hates"),
-            rdflib.URIRef("www.testing.com/TottenhamHotspur"),
+            rdflib.URIRef("www.testing.com/builds"),
+            rdflib.URIRef("www.testing.com/Programs"),
         )
     )
     graph.add(
         (
             rdflib.URIRef("www.testing.com/Luke"),
             rdflib.URIRef("www.testing.com/has"),
-            rdflib.Literal("scarves"),
+            rdflib.Literal("one brother"),
         )
     )
     graph.add(
@@ -67,7 +67,7 @@ def test_node_data(test_graph):
         collapsed_netx.nodes.get(URIRef("www.testing.com/Luke")).get(
             rdflib.term.URIRef("www.testing.com/has")
         )
-        == "scarves"
+        == "one rother"
     )
     assert collapsed_netx.nodes.get(URIRef("www.testing.com/Luke")).get(
         rdflib.term.URIRef("www.testing.com/goes")
