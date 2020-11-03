@@ -7,18 +7,23 @@ from rdflib.namespace import NamespaceManager
 
 
 class CustomURIRef:
+    """
+    This is a class created to represent a URIRef as the truncated form (via the __repr__ method) while
+    maintaining access to the full URIRef via the 'uri' object property.
+
+    params:
+    :uri: URIRef, the URIRef one wishes to truncate
+    :namespaces: either a dict or NamespaceManager, this corresponds to the set of namespaces the URI should be
+    truncated according to.
+    """
+
     # TODO: investigate using rdflib.URIRef as a baseclass
     # TODO: investigate better way to handle namespace collapsing via __repr__
-    def __init__(self, uri: URIRef, namespaces: Union[dict, NamespaceManager]):
-        """
-        This is a class created to represent a URIRef as the truncated form (via the __repr__ method) while
-        maintaining access to the full URIRef via the 'uri' object property.
+    def __hash__(self):
+        return str(id(self))
 
-        params:
-        :uri: URIRef, the URIRef one wishes to truncate
-        :namespaces: either a dict or NamespaceManager, this corresponds to the set of namespaces the URI should be
-        truncated according to.
-        """
+    def __init__(self, uri: URIRef, namespaces: Union[dict, NamespaceManager]):
+
         self.uri = URIRef(uri)
         self.namespaces = namespaces
 

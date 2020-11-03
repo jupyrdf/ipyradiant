@@ -3,7 +3,7 @@
 import traitlets as T
 
 import ipywidgets as W
-from rdflib import Graph
+from rdflib import Graph, URIRef
 
 from .custom_uri_ref import CustomURIRef
 from .selection_widget import MultiPanelSelect
@@ -126,3 +126,31 @@ class ObjectLiteralApp(W.VBox):
         # make sure things arent on both sides
         self.multiselect.available_things_list = truncated_available_uris
         self.multiselect.selected_things_list = truncated_selected_uris
+
+
+def collapse_preds(netx_graph, preds_to_collapse, subjects):
+    objects_found = set()
+    for s, o in netx_graph.edges:
+
+        for _, p, _ in netx_graph[s][o]["triples"]:
+
+            if not isinstance(p, URIRef):
+                raise ValueError(f"Predicate must be URIRef not a '{type(p)}'.")
+            if p not in preds_to_collapse:
+                continue
+
+            # add data to subject node
+            # TODO: custom representation?
+            pred = p
+
+            netx_graph.nodes[s][pred] = getattr(o, "value", o)
+
+            # delete object node
+            if o not in objects_found:
+                objects_found.add(o)
+            else:
+                continue
+
+    nodes_to_remove = objects_found - set(subjects)
+    netx_graph.remove_nodes_from(nodes_to_remove)
+    return netx_graph
