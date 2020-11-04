@@ -17,17 +17,14 @@ class CustomURIRef:
     truncated according to.
     """
 
-    # TODO: investigate using rdflib.URIRef as a baseclass
-    # TODO: investigate better way to handle namespace collapsing via __repr__
     def __hash__(self):
-        return str(id(self))
+        return id(self)
 
     def __init__(self, uri: URIRef, namespaces: Union[dict, NamespaceManager]):
 
         self.uri = URIRef(uri)
         self.namespaces = namespaces
 
-    # TODO: test this (pass in different data types)
     def __repr__(self):
         if type(self.namespaces) == dict:
             g = Graph()

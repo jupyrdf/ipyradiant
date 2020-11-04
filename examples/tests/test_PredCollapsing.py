@@ -67,7 +67,7 @@ def test_node_data(test_graph):
         collapsed_netx.nodes.get(URIRef("www.testing.com/Luke")).get(
             rdflib.term.URIRef("www.testing.com/has")
         )
-        == "one rother"
+        == "one brother"
     )
     assert collapsed_netx.nodes.get(URIRef("www.testing.com/Luke")).get(
         rdflib.term.URIRef("www.testing.com/goes")

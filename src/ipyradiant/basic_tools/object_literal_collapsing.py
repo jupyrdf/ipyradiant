@@ -1,9 +1,13 @@
 # Copyright (c) 2020 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
+from typing import Union
+
 import traitlets as T
 
 import ipywidgets as W
+import networkx
 from rdflib import Graph, URIRef
+from rdflib.namespace import NamespaceManager
 
 from .custom_uri_ref import CustomURIRef
 from .selection_widget import MultiPanelSelect
@@ -108,9 +112,9 @@ class ObjectLiteralApp(W.VBox):
                 }
             """
         q2 = self.graph.query(predicates_to_literals)
+
         q2_results = set([result[0] for result in q2])
         # take difference of sets and turn to list
-
         selected_things = list(q2_results - q1_results)
         available_things = list(q1_results - q2_results)
         truncated_selected_uris = []
@@ -124,11 +128,30 @@ class ObjectLiteralApp(W.VBox):
                 CustomURIRef(uri=ref, namespaces=self.graph.namespace_manager)
             )
         # make sure things arent on both sides
+        for selected_item in self.multiselect.selected_things_list:
+            if selected_item not in truncated_selected_uris:
+                truncated_selected_uris.append(selected_item)
+                truncated_available_uris.remove(selected_item)
+
         self.multiselect.available_things_list = truncated_available_uris
         self.multiselect.selected_things_list = truncated_selected_uris
 
 
-def collapse_preds(netx_graph, preds_to_collapse, subjects):
+def collapse_preds(
+    netx_graph: networkx.Graph,
+    preds_to_collapse: list,
+    subjects: list,
+    namespaces: Union[dict, NamespaceManager],
+):
+    """
+    This is a function to collapse the predicates of a networkx graph and return a collapsed version.
+
+    :params:
+    netx_graph: a networkx.Graph Instance
+    preds_to_collapse: a List of all the predicates (URIRefs) a user wants collapsed
+    sujects: a List of all subjects in the graph
+    namespaces: the namespaces to be used in the collapsed version, either as a Dict or an NamespaceManager object
+    """
     objects_found = set()
     for s, o in netx_graph.edges:
 
@@ -141,7 +164,7 @@ def collapse_preds(netx_graph, preds_to_collapse, subjects):
 
             # add data to subject node
             # TODO: custom representation?
-            pred = p
+            pred = CustomURIRef(p, namespaces)
 
             netx_graph.nodes[s][pred] = getattr(o, "value", o)
 
