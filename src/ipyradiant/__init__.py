@@ -7,8 +7,8 @@ from ._version import __version__
 from .basic_tools import (
     CustomURIRef,
     MultiPanelSelect,
-    ObjectLiteralApp,
-    collapse_preds,
+    PredicateMultiselectApp,
+    collapse_predicates,
 )
 from .loader import FileManager, PathLoader, UpLoader
 from .query import QueryWidget
@@ -25,6 +25,6 @@ __all__ = [
     "UpLoader",
     "MultiPanelSelect",
     "CustomURIRef",
-    "ObjectLiteralApp",
-    "collapse_preds",
+    "PredicateMultiselectApp",
+    "collapse_predicates",
 ]

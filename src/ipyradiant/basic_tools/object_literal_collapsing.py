@@ -11,9 +11,10 @@ from rdflib.namespace import NamespaceManager
 
 from .custom_uri_ref import CustomURIRef
 from .selection_widget import MultiPanelSelect
+from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
 
 
-class ObjectLiteralApp(W.VBox):
+class PredicateMultiselectApp(W.VBox):
     graph = T.Instance(Graph, allow_none=True)
     lit_button = T.Instance(W.Button)
     multiselect = T.Instance(MultiPanelSelect)
@@ -137,21 +138,23 @@ class ObjectLiteralApp(W.VBox):
         self.multiselect.selected_things_list = truncated_selected_uris
 
 
-def collapse_preds(
-    netx_graph: networkx.Graph,
-    preds_to_collapse: list,
-    subjects: list,
+def collapse_predicates(
+    graph: Graph,
+    predicates_to_collapse: list,
     namespaces: Union[dict, NamespaceManager],
-):
+) -> networkx.Graph:
     """
-    This is a function to collapse the predicates of a networkx graph and return a collapsed version.
+    This is a function to collapse the desired predicates of an RDF graph and return a collapsed version (networkx).
 
     :params:
-    netx_graph: a networkx.Graph Instance
-    preds_to_collapse: a List of all the predicates (URIRefs) a user wants collapsed
-    sujects: a List of all subjects in the graph
+    graph: an rdflib.graph.Graph Instance
+    predicates_to_collapse: a List of all the predicates (URIRefs) a user wants collapsed
     namespaces: the namespaces to be used in the collapsed version, either as a Dict or an NamespaceManager object
     """
+    # use external library functions
+    netx_graph = rdflib_to_networkx_graph(graph)
+    # get list of subjects
+    subjects = [s for s, o in netx_graph.edges]
     objects_found = set()
     for s, o in netx_graph.edges:
 
@@ -159,7 +162,7 @@ def collapse_preds(
 
             if not isinstance(p, URIRef):
                 raise ValueError(f"Predicate must be URIRef not a '{type(p)}'.")
-            if p not in preds_to_collapse:
+            if p not in predicates_to_collapse:
                 continue
 
             # add data to subject node
