@@ -7,11 +7,11 @@ import traitlets as T
 import ipywidgets as W
 import networkx
 from rdflib import Graph, URIRef
+from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
 from rdflib.namespace import NamespaceManager
 
 from .custom_uri_ref import CustomURIRef
 from .selection_widget import MultiPanelSelect
-from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
 
 
 class PredicateMultiselectApp(W.VBox):
