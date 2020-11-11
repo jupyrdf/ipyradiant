@@ -21,8 +21,10 @@ class CustomURIRef:
         return id(self)
 
     def __init__(self, uri: URIRef, namespaces: Union[dict, NamespaceManager]):
+        # need to be able to handle URI's and literals.
 
         self.uri = URIRef(uri)
+
         self.namespaces = namespaces
 
     def __repr__(self):

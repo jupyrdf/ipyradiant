@@ -7,7 +7,7 @@ import traitlets as T
 import ipywidgets as W
 import networkx
 from rdflib import Graph, URIRef
-from rdflib.extras.external_graph_libs import rdflib_to_networkx_graph
+from rdflib.extras.external_graph_libs import rdflib_to_networkx_digraph
 from rdflib.namespace import NamespaceManager
 
 from .custom_uri_ref import CustomURIRef
@@ -152,11 +152,11 @@ def collapse_predicates(
     namespaces: the namespaces to be used in the collapsed version, either as a Dict or an NamespaceManager object
     """
     # use external library functions
-    netx_graph = rdflib_to_networkx_graph(graph)
+    netx_graph = rdflib_to_networkx_digraph(graph)
     # get list of subjects
-    subjects = [s for s, o in netx_graph.edges]
+    subjects = [s for s, o in netx_graph.edges()]
     objects_found = set()
-    for s, o in netx_graph.edges:
+    for s, o in netx_graph.edges():
 
         for _, p, _ in netx_graph[s][o]["triples"]:
 
@@ -168,8 +168,10 @@ def collapse_predicates(
             # add data to subject node
             # TODO: custom representation?
             pred = CustomURIRef(p, namespaces)
+            if isinstance(o, URIRef):
+                o = CustomURIRef(uri=o, namespaces=namespaces)
 
-            netx_graph.nodes[s][pred] = getattr(o, "value", o)
+            netx_graph.nodes[s][pred] = o
 
             # delete object node
             if o not in objects_found:
