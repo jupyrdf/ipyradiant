@@ -21,7 +21,6 @@ class CustomURIRef:
         return id(self)
 
     def __init__(self, uri: URIRef, namespaces: Union[dict, NamespaceManager]):
-        # need to be able to handle URI's and literals.
 
         self.uri = URIRef(uri)
 
@@ -36,6 +35,8 @@ class CustomURIRef:
         return URIRef(self.uri).n3(self.namespaces)
 
     # todo: can we support other = URIRef?
+    # for example, if we compare an instance of CustomURIRef to a rdflib.term.URIRef instance,
+    # can we tell if they are equal? (right now only supports CustomURIRef compares to CustomURIRef)
     def __eq__(self, other):
         if type(other) == URIRef:
             return self.uri == other

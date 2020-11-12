@@ -89,7 +89,13 @@ class MultiPanelSelect(ipyw.HBox):
     @trt.observe(
         "selected_things", "available_things", "right_panel_text", "left_panel_text"
     )
-    def _change_third_column(self, change):
+    def _update_columns(self, change):
+        """
+        In this function we are referring to the three 'columns' of the HBox as column_one,
+        column_two, and column_three. We are using this function to update the display and contents
+        of each of these columns. For example, column_one consists of the HTML title and then the available_things widget,
+        column_two consists of the add/remove buttons, and column_three consists of the other HTML title and the selected_things widget.
+        """
         self.column_one = self._make_column_one()
         self.column_two = self._make_column_two()
         self.column_three = self._make_column_three()

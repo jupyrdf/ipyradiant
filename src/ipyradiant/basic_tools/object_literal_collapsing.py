@@ -155,6 +155,7 @@ def collapse_predicates(
     netx_graph = rdflib_to_networkx_digraph(graph)
     # get list of subjects
     subjects = [s for s, o in netx_graph.edges()]
+
     objects_found = set()
     for s, o in netx_graph.edges():
 
@@ -166,12 +167,14 @@ def collapse_predicates(
                 continue
 
             # add data to subject node
-            # TODO: custom representation?
+
             pred = CustomURIRef(p, namespaces)
             if isinstance(o, URIRef):
-                o = CustomURIRef(uri=o, namespaces=namespaces)
+                pretty_o = CustomURIRef(uri=o, namespaces=namespaces)
+            else:
+                pretty_o = o
 
-            netx_graph.nodes[s][pred] = o
+            netx_graph.nodes[s][pred] = pretty_o
 
             # delete object node
             if o not in objects_found:
@@ -180,5 +183,6 @@ def collapse_predicates(
                 continue
 
     nodes_to_remove = objects_found - set(subjects)
+
     netx_graph.remove_nodes_from(nodes_to_remove)
     return netx_graph
