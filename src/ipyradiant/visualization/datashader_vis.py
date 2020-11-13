@@ -6,6 +6,7 @@ import traitlets as T
 import holoviews as hv
 import IPython
 import ipywidgets as W
+import networkx as nx
 from bokeh.models import HoverTool
 from holoviews import streams
 from holoviews.operation.datashader import bundle_graph
@@ -72,7 +73,6 @@ class DatashaderVisualizer(NXBase):
                 FILTER (!isLiteral(?o))
                 FILTER (!isLiteral(?s))
             }
-            LIMIT 300
         """
 
     def __init__(self, *args, **kwargs):
@@ -142,6 +142,17 @@ class DatashaderVisualizer(NXBase):
         elif len(self.graph) == 0:
             self.output_graph = None
             self.display_datashader_vis("Cannot display blank graph.")
+        elif isinstance(self.graph, nx.classes.graph.Graph):
+            original = hv.Graph.from_networkx(
+                self.graph, self._nx_layout, **self.graph_layout_params
+            )
+            self.output_graph = bundle_graph(original)
+            self.tap_selection_stream = streams.Tap(source=self.output_graph)
+            self.tap_selection_stream.add_subscriber(self.tap_stream_subscriber)
+            self.box_selection_stream = streams.BoundsXY(source=self.output_graph)
+            self.box_selection_stream.add_subscriber(self.box_stream_subscriber)
+            self.final_graph = self.set_options(self.output_graph)
+            self.display_datashader_vis(self.final_graph)
         else:
             self.output_graph = self.strip_and_produce_rdf_graph(self.graph)
             self.tap_selection_stream = streams.Tap(source=self.output_graph)

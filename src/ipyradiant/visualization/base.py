@@ -6,6 +6,7 @@ import types
 import traitlets as T
 
 import ipywidgets as W
+import networkx as nx
 import networkx.drawing.layout as nx_layout
 from rdflib import Graph, URIRef
 
@@ -14,14 +15,16 @@ class VisualizerBase(W.VBox):
     """
     The basic Visualization class that takes the shape of an ipywidgets.VBox
 
-    :param graph: an rdflib.graph.Graph object to visualize.
+    :param graph: an rdflib.graph.Graph object or a networkx.classes.graph.Graph object to visualize.
     :param edge_color: a string, the desired color of edges.
     :param node_color: a string, the desired color of nodes.
     :param selected_nodes: a tuple of URIRefs of nodes currently selected either via tap or box select.
     :param selected_edges: a list of edges currently selected, currently only working with ipycytoscape.
     """
 
-    graph = T.Instance(Graph, allow_none=True)
+    graph = T.Union(
+        (T.Instance(Graph), T.Instance(nx.classes.graph.Graph)), allow_none=True
+    )
     _vis = T.Instance(W.Box, allow_none=True)
     edge_color = T.Unicode(default_value="pink")
     node_color = T.Unicode(default_value="grey")
