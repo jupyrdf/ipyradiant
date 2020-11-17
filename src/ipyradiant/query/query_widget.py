@@ -47,9 +47,7 @@ class QueryWidget(W.VBox):
         # Get all namespaces from the widget string
         namespaces = self.NS_PATTERN.findall(self.query_constructor.namespaces)
 
-        res = self.graph.query(
-            self.query_constructor.formatted_query.value, initNs=dict(namespaces)
-        )
+        res = self.graph.query(self.query_constructor.query, initNs=dict(namespaces))
         self.current_dataframe = DataFrame(list(res))
         collapsed_data = DataFrame(list(res))
         for ii, row in collapsed_data.iterrows():
