@@ -17,7 +17,7 @@ class PathLoader(W.HBox, BaseLoader):
 
     label = T.Instance(W.Label)
     path = T.Union([T.Unicode(), T.Instance(Path)], allow_none=True)
-    file_picker = T.Instance(W.Dropdown)
+    file_picker = T.Instance(W.SelectMultiple)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -38,22 +38,25 @@ class PathLoader(W.HBox, BaseLoader):
     @T.default("file_picker")
     def make_default_file_picker(self):
         """TODO: revisit for multiple files, e.g. checkboxes"""
-        return W.Dropdown()
+        return W.SelectMultiple()
 
     def _file_picked(self, change=None):
-        value = self.file_picker.value
-        if not value:
+        values = self.file_picker.value
+        if not values:
             self.file_upload_value = {}
             return
+        values_texts = []
+        for value in values:
+            values_texts.append((value, value.read_text(encoding="utf-8")))
 
-        text = value.read_text(encoding="utf-8")
         self.file_upload_value = {
             value.name: dict(metadata=dict(size=len(text)), content=text)
+            for value, text in values_texts
         }
 
     @T.observe("path")
     def _path_changed(self, change=None):
-        options = {"Select a file...": ""}
+        options = {}
 
         if not self.path:
             self.file_picker.options = options
