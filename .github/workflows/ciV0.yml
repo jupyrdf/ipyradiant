@@ -76,6 +76,10 @@ jobs:
           name: ipyradiant dist ${{ github.run_number }}
           path: ./dist
 
+      -name: run pytests
+        run: pytest examples/tests
+
+
   ui:
     name: UI
     runs-on: ${{ matrix.os }}
