@@ -18,4 +18,5 @@ envs/
 examples/**/*.html
 lib/
 node_modules/
+Untitled.*
 .DS_Store
