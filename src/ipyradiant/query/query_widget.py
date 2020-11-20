@@ -14,7 +14,7 @@ from rdflib import Graph, URIRef
 
 from .namespace_manager import collapse_namespace
 from .query_constructor import QueryConstructor
-from .utils_helper import service_patch_rdflib
+from .utils import service_patch_rdflib
 
 
 class QueryWidget(W.VBox):
@@ -50,6 +50,7 @@ class QueryWidget(W.VBox):
 
         # RDFlib SERVICE patch -> to be removed in release>5.0.0
         query_str = service_patch_rdflib(self.query_constructor.formatted_query.value)
+        self.query_constructor.formatted_query.value = query_str
 
         res = self.graph.query(query_str, initNs=dict(namespaces))
         self.current_dataframe = DataFrame(list(res))

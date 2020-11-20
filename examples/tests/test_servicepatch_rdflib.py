@@ -3,27 +3,42 @@
 # Copyright (c) 2020 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-import unittest
-
+import pytest
 import ipyradiant
+import rdflib
 
 
-class ServicePatchTest(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super(ServicePatchTest, self).__init__(*args, **kwargs)
+LINKEDDATA_QUERY = """
+    SELECT DISTINCT ?s ?p ?o
+        WHERE { 
+            SERVICE <http://linkeddata.uriburner.com/sparql> 
+            {
+                SELECT ?s ?p ?o
+                WHERE {?s ?p ?o}              
+            }
+        }
+"""
 
-    # Remote Query Test
-    def test1(self):
-        query_str = """
-            SELECT DISTINCT ?s ?p ?o
-            WHERE
-            { SERVICE <http://linkeddata.uriburner.com/sparql> {SELECT ?s ?p ?oWHERE {?s ?p ?o}               }}
-        """
-        query_str = ipyradiant.service_patch_rdflib(query_str)
-        self.assertEqual(
-            query_str,
-            """SELECT DISTINCT ?s ?p ?o
-                                        WHERE
-                                        { service <http://linkeddata.uriburner.com/sparql> {SELECT ?s ?p ?oWHERE {?s ?p ?o}               }}
-                                        """,
-        )
+PATCHED_LINKEDDATA_QUERY = """
+    SELECT DISTINCT ?s ?p ?o
+        WHERE { 
+            service <http://linkeddata.uriburner.com/sparql> 
+            {
+                SELECT ?s ?p ?o
+                WHERE {?s ?p ?o}              
+            }
+        }
+"""
+
+def test_service_fix():
+    query_str = ipyradiant.service_patch_rdflib(LINKEDDATA_QUERY)
+    assert query_str == PATCHED_LINKEDDATA_QUERY
+    
+
+def test_rdflib_version():
+    version = rdflib.__version__
+    v_split = tuple(map(int, version.split(".")))
+    check = v_split <= (5, 0, 0)
+    assert check == True
+
+

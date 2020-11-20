@@ -6,8 +6,7 @@
 from ._version import __version__
 from .basic_tools import MultiPanelSelect
 from .loader import FileManager, PathLoader, UpLoader
-from .query import QueryWidget, service_patch_rdflib, set_logger_level
-from .remote_query import RemoteQueryWidget
+from .query import QueryWidget, service_patch_rdflib
 from .visualization import CytoscapeVisualizer, DatashaderVisualizer, LayoutSelector
 
 __all__ = [
@@ -18,9 +17,7 @@ __all__ = [
     "LayoutSelector",
     "PathLoader",
     "QueryWidget",
-    "RemoteQueryWidget",
     "UpLoader",
     "MultiPanelSelect",
-    "set_logger_level",
     "service_patch_rdflib",
 ]

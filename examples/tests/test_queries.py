@@ -3,85 +3,47 @@
 # Copyright (c) 2020 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-import unittest
-
+import pytest
 import rdflib
 from SPARQLWrapper import JSON, SPARQLWrapper
 
 
-class QueryTests(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super(QueryTests, self).__init__(*args, **kwargs)
+DBPEDIA_LABEL_QUERY = """
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?label
+    WHERE { <http://dbpedia.org/resource/Asturias> rdfs:label ?label }
+    LIMIT 5
+"""
 
-    # Remote Query Test
-    def test1(self):
-        sparql = SPARQLWrapper("http://dbpedia.org/sparql")
-        sparql.setQuery(
-            """
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT ?label
-            WHERE { <http://dbpedia.org/resource/Asturias> rdfs:label ?label }
-            """
-        )
+DBPEDIA_ENDPOINT = "http://dbpedia.org/sparql"
 
-        sparql.setReturnFormat(JSON)
-        results = sparql.query().convert()
+LINKEDDATA_QUERY = """
+    SELECT DISTINCT ?s ?p ?o
+    WHERE
+    { service <http://linkeddata.uriburner.com/sparql> {SELECT ?s ?p ?oWHERE {?s ?p ?o} LIMIT 3}}
+"""
 
-        res = []
-        for result in results["results"]["bindings"]:
-            res.append(result["label"]["value"])
 
-        self.assertEqual(
-            res,
-            [
-                "Asturias",
-                "منطقة أستورياس",
-                "Asturien",
-                "Asturias",
-                "Asturies",
-                "Asturie",
-                "アストゥリアス州",
-                "Asturië (regio)",
-                "Asturia",
-                "Astúrias",
-                "Астурия",
-                "阿斯图里亚斯",
-            ],
-        )
+def test_remote_query():
+    sparql = SPARQLWrapper(DBPEDIA_ENDPOINT)
+    sparql.setQuery(DBPEDIA_LABEL_QUERY)
 
-    # Federated Query Test
-    def test2(self):
-        graph = rdflib.Graph()
-        query_str = """
-            SELECT DISTINCT ?s ?p ?o
-            WHERE
-            { service <http://linkeddata.uriburner.com/sparql> {SELECT ?s ?p ?oWHERE {?s ?p ?o}LIMIT 3                }}
-        """
-        res = graph.query(query_str)
-        res = list(res)
-        self.assertEqual(
-            res,
-            [
-                (
-                    rdflib.term.URIRef("https://i.imgur.com/0HuwV7e.jpg"),
-                    rdflib.term.URIRef(
-                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-                    ),
-                    rdflib.term.URIRef("http://www.w3.org/2001/XMLSchema#anyURI"),
-                ),
-                (
-                    rdflib.term.URIRef("https://i.imgur.com/4OESFVu.jpg"),
-                    rdflib.term.URIRef(
-                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-                    ),
-                    rdflib.term.URIRef("http://www.w3.org/2001/XMLSchema#anyURI"),
-                ),
-                (
-                    rdflib.term.URIRef("https://i.imgur.com/53l1jxR.jpg"),
-                    rdflib.term.URIRef(
-                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-                    ),
-                    rdflib.term.URIRef("http://www.w3.org/2001/XMLSchema#anyURI"),
-                ),
-            ],
-        )
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+
+    res = [] # cache results
+    for result in results["results"]["bindings"]:
+        res.append(result["label"]["value"])
+    
+    # check if results are returned and length 5 (LIMIT 5 in query)
+    assert len(res) > 0 and len(res) == 5
+
+
+def test_federated_query():
+    graph = rdflib.Graph()
+    res = graph.query(LINKEDDATA_QUERY)
+    res = list(res)
+    
+    for i in res:
+        assert len(i) == 3
+    
