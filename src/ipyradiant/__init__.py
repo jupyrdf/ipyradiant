@@ -4,7 +4,12 @@
 # Distributed under the terms of the Modified BSD License.
 
 from ._version import __version__
-from .basic_tools import MultiPanelSelect
+from .basic_tools import (
+    CustomURIRef,
+    MultiPanelSelect,
+    PredicateMultiselectApp,
+    collapse_predicates,
+)
 from .loader import FileManager, PathLoader, UpLoader
 from .query import QueryWidget, service_patch_rdflib
 from .visualization import CytoscapeVisualizer, DatashaderVisualizer, LayoutSelector
@@ -20,4 +25,7 @@ __all__ = [
     "UpLoader",
     "MultiPanelSelect",
     "service_patch_rdflib",
+    "CustomURIRef",
+    "PredicateMultiselectApp",
+    "collapse_predicates",
 ]
