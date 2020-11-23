@@ -4,27 +4,26 @@
 # Distributed under the terms of the Modified BSD License.
 
 import ipyradiant
-import pytest
 import rdflib
 
 LINKEDDATA_QUERY = """
     SELECT DISTINCT ?s ?p ?o
-        WHERE { 
-            SERVICE <http://linkeddata.uriburner.com/sparql> 
+        WHERE {
+            SERVICE <http://linkeddata.uriburner.com/sparql>
             {
                 SELECT ?s ?p ?o
-                WHERE {?s ?p ?o}              
+                WHERE {?s ?p ?o}
             }
         }
 """
 
 PATCHED_LINKEDDATA_QUERY = """
     SELECT DISTINCT ?s ?p ?o
-        WHERE { 
-            service <http://linkeddata.uriburner.com/sparql> 
+        WHERE {
+            service <http://linkeddata.uriburner.com/sparql>
             {
                 SELECT ?s ?p ?o
-                WHERE {?s ?p ?o}              
+                WHERE {?s ?p ?o}
             }
         }
 """
@@ -38,5 +37,4 @@ def test_service_fix():
 def test_rdflib_version():
     version = rdflib.__version__
     v_split = tuple(map(int, version.split(".")))
-    check = v_split <= (5, 0, 0)
-    assert check == True
+    assert v_split <= (5, 0, 0)
