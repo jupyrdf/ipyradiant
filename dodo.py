@@ -11,9 +11,11 @@
 # Distributed under the terms of the Modified BSD License.
 
 import os
+import shutil
 import subprocess
 
 import _scripts.project as P
+import _scripts.utils as U
 from doit.action import CmdAction
 from doit.tools import PythonInteractiveAction, config_changed
 from yaml import safe_load
@@ -114,6 +116,7 @@ def task_release():
                 P.OK_PIP_INSTALL,
                 P.OK_PREFLIGHT_RELEASE,
                 P.WHEEL,
+                P.HTML_COV_INDEX,
             ],
             actions=[_echo_ok("ready to release")],
         ),
@@ -158,7 +161,13 @@ def task_build():
     """build packages"""
     yield dict(
         name="py",
-        file_dep=[*P.ALL_PY_SRC, P.SETUP_CFG, P.SETUP_PY, P.OK_LINT, P.OK_ENV["build"]],
+        file_dep=[
+            *P.ALL_PY_SRC,
+            P.SETUP_CFG,
+            P.SETUP_PY,
+            P.OK_BLACK,
+            P.OK_ENV["build"],
+        ],
         actions=[
             [*P.APR_BUILD, *P.PY, "setup.py", "sdist"],
             [*P.APR_BUILD, *P.PY, "setup.py", "bdist_wheel"],
@@ -169,6 +178,13 @@ def task_build():
 
 def task_test():
     """run all the notebooks"""
+    test_deps = [
+        P.OK_PYFLAKES,
+        P.OK_ENV["dev"],
+        P.OK_PIP_INSTALL,
+        P.OK_PREFLIGHT_KERNEL,
+        *P.ALL_PY_SRC,
+    ]
 
     def _nb_test(nb):
         def _test():
@@ -188,14 +204,7 @@ def task_test():
 
         return dict(
             name=f"nb:{nb.name}".replace(" ", "_").replace(".ipynb", ""),
-            file_dep=[
-                *P.EXAMPLE_IPYNB,
-                P.OK_LINT,
-                P.OK_ENV["dev"],
-                P.OK_PIP_INSTALL,
-                P.OK_PREFLIGHT_KERNEL,
-                *P.ALL_PY_SRC,
-            ],
+            file_dep=[*P.EXAMPLE_IPYNB, *test_deps],
             actions=[_test()],
             targets=[P.DIST_NBHTML / nb.name.replace(".ipynb", ".html")],
         )
@@ -203,23 +212,45 @@ def task_test():
     for nb in P.EXAMPLE_IPYNB:
         yield _nb_test(nb)
 
+    yield dict(
+        name="pytest",
+        file_dep=[*test_deps],
+        actions=[
+            lambda: shutil.rmtree(P.HTML_COV_INDEX.parent)
+            if P.HTML_COV_INDEX.parent.exists()
+            else None,
+            [
+                *P.APR_DEV,
+                "pytest",
+                "-vv",
+                "--ff",
+                "--cov",
+                "ipyradiant",
+                "--cov-report",
+                "html:build/htmlcov",
+                "--cov-report",
+                "term-missing:skip-covered",
+                "--no-cov-on-fail",
+                *P.PYTEST_SKIPS,
+                P.EXAMPLE_TESTS,
+            ],
+            lambda: U.strip_timestamps(P.HTML_COV_INDEX),
+        ],
+        targets=[P.HTML_COV_INDEX],
+    )
+
 
 def task_lint():
     """format all source files"""
 
     yield _ok(
         dict(
-            name="isort",
-            file_dep=[*P.ALL_PY, P.OK_ENV["qa"]],
-            actions=[[*P.APR_QA, "isort", "-rc", *P.ALL_PY]],
-        ),
-        P.OK_ISORT,
-    )
-    yield _ok(
-        dict(
             name="black",
-            file_dep=[*P.ALL_PY, P.OK_ISORT],
-            actions=[[*P.APR_QA, "black", "--quiet", *P.ALL_PY]],
+            file_dep=[*P.ALL_PY, P.OK_ENV["qa"]],
+            actions=[
+                [*P.APR_QA, "isort", "-rc", *P.ALL_PY],
+                [*P.APR_QA, "black", "--quiet", *P.ALL_PY],
+            ],
         ),
         P.OK_BLACK,
     )
@@ -243,7 +274,7 @@ def task_lint():
         dict(
             name="prettier",
             file_dep=[P.YARN_INTEGRITY, *P.ALL_PRETTIER, P.OK_ENV["qa"]],
-            actions=[[*P.APR_QA, "npm", "run", "lint:prettier"]],
+            actions=[[*P.APR_QA, "jlpm", "lint:prettier"]],
         ),
         P.OK_PRETTIER,
     )
@@ -263,7 +294,6 @@ def task_lint():
             file_dep=[
                 P.OK_BLACK,
                 P.OK_FLAKE8,
-                P.OK_ISORT,
                 P.OK_PRETTIER,
                 P.OK_PYFLAKES,
                 P.OK_NBLINT,

@@ -1,10 +1,10 @@
 __pycache__/
-.coverage/
+.coverage
 .doit*
 .hypothesis/
 .idea/
 .ipynb_checkpoints/
-.pytest-cache/
+.pytest_cache/
 .vscode/
 .yarn-packages/
 *.egg-info/

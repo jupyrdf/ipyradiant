@@ -69,15 +69,19 @@ jobs:
         shell: cmd /C CALL {0}
         run: call .ci\win.bat release
 
-      - name: publish (linux)
+      - name: publish build (linux)
         if: ${{ matrix.os == 'ubuntu' }}
         uses: actions/upload-artifact@v2
         with:
           name: ipyradiant dist ${{ github.run_number }}
           path: ./dist
 
-      - name: pytest
-        run: pytest examples/tests
+      - name: publish coverage (linux)
+        if: ${{ matrix.os == 'ubuntu' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipyradiant coverage ${{ github.run_number }}
+          path: ./build/htmlcov
 
   ui:
     name: UI
