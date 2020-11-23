@@ -76,7 +76,7 @@ jobs:
           name: ipyradiant dist ${{ github.run_number }}
           path: ./dist
 
-      -name: run pytests
+      - name: pytest
         run: pytest examples/tests
 
 
