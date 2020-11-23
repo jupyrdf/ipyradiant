@@ -65,7 +65,7 @@ jobs:
         run: INSTALL_ARTIFACT=sdist doit -n4 release || doit release
 
       - name: build (windows)
-        if: ${{ matrix.os != 'windows' }}
+        if: ${{ matrix.os == 'windows' }}
         shell: cmd /C CALL {0}
         run: call .ci\win.bat release
 
