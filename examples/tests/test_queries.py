@@ -7,7 +7,6 @@ import pytest
 import rdflib
 from SPARQLWrapper import JSON, SPARQLWrapper
 
-
 DBPEDIA_LABEL_QUERY = """
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     SELECT ?label
@@ -31,10 +30,10 @@ def test_remote_query():
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
 
-    res = [] # cache results
+    res = []  # cache results
     for result in results["results"]["bindings"]:
         res.append(result["label"]["value"])
-    
+
     # check if results are returned and length 5 (LIMIT 5 in query)
     assert len(res) > 0 and len(res) == 5
 
@@ -43,7 +42,6 @@ def test_federated_query():
     graph = rdflib.Graph()
     res = graph.query(LINKEDDATA_QUERY)
     res = list(res)
-    
+
     for i in res:
         assert len(i) == 3
-    

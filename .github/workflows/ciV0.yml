@@ -79,7 +79,6 @@ jobs:
       - name: pytest
         run: pytest examples/tests
 
-
   ui:
     name: UI
     runs-on: ${{ matrix.os }}-latest

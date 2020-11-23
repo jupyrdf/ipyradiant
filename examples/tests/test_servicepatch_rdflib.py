@@ -3,10 +3,9 @@
 # Copyright (c) 2020 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-import pytest
 import ipyradiant
+import pytest
 import rdflib
-
 
 LINKEDDATA_QUERY = """
     SELECT DISTINCT ?s ?p ?o
@@ -30,15 +29,14 @@ PATCHED_LINKEDDATA_QUERY = """
         }
 """
 
+
 def test_service_fix():
     query_str = ipyradiant.service_patch_rdflib(LINKEDDATA_QUERY)
     assert query_str == PATCHED_LINKEDDATA_QUERY
-    
+
 
 def test_rdflib_version():
     version = rdflib.__version__
     v_split = tuple(map(int, version.split(".")))
     check = v_split <= (5, 0, 0)
     assert check == True
-
-
