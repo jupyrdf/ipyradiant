@@ -99,7 +99,6 @@ EXAMPLE_IPYNB = _not_checkpoint(EXAMPLES.rglob("*.ipynb"))
 EXAMPLE_PY = [*EXAMPLES.rglob("*.py")]
 EXAMPLE_TESTS = EXAMPLES / "tests"
 DIST_NBHTML = DIST / "nbsmoke"
-PYTEST_SKIPS = ["-k 'not PredCollapsing'"]
 
 # mostly linting
 ALL_PY_SRC = [*PY_SRC.rglob("*.py")]

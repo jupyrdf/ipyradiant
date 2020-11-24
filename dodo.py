@@ -231,7 +231,6 @@ def task_test():
                 "--cov-report",
                 "term-missing:skip-covered",
                 "--no-cov-on-fail",
-                *P.PYTEST_SKIPS,
                 P.EXAMPLE_TESTS,
             ],
             lambda: U.strip_timestamps(P.HTML_COV_INDEX),
