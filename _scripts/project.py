@@ -10,7 +10,6 @@ import json
 import os
 import platform
 import re
-import shutil
 from pathlib import Path
 
 # platform

@@ -44,7 +44,9 @@ def nblint_one(nb_node):
             has_empty += 1
         if cell_type == "markdown":
             args = [
-                *P.PRETTIER,
+                *P.JLPM,
+                "--silent",
+                "prettier",
                 "--stdin-filepath",
                 "foo.md",
                 "--prose-wrap",
