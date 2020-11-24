@@ -55,7 +55,6 @@ PREFLIGHT = [*PYM, "_scripts.preflight"]
 
 JLPM = ["jlpm"]
 JLPM_INSTALL = [*JLPM, "--ignore-optional", "--prefer-offline"]
-YARN = [shutil.which("yarn") or shutil.which("yarn.cmd")]
 LAB_EXT = ["jupyter", "labextension"]
 CONDA_BUILD = ["conda-build"]
 LAB = ["jupyter", "lab"]
@@ -65,7 +64,6 @@ APR = [*AP, "run", "--env-spec"]
 APR_DEV = [*APR, "dev"]
 APR_BUILD = [*APR, "build"]
 APR_QA = [*APR, "qa"]
-PRETTIER = [*YARN, "--silent", "prettier"]
 
 # env stuff
 OK_ENV = {env: BUILD / f"prep_{env}.ok" for env in ["build", "qa", "dev"]}

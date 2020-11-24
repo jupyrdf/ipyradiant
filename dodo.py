@@ -274,7 +274,7 @@ def task_lint():
         dict(
             name="prettier",
             file_dep=[P.YARN_INTEGRITY, *P.ALL_PRETTIER, P.OK_ENV["qa"]],
-            actions=[[*P.APR_QA, P.YARN, "lint:prettier"]],
+            actions=[[*P.APR_QA, *P.JLPM, "--silent", "lint"]],
         ),
         P.OK_PRETTIER,
     )
