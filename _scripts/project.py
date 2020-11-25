@@ -10,7 +10,6 @@ import json
 import os
 import platform
 import re
-import shutil
 from pathlib import Path
 
 # platform
@@ -55,7 +54,6 @@ PREFLIGHT = [*PYM, "_scripts.preflight"]
 
 JLPM = ["jlpm"]
 JLPM_INSTALL = [*JLPM, "--ignore-optional", "--prefer-offline"]
-YARN = [shutil.which("yarn") or shutil.which("yarn.cmd")]
 LAB_EXT = ["jupyter", "labextension"]
 CONDA_BUILD = ["conda-build"]
 LAB = ["jupyter", "lab"]
@@ -65,7 +63,6 @@ APR = [*AP, "run", "--env-spec"]
 APR_DEV = [*APR, "dev"]
 APR_BUILD = [*APR, "build"]
 APR_QA = [*APR, "qa"]
-PRETTIER = [*YARN, "--silent", "prettier"]
 
 # env stuff
 OK_ENV = {env: BUILD / f"prep_{env}.ok" for env in ["build", "qa", "dev"]}
@@ -100,6 +97,7 @@ EXAMPLE_DATASETS = [
 ]
 EXAMPLE_IPYNB = _not_checkpoint(EXAMPLES.rglob("*.ipynb"))
 EXAMPLE_PY = [*EXAMPLES.rglob("*.py")]
+EXAMPLE_TESTS = EXAMPLES / "tests"
 DIST_NBHTML = DIST / "nbsmoke"
 
 # mostly linting
@@ -119,10 +117,10 @@ OK_PREFLIGHT_CONDA = BUILD / "preflight.conda.ok"
 OK_PREFLIGHT_KERNEL = BUILD / "preflight.kernel.ok"
 OK_PREFLIGHT_LAB = BUILD / "preflight.lab.ok"
 OK_PREFLIGHT_RELEASE = BUILD / "preflight.release.ok"
+HTML_COV_INDEX = BUILD / "htmlcov/index.html"
 NBLINT_HASHES = BUILD / "nblint.hashes"
 OK_BLACK = BUILD / "black.ok"
 OK_FLAKE8 = BUILD / "flake8.ok"
-OK_ISORT = BUILD / "isort.ok"
 OK_LINT = BUILD / "lint.ok"
 OK_PYFLAKES = BUILD / "pyflakes.ok"
 OK_NBLINT = BUILD / "nblint.ok"
