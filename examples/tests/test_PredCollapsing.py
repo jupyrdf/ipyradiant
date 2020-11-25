@@ -37,6 +37,13 @@ def test_graph():
             rdflib.URIRef("www.testing.com/EmiratesStadium"),
         )
     )
+    graph.add(
+        (
+            rdflib.URIRef("www.testing.com/Luke"),
+            rdflib.URIRef("www.testing.com/has"),
+            rdflib.Literal("one mother"),
+        )
+    )
     return graph
 
 
@@ -59,20 +66,19 @@ def test_node_data(test_graph):
     ]
 
     collapsed_netx = collapse_predicates(
-        test_graph, predicates_to_collapse=predicates_to_collapse, namespaces={}
+        test_graph,
+        predicates_to_collapse=predicates_to_collapse,
+        namespaces={"ts": "www.testing.com/"},
     )
     # test that the node data is indeed collapsed by trying out each key and their expected values.
-    first_pred = list(
-        collapsed_netx.nodes[rdflib.URIRef("www.testing.com/Luke")].keys()
-    )[0]
-    second_pred = list(
-        collapsed_netx.nodes[rdflib.URIRef("www.testing.com/Luke")].keys()
-    )[1]
-    assert collapsed_netx.nodes[rdflib.URIRef("www.testing.com/Luke")][
-        second_pred
-    ] == rdflib.term.Literal("one brother")
-    assert collapsed_netx.nodes[rdflib.URIRef("www.testing.com/Luke")][
-        first_pred
-    ] == CustomURIRef(
-        uri=rdflib.URIRef("www.testing.com/EmiratesStadium"), namespaces={}
+    first_pred = "ts:has"
+    second_pred = "ts:goes"
+    subject = rdflib.URIRef("www.testing.com/Luke")
+    assert len(collapsed_netx.nodes[subject][first_pred]) == 2
+
+    assert collapsed_netx.nodes[subject][second_pred] == CustomURIRef(
+        uri=rdflib.URIRef("www.testing.com/EmiratesStadium"),
+        namespaces={"ts": "www.testing.com/"},
     )
+    assert "one brother" in collapsed_netx.nodes[subject][first_pred]
+    assert "one mother" in collapsed_netx.nodes[subject][first_pred]
