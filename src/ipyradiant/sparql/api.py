@@ -27,23 +27,27 @@ def build_values(string: str, values: dict) -> str:
     """
     values = dict(values)
     assert values, "Input values cannot be empty."
-    assert len(set([len(_) for _ in values.values()])) == 1, "All values must have equal length."
+    assert (
+        len(set([len(_) for _ in values.values()])) == 1
+    ), "All values must have equal length."
     # TODO assert keys are valid for var assignment
 
     # Convert any values that are necessary (e.g. URIRefs)
     for var, values_list in values.items():
         for ii, value in enumerate(values_list):
             if type(value) is str:
-                if value.startswith('<') and value.endswith('>'):
+                if value.startswith("<") and value.endswith(">"):
                     continue
                 values[var][ii] = f"<{URIRef(value)}>"
             elif type(value) is URIRef:
                 values[var][ii] = f"<{value}>"
 
     # Rotates the dictionary of values to be specified per instance as required by the VALUES block
-    value_vars = ' '.join([f"?{value}" for value in values.keys()])
+    value_vars = " ".join([f"?{value}" for value in values.keys()])
     values_transposed = [list(i) for i in zip(*[values for values in values.values()])]
-    values_block = '\n\t    '.join([f"({' '.join([i for i in row])})" for row in values_transposed])
+    values_block = "\n\t    ".join(
+        [f"({' '.join([i for i in row])})" for row in values_transposed]
+    )
 
     return string.format(
         value_vars,
