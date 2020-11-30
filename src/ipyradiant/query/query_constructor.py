@@ -4,12 +4,12 @@
 # Distributed under the terms of the Modified BSD License.
 
 import traitlets as T
-
-import ipywidgets as W
 from pygments import highlight, lex
 from pygments.formatters import HtmlFormatter
 from pygments.lexers.rdf import SparqlLexer
 from pygments.styles import STYLE_MAP
+
+import ipywidgets as W
 
 from .query_form import QueryInput
 

@@ -11,7 +11,7 @@ from .basic_tools import (
     collapse_predicates,
 )
 from .loader import FileManager, PathLoader, UpLoader
-from .query import QueryWidget
+from .query import QueryWidget, service_patch_rdflib
 from .visualization import CytoscapeVisualizer, DatashaderVisualizer, LayoutSelector
 
 __all__ = [
@@ -24,6 +24,7 @@ __all__ = [
     "QueryWidget",
     "UpLoader",
     "MultiPanelSelect",
+    "service_patch_rdflib",
     "CustomURIRef",
     "PredicateMultiselectApp",
     "collapse_predicates",
