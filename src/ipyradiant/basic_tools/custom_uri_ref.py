@@ -13,20 +13,19 @@ class CustomURIRef:
 
     params:
     :uri: URIRef, the URIRef one wishes to truncate
-    :namespaces: either a dict or NamespaceManager, this corresponds to the set of namespaces the URI should be
+    :namespaces: either a dict or NamespaceManager or None, this corresponds to the set of namespaces the URI should be
     truncated according to.
     """
 
-    def __hash__(self):
-        return id(self)
-
-    def __init__(self, uri: URIRef, namespaces: Union[dict, NamespaceManager]):
+    def __init__(self, uri: URIRef, namespaces: Union[dict, NamespaceManager, None]):
 
         self.uri = URIRef(uri)
 
         self.namespaces = namespaces
 
     def __repr__(self):
+        if self.namespaces is None or self.namespaces == {}:
+            return self.uri
         if type(self.namespaces) == dict:
             g = Graph()
             for key, value in self.namespaces.items():

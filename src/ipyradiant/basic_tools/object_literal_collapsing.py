@@ -1,6 +1,7 @@
 # Copyright (c) 2020 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
-from typing import Union
+import logging
+from typing import List, Union
 
 import traitlets as T
 
@@ -84,6 +85,10 @@ class PredicateMultiselectApp(W.VBox):
             right_panel_text="Predicates to Collapse",
         )
 
+    def get_added_uris(self):
+        """Returns the URIs for all predicates added to the 'predicates to collapse' column."""
+        return [p.uri for p in self.multiselect.selected_things_list]
+
     def populate_predicates(self, b):
         """
         This is a class method that is activated when the 'add predicate where object is a literal' button
@@ -140,8 +145,8 @@ class PredicateMultiselectApp(W.VBox):
 
 def collapse_predicates(
     graph: Graph,
-    predicates_to_collapse: list,
-    namespaces: Union[dict, NamespaceManager],
+    predicates_to_collapse: List[URIRef],
+    namespaces: Union[dict, NamespaceManager, None],
 ) -> networkx.Graph:
     """
     This is a function to collapse the desired predicates of an RDF graph and return a collapsed version (networkx).
@@ -168,13 +173,26 @@ def collapse_predicates(
 
             # add data to subject node
 
-            pred = CustomURIRef(p, namespaces)
+            pred = str(CustomURIRef(p, namespaces))
             if isinstance(o, URIRef):
                 pretty_o = CustomURIRef(uri=o, namespaces=namespaces)
             else:
-                pretty_o = o
+                pretty_o = o.value
 
-            netx_graph.nodes[s][pred] = pretty_o
+            # add multiple cases
+            if pred in netx_graph.nodes[s]:
+                logging.warning(
+                    "Adding multiple objects under the same predicate in the node data."
+                )
+                if isinstance(netx_graph.nodes[s][pred], list):
+                    new_data = [obj for obj in netx_graph[s][pred]]
+                    new_data.append(pretty_o)
+                    netx_graph.nodes[s][pred] = new_data
+                else:
+                    old_data = netx_graph.nodes[s][pred]
+                    netx_graph.nodes[s][pred] = [old_data, pretty_o]
+            else:
+                netx_graph.nodes[s][pred] = pretty_o
 
             # delete object node
             if o not in objects_found:

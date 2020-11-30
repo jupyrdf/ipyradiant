@@ -1,10 +1,10 @@
 # Copyright (c) 2020 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
+import IPython
 import traitlets as T
 
 import holoviews as hv
-import IPython
 import ipywidgets as W
 import networkx as nx
 from bokeh.models import HoverTool

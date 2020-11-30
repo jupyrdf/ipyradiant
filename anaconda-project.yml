@@ -59,11 +59,11 @@ env_specs:
       - black
       - flake8
       - isort <5
+      - jupyterlab ==2.2.5
       - nbformat
       - nodejs >=12,<13.0.0a0
       - pyflakes
       - python >=3.7,<3.8.0a0
-      - yarn >=1,<2
 
   ipyradiant:
     description: minimal binder environment (from environment.yml)
