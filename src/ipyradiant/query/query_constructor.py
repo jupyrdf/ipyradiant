@@ -4,7 +4,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 import traitlets as T
-from pygments import highlight, lex
+from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers.rdf import SparqlLexer
 from pygments.styles import STYLE_MAP
