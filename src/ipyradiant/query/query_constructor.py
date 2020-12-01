@@ -4,6 +4,10 @@
 # Distributed under the terms of the Modified BSD License.
 
 import traitlets as T
+from pygments import highlight
+from pygments.formatters import HtmlFormatter
+from pygments.lexers.rdf import SparqlLexer
+from pygments.styles import STYLE_MAP
 
 import ipywidgets as W
 
@@ -16,6 +20,50 @@ WHERE {}
 """
 
 
+class QueryColorizer(W.VBox):
+    """Takes sparql query and runs it through pygments lexer and html formatter"""
+
+    query = T.Unicode()
+    formatter_style = T.Enum(values=list(STYLE_MAP.keys()), default_value="colorful")
+    style_picker = T.Instance(
+        W.Dropdown,
+        kw=dict(
+            description="Style",
+            options=list(STYLE_MAP.keys()),
+            layout=W.Layout(min_height="30px"),
+        ),
+    )
+    html_output = T.Instance(W.HTML, kw={})
+
+    _style_defs = T.Unicode(default_value="")
+    formatter: HtmlFormatter = None
+    _sqrl_lexer: SparqlLexer = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        T.link((self, "formatter_style"), (self.style_picker, "value"))
+        self.children = [self.style_picker, self.html_output]
+
+    @T.observe("formatter_style")
+    def _update_style(self, change=None) -> HtmlFormatter:
+        """update the css style from the formatter"""
+        self.formatter = HtmlFormatter(style=self.formatter_style)
+        self._sqrl_lexer = SparqlLexer()
+        self._style_defs = f"<style>{self.formatter.get_style_defs()}</style>"
+
+    @T.observe(
+        "query",
+        "_style_defs",
+    )
+    def update_formatted_query(self, change):
+        """Update the html output widget with the highlighted query"""
+        if not self.formatter or not self._sqrl_lexer:
+            self._update_style()
+        self.html_output.value = self._style_defs + highlight(
+            self.query, self._sqrl_lexer, self.formatter
+        )
+
+
 class QueryConstructor(W.HBox):
     """TODO
     - way better templating and more efficient formatting
@@ -25,13 +73,16 @@ class QueryConstructor(W.HBox):
 
     convert_arrow = T.Instance(W.Image)
     query_input = T.Instance(W.VBox)
-    formatted_query = T.Instance(W.Textarea)
+    formatted_query = T.Instance(
+        QueryColorizer, kw=dict(layout=W.Layout(max_height="260px"))
+    )
 
     # traits from children
     namespaces = T.Unicode()
     query_type = T.Unicode(default_value="SELECT")
     query_line = T.Unicode(allow_none=True)
     query_body = T.Unicode()
+    query = T.Unicode()
 
     log = W.Output()
 
@@ -44,6 +95,7 @@ class QueryConstructor(W.HBox):
         T.link((self.query_input.header, "dropdown_value"), (self, "query_type"))
         T.link((self.query_input.header, "header_value"), (self, "query_line"))
         T.link((self.query_input.body.body, "value"), (self, "query_body"))
+        T.dlink((self, "query"), (self.formatted_query, "query"))
 
         self.children = tuple([self.query_input, self.formatted_query])
 
@@ -82,14 +134,6 @@ class QueryConstructor(W.HBox):
             query_body,
         )
 
-    @T.default("formatted_query")
-    def make_default_formatted_query(self):
-        formatted_query = W.Textarea(
-            placeholder="Formatted query will appear here...",
-            layout=W.Layout(height="260px", width="50%"),
-        )
-        return formatted_query
-
     @T.observe(
         "namespaces",
         "query_type",
@@ -97,4 +141,4 @@ class QueryConstructor(W.HBox):
         "query_body",
     )
     def update_query(self, change):
-        self.formatted_query.value = self.build_query()
+        self.query = self.build_query()

@@ -47,7 +47,6 @@ def test_graph():
     return graph
 
 
-@pytest.mark.skip("Test has flake.")
 def test_correct_length(test_graph):
     predicates_to_collapse = [
         rdflib.URIRef("www.testing.com/has"),
@@ -60,7 +59,6 @@ def test_correct_length(test_graph):
     assert len(collapsed_netx) == 3
 
 
-@pytest.mark.skip("Test has flake.")
 def test_node_data(test_graph):
     predicates_to_collapse = [
         rdflib.URIRef("www.testing.com/has"),

@@ -49,10 +49,10 @@ class QueryWidget(W.VBox):
         namespaces = self.NS_PATTERN.findall(self.query_constructor.namespaces)
 
         # RDFlib SERVICE patch -> to be removed in release>5.0.0
-        query_str = service_patch_rdflib(self.query_constructor.formatted_query.value)
-        self.query_constructor.formatted_query.value = query_str
+        query_str = service_patch_rdflib(self.query_constructor.query)
+        self.query_constructor.query = query_str
 
-        res = self.graph.query(query_str, initNs=dict(namespaces))
+        res = self.graph.query(self.query_constructor.query, initNs=dict(namespaces))
         self.current_dataframe = DataFrame(list(res))
         collapsed_data = DataFrame(list(res))
         for ii, row in collapsed_data.iterrows():
