@@ -78,6 +78,9 @@ class SPARQLQueryFramer:
     # low cost trait (previous cls.sparql state)
     p_sparql = ""
 
+    # TODO possible to static property sparql and load from file or overload string?
+    # TODO lexer method for sparql string
+
     @classmethod
     def print_vars(cls) -> None:
         """Utility function to print variables that may be used as bindings"""
