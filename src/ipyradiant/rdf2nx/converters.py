@@ -13,14 +13,20 @@ def URItoID(uri: rdflib.term.URIRef) -> str:
 
 
 # TODO IRI to ShortID for predicates????
-def URItoShortID(uri: rdflib.term.URIRef, namespaces: dict = None):
+def URItoShortID(uri: rdflib.term.URIRef, ns: dict = None):
+    """TODO
+
+    :param uri:
+    :param ns: namespace
+    :return:
+    """
     prefix = None
     id_ = URItoID(uri)
 
-    if namespaces is None:
+    if ns is None:
         return id_
     else:
-        for term, namespace in namespaces.items():
+        for term, namespace in ns.items():
             if uri.startswith(namespace):
                 prefix = term
                 break

@@ -33,7 +33,7 @@ class RelationTypes(SPARQLQueryFramer):
             BIND ( 
                 IRI ( 
                     CONCAT ( 
-                      STR ( ns: ),
+                      STR ( base: ),
                       MD5( CONCAT( STR( ?predicate ), STR( ?source ), STR( ?target )))
                     ) 
                 )
