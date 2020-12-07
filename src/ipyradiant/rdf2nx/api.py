@@ -1,5 +1,6 @@
 from typing import Dict, Union
 
+from pandas import DataFrame
 from networkx import MultiDiGraph
 from rdflib import Graph as RDFGraph, Literal, URIRef
 from rdflib.namespace import Namespace, NamespaceManager
@@ -12,8 +13,9 @@ from .literal_map import LiteralMap, LiteralTyping
 
 # TODO subclass from RDF2LPG and add adapters for NX/neo4j/etc.
 class RDF2NX:
+    """A class for converting RDF graphs to Networkx property graphs."""
     # Track converted predicates over classmethod calls
-    converted_preds = {}
+    converted_predicates = {}
     initNs = None
 
     # Queries TODO improve?
@@ -25,13 +27,20 @@ class RDF2NX:
     relation_types = RelationTypes
 
     @classmethod
-    def process_properties(cls, iri, properties,):
+    def process_properties(cls, iri: URIRef, properties: DataFrame) -> Dict:
+        """Use a DataFrame of properties to create a dictionary of data for the
+          networkx object.
+
+        :param iri: the rdflib.term.URIRef of the node/edge
+        :param properties: a DataFrame of properties
+        :return: a dictionary of the processed properties
+        """
         nx_properties = {"iri": iri}
         for group_predicate, group_df in properties.groupby(["predicate"]):
             group_values = group_df["value"].values
 
-            if group_predicate not in cls.converted_preds:
-                cls.converted_preds[group_predicate] = URItoShortID(
+            if group_predicate not in cls.converted_predicates:
+                cls.converted_predicates[group_predicate] = URItoShortID(
                     group_predicate,
                     ns=cls.initNs
                 )
@@ -48,14 +57,18 @@ class RDF2NX:
                 # TODO use mapper to get proper type
                 cast_value = str(group_values[0])
 
-            nx_properties[cls.converted_preds[group_predicate]] = cast_value
+            nx_properties[cls.converted_predicates[group_predicate]] = cast_value
 
         return nx_properties
 
     @classmethod
     def transform_nodes(cls, rdf_graph: RDFGraph) -> Dict[URIRef, Dict]:
         """Returns node data for all nodes.
-        TODO design for parallelizable node queries
+
+        TODO #59 & #60
+
+        :param rdf_graph: the rdflib.graph.Graph containing the raw data
+        :return: dictionary (indexed by node IRI) containing the node data for networkx
         """
         node_data = {}
 
@@ -80,23 +93,28 @@ class RDF2NX:
         return node_data
 
     @classmethod
-    def transform_edges(cls, rdf_graph) -> Dict:
+    def transform_edges(cls, rdf_graph: RDFGraph) -> Dict[URIRef, Dict]:
+        """Returns edge data for all edges.
+
+        TODO #59 & #60
+
+        :param rdf_graph: the rdflib.graph.Graph containing the raw data
+        :return: dictionary (indexed by node IRI) containing the edge data for networkx
+        """
         edge_data = {}
 
         # Get properties for basic relationships
         # Overwrite namespace for fictitious IRI (uses base)
         RelationTypes.initNs = cls.initNs
         basic_relations = RelationTypes.run_query(rdf_graph)
-        # TODO we need a more extensible way to handle multiple query types (e.g. 1..N # of RelationTypes)
-        # basic_relations = pandas.concat([RelationTypes1.run_query(lw.graph), RelationTypes2.run_query(lw.graph)], ignore_index=True)
         for iri, predicate, source, target in basic_relations.values:
-            if predicate not in cls.converted_preds:
-                cls.converted_preds[predicate] = URItoShortID(predicate, ns=cls.initNs)
+            if predicate not in cls.converted_predicates:
+                cls.converted_predicates[predicate] = URItoShortID(predicate, ns=cls.initNs)
 
             edge_data[iri] = {
                 "source": source,
                 "target": target,
-                "attrs": {"_label": cls.converted_preds[predicate]},
+                "attrs": {"_label": cls.converted_predicates[predicate]},
             }
 
         # Get properties for reified relations
@@ -118,6 +136,12 @@ class RDF2NX:
             rdf_graph: RDFGraph,
             namespaces: Union[NamespaceManager, Dict[str, Union[str, Namespace, URIRef]]] = None,
     ) -> MultiDiGraph:
+        """The main method for converting an RDF graph to a networkx representation.
+
+        :param rdf_graph: the rdflib.graph.Graph containing the raw data
+        :param namespaces: the collection of namespaces used to simplify URIs
+        :return: the networkx MultiDiGraph containing all collected node/edge data
+        """
         if cls.initNs is None:
             if namespaces is None:
                 namespaces = rdf_graph.namespaces

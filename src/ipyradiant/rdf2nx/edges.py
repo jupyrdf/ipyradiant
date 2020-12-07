@@ -1,25 +1,25 @@
 import pandas
 import rdflib
 
-from ..sparql.api import SPARQLQueryFramer
+from ..query.api import SPARQLQueryFramer
 
 
 class RelationTypes(SPARQLQueryFramer):
-    """
-    TODO
-    TODO is this overlapping with reified query? e.g. this one is returning triples from the reification pattern...
+    """A query class for collecting all relations of interest in an RDF graph.
+
+    TODO is this overlapping with reified query?
+      e.g. this one is returning triples from the reification pattern...
     """
 
     sparql = """
-    # 
-    # An example of how to define mapping from RDF relations, either plain relations or reified ones.
+    # Example of mapping from RDF relations, either plain relations or reified ones.
     #
-    # - ?iri is the resource about the relation, and uniquely identifies a triple or a relation between two nodes.
-    # - ?source, ?target are the resources representing the relation's endpoint nodes (must refer to LPG node IRIs)
-    # - ?predicate is a tag (usually an IRI, but it can be a string???) representing the relation type.
+    # - ?iri: the relation; uniquely identifies a triple (relation between two nodes)
+    # - ?source, ?target: the resources representing the relation's endpoint nodes
+    # - ?predicate: a tag (usually an IRI) representing the relation type.
     #
-    #  TODO needs a namespace for fictitous IRI
-    # 
+    #  Note: needs a fictitious IRI for the relation that uses the base namespace
+
     SELECT DISTINCT ?iri ?predicate ?source ?target
     WHERE {
         { 
@@ -43,26 +43,19 @@ class RelationTypes(SPARQLQueryFramer):
     }
     """
 
-    @classmethod
-    def run_query(
-        cls,
-        graph: rdflib.graph.Graph,
-        initBindings: dict = None,
-        **initBindingsKwarg,
-    ) -> pandas.DataFrame:
-        """Overwrite the super method in order to wrap with validation checks."""
-        qres = super().run_query(graph, initBindings=initBindings, **initBindingsKwarg)
-        # Validating with known requirements on query results
-        # TODO
-        return qres
-
 
 class ReifiedRelations(SPARQLQueryFramer):
-    """
-    TODO
+    """A query class for collecting all reified relations (via rdf:Statement) in an RDF
+      graph.
     """
 
     sparql = """
+    # Example of mapping from RDF reified relations via rdf:Statement
+    #
+    # - ?iri: the reified relation IRI
+    # - ?source, ?target: the resources representing the relation's endpoint nodes
+    # - ?predicate: a tag (usually an IRI) representing the relation type.
+    
     SELECT DISTINCT ?iri ?predicate ?source ?target
     WHERE {
         ?iri a rdf:Statement;
@@ -72,41 +65,19 @@ class ReifiedRelations(SPARQLQueryFramer):
     }
     """
 
-    @classmethod
-    def run_query(
-        cls,
-        graph: rdflib.graph.Graph,
-        initBindings: dict = None,
-        **initBindingsKwarg,
-    ) -> pandas.DataFrame:
-        """Overwrite the super method in order to wrap with validation checks."""
-        qres = super().run_query(graph, initBindings=initBindings, **initBindingsKwarg)
-        # Validating with known requirements on query results
-        # TODO
-        return qres
-
 
 class RelationProperties(SPARQLQueryFramer):
-    """
-    TODO bind IRI
-    """
+    """A query class for collecting all reified relation properties in an RDF graph."""
 
     sparql = """
+    # Example of reified relation properties query.
+    #
+    # - ?iri: the reified relation IRI
+    # - ?predicate: the name (URI) of the property
+    # - ?value: the value for the predicate
+    
     SELECT DISTINCT ?iri ?predicate ?value
     {
       ?iri ?predicate ?value.
     }
     """
-
-    @classmethod
-    def run_query(
-        cls,
-        graph: rdflib.graph.Graph,
-        initBindings: dict = None,
-        **initBindingsKwarg,
-    ) -> pandas.DataFrame:
-        """Overwrite the super method in order to wrap with validation checks."""
-        qres = super().run_query(graph, initBindings=initBindings, **initBindingsKwarg)
-        # Validating with known requirements on query results
-        # TODO
-        return qres

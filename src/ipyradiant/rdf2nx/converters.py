@@ -4,21 +4,15 @@ import rdflib
 
 
 def URItoID(uri: rdflib.term.URIRef) -> str:
-    """returns the URI fragment that follows the last '#' or '/' separator
-
-    TODO validate on larger group of URIs to ensure robustness
-    """
+    """Returns the URI fragment that follows the last '#' or '/' separator."""
     parts = re.split("/|#", uri)
     return parts[-1]
 
 
-# TODO IRI to ShortID for predicates????
 def URItoShortID(uri: rdflib.term.URIRef, ns: dict = None):
-    """TODO
+    """Convert URIs to shorthand IDs using namespace information.
 
-    :param uri:
-    :param ns: namespace
-    :return:
+    TODO support other namespace objects (e.g. NamespaceManager)?
     """
     prefix = None
     id_ = URItoID(uri)
