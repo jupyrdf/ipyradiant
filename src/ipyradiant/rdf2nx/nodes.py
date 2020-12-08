@@ -6,7 +6,7 @@ from ..query.api import SPARQLQueryFramer
 
 class NodeIRIs(SPARQLQueryFramer):
     """This query must return unique IRIs for subjects in the graph, which are used to
-      create LPG nodes.
+    create LPG nodes.
     """
 
     sparql = """
@@ -40,7 +40,7 @@ class NodeIRIs(SPARQLQueryFramer):
 
 class NodeTypes(SPARQLQueryFramer):
     """This query is typically the same as the NodeIRIs, but the iri should be bound on
-      execution, and the type_ of the node should be returned.
+    execution, and the type_ of the node should be returned.
     """
 
     sparql = """
@@ -56,10 +56,10 @@ class NodeTypes(SPARQLQueryFramer):
 
 class NodeProperties(SPARQLQueryFramer):
     """An example of how to return properties for a LPG node.
-     - ?iri: bound to a specific node IRI, to get the properties for that node.
-     - ?predicate: IRI for the property name (e.g. ex:hasThing) and is converted into a
-         shorter ID by means of a configured IRI->ID converter.
-     - ?value: a literal that may be converted using its lexical value.
+    - ?iri: bound to a specific node IRI, to get the properties for that node.
+    - ?predicate: IRI for the property name (e.g. ex:hasThing) and is converted into a
+        shorter ID by means of a configured IRI->ID converter.
+    - ?value: a literal that may be converted using its lexical value.
     """
 
     sparql = """

@@ -1,9 +1,9 @@
 import logging
-from rdflib import Literal, URIRef
-from rdflib.namespace import XSD
 from datetime import date
 from typing import Any, Callable, Dict
 
+from rdflib import Literal, URIRef
+from rdflib.namespace import XSD
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,8 @@ def cast_literal(value: Literal, strict: bool = False) -> Any:
         raise NotImplementedError(f"Data type '{value_datatype}' is not mapped.")
     elif value_datatype not in XSD2PY:
         logger.warning(
-            f"Data type '{value_datatype}' is not mapped. Using str to cast value.")
+            f"Data type '{value_datatype}' is not mapped. Using str to cast value."
+        )
         return str(value)
     else:
         return XSD2PY[value_datatype](value)

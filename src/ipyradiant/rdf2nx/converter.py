@@ -1,17 +1,17 @@
 import logging
 from typing import Callable, Dict, Union
 
-from pandas import DataFrame
 from networkx import MultiDiGraph
-from rdflib import Graph as RDFGraph, Literal, URIRef
+from pandas import DataFrame
+from rdflib import Graph as RDFGraph
+from rdflib import Literal, URIRef
 from rdflib.namespace import Namespace, NamespaceManager
 
 from ..query.api import SPARQLQueryFramer
-from .uri_converter import URItoShortID
-from .nodes import NodeIRIs, NodeProperties, NodeTypes
 from .edges import ReifiedRelations, RelationProperties, RelationTypes
 from .literal_converter import cast_literal
-
+from .nodes import NodeIRIs, NodeProperties, NodeTypes
+from .uri_converter import URItoShortID
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 # TODO subclass from RDF2LPG and add adapters for NX/neo4j/etc.
 class RDF2NX:
     """A class for converting RDF graphs to Networkx property graphs."""
+
     # Track converted predicates over classmethod calls
     converted_predicates: dict = {}
     initNs: dict = None
@@ -35,7 +36,9 @@ class RDF2NX:
     relation_types: SPARQLQueryFramer = RelationTypes
 
     @classmethod
-    def process_properties(cls, iri: URIRef, properties: DataFrame, strict: bool = False) -> Dict:
+    def process_properties(
+        cls, iri: URIRef, properties: DataFrame, strict: bool = False
+    ) -> Dict:
         """Use a DataFrame of properties to create a dictionary of data for the
           networkx object.
 
@@ -52,22 +55,21 @@ class RDF2NX:
             # Get simplified representation and add to class attribute
             if group_predicate not in cls.converted_predicates:
                 cls.converted_predicates[group_predicate] = cls.uri_to_short_id(
-                    group_predicate,
-                    ns=cls.initNs
+                    group_predicate, ns=cls.initNs
                 )
 
             # If a predicate is connected to multiple objects (turn into tuple)
             if len(group_df) > 1:
                 # Currently does not support mix of Literal/Bnode/URIRef objects
                 if len(set(map(type, group_values))) > 1:
-                    raise ValueError("All objects of a predicate must be of the same type.")
+                    raise ValueError(
+                        "All objects of a predicate must be of the same type."
+                    )
 
                 if type(group_values[0]) == Literal:
                     # Convert multiple Literals based on datatype
                     cast_value = tuple(
-                        map(
-                            cast_literal, group_values, (strict,)*len(group_values)
-                        )
+                        map(cast_literal, group_values, (strict,) * len(group_values))
                     )
                 else:
                     # Do not convert multiple URIRef/BNode
@@ -85,7 +87,9 @@ class RDF2NX:
         return nx_properties
 
     @classmethod
-    def transform_nodes(cls, rdf_graph: RDFGraph, strict: bool = False) -> Dict[URIRef, dict]:
+    def transform_nodes(
+        cls, rdf_graph: RDFGraph, strict: bool = False
+    ) -> Dict[URIRef, dict]:
         """Returns node data for all nodes.
 
         TODO #59 & #60
@@ -108,13 +112,17 @@ class RDF2NX:
 
             # Get the properties for the node (must bind iri)
             properties = cls.node_properties.run_query(rdf_graph, iri=node_iri)
-            nx_node_properties = cls.process_properties(node_iri, properties, strict=strict)
+            nx_node_properties = cls.process_properties(
+                node_iri, properties, strict=strict
+            )
             node_data[node_iri] = nx_node_properties
 
         return node_data
 
     @classmethod
-    def transform_edges(cls, rdf_graph: RDFGraph, strict: bool = False) -> Dict[URIRef, dict]:
+    def transform_edges(
+        cls, rdf_graph: RDFGraph, strict: bool = False
+    ) -> Dict[URIRef, dict]:
         """Returns edge data for all edges.
 
         TODO #59 & #60
@@ -132,7 +140,9 @@ class RDF2NX:
         for iri, predicate, source, target in basic_relations.values:
             # Get simplified representation and add to class attribute
             if predicate not in cls.converted_predicates:
-                cls.converted_predicates[predicate] = URItoShortID(predicate, ns=cls.initNs)
+                cls.converted_predicates[predicate] = URItoShortID(
+                    predicate, ns=cls.initNs
+                )
 
             edge_data[iri] = {
                 "source": source,
@@ -156,10 +166,12 @@ class RDF2NX:
 
     @classmethod
     def convert(
-            cls,
-            rdf_graph: RDFGraph,
-            namespaces: Union[NamespaceManager, Dict[str, Union[str, Namespace, URIRef]]] = None,
-            strict: bool = False,
+        cls,
+        rdf_graph: RDFGraph,
+        namespaces: Union[
+            NamespaceManager, Dict[str, Union[str, Namespace, URIRef]]
+        ] = None,
+        strict: bool = False,
     ) -> MultiDiGraph:
         """The main method for converting an RDF graph to a networkx representation.
 
@@ -172,7 +184,9 @@ class RDF2NX:
             if namespaces is None:
                 namespaces = rdf_graph.namespaces
             cls.initNs = dict(namespaces)
-            assert "base" in cls.initNs, "For conversion, namespaces must include a base namespace."
+            assert (
+                "base" in cls.initNs
+            ), "For conversion, namespaces must include a base namespace."
 
         nx_graph = MultiDiGraph()
 
@@ -196,8 +210,12 @@ class RDF2NX:
                 nx_graph.add_edge(edge_source, edge_target, **edge_attrs)
             else:
                 if edge_source not in nx_graph.nodes:
-                    logger.info(f"Edge source '{edge_source}' missing in graph. Skipping...")
+                    logger.info(
+                        f"Edge source '{edge_source}' missing in graph. Skipping..."
+                    )
                 elif edge_target not in nx_graph.nodes:
-                    logger.info(f"Edge target '{edge_target}' missing in graph. Skipping...")
+                    logger.info(
+                        f"Edge target '{edge_target}' missing in graph. Skipping..."
+                    )
 
         return nx_graph

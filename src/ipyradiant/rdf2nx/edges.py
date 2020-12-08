@@ -46,7 +46,7 @@ class RelationTypes(SPARQLQueryFramer):
 
 class ReifiedRelations(SPARQLQueryFramer):
     """A query class for collecting all reified relations (via rdf:Statement) in an RDF
-      graph.
+    graph.
     """
 
     sparql = """

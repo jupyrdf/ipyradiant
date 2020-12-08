@@ -71,7 +71,7 @@ class SPARQLQueryFramer:
         initBindings: dict = None,
         **initBindingsKwarg,
     ) -> DataFrame:
-        """ Runs a query with optional initBindings, and returns the results as a
+        """Runs a query with optional initBindings, and returns the results as a
           pandas.DataFrame.
 
         :param graph: the rdflib.graph.Graph to be queried
