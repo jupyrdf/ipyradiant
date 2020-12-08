@@ -11,7 +11,7 @@ class NodeIRIs(SPARQLQueryFramer):
 
     sparql = """
     # Example query for the IRIs of RDF resources that you want to become LPG nodes.
-    
+
     SELECT DISTINCT ?iri
     WHERE {
       # This picks up nodes of interests based on their rdf:type, which should be common
@@ -48,7 +48,7 @@ class NodeTypes(SPARQLQueryFramer):
 
     SELECT DISTINCT ?iri ?type_
     WHERE {
-      # Copy of code from NodeIRI unless using custom predicate for type. 
+      # Copy of code from NodeIRI unless using custom predicate for type.
       ?iri a ?type_ .
     }
     """

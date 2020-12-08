@@ -1,6 +1,3 @@
-import pandas
-import rdflib
-
 from ..query.api import SPARQLQueryFramer
 
 
@@ -22,7 +19,7 @@ class RelationTypes(SPARQLQueryFramer):
 
     SELECT DISTINCT ?iri ?predicate ?source ?target
     WHERE {
-        { 
+        {
           # Plain relations, non-reified
             ?source ?predicate ?target.
 
@@ -30,12 +27,12 @@ class RelationTypes(SPARQLQueryFramer):
 
             # Plain relations must get their fictitious IRI from constructs like this.
             # Using the triple components ensures a unique IRI identifying the triple.
-            BIND ( 
-                IRI ( 
-                    CONCAT ( 
+            BIND (
+                IRI (
+                    CONCAT (
                       STR ( base: ),
                       MD5( CONCAT( STR( ?predicate ), STR( ?source ), STR( ?target )))
-                    ) 
+                    )
                 )
               AS ?iri
             )
@@ -55,7 +52,7 @@ class ReifiedRelations(SPARQLQueryFramer):
     # - ?iri: the reified relation IRI
     # - ?source, ?target: the resources representing the relation's endpoint nodes
     # - ?predicate: a tag (usually an IRI) representing the relation type.
-    
+
     SELECT DISTINCT ?iri ?predicate ?source ?target
     WHERE {
         ?iri a rdf:Statement;
@@ -75,7 +72,7 @@ class RelationProperties(SPARQLQueryFramer):
     # - ?iri: the reified relation IRI
     # - ?predicate: the name (URI) of the property
     # - ?value: the value for the predicate
-    
+
     SELECT DISTINCT ?iri ?predicate ?value
     {
       ?iri ?predicate ?value.

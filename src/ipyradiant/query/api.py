@@ -2,7 +2,7 @@ import logging
 import re
 
 from pandas import DataFrame
-from rdflib import Graph, URIRef
+from rdflib import Graph
 from rdflib.plugins.sparql import prepareQuery
 
 # pattern used to identify bindings in a sparql string
