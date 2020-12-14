@@ -1,3 +1,5 @@
+# Copyright (c) 2020 ipyradiant contributors.
+# Distributed under the terms of the Modified BSD License.
 from ipyradiant.rdf2nx import RDF2NX
 from rdflib import URIRef
 from rdflib.namespace import RDF

@@ -1,3 +1,5 @@
+# Copyright (c) 2020 ipyradiant contributors.
+# Distributed under the terms of the Modified BSD License.
 import pytest
 from rdflib import Graph, Literal
 from rdflib.namespace import RDF, RDFS, XSD, Namespace
