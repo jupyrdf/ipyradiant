@@ -97,7 +97,7 @@ EXAMPLE_DATASETS = [
 ]
 EXAMPLE_IPYNB = _not_checkpoint(EXAMPLES.rglob("*.ipynb"))
 EXAMPLE_PY = [*EXAMPLES.rglob("*.py")]
-EXAMPLE_TESTS = EXAMPLES / "tests"
+PY_TESTS = PY_SRC / "tests"
 DIST_NBHTML = DIST / "nbsmoke"
 
 # mostly linting

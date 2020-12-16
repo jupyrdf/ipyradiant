@@ -177,7 +177,7 @@ def task_build():
 
 
 def task_test():
-    """run all the notebooks"""
+    """run notebook and unit tests"""
     test_deps = [
         P.OK_PYFLAKES,
         P.OK_ENV["dev"],
@@ -231,7 +231,7 @@ def task_test():
                 "--cov-report",
                 "term-missing:skip-covered",
                 "--no-cov-on-fail",
-                P.EXAMPLE_TESTS,
+                P.PY_TESTS,
             ],
             lambda: U.strip_timestamps(P.HTML_COV_INDEX),
         ],
