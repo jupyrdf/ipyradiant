@@ -1,9 +1,56 @@
 # Copyright (c) 2020 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
-from typing import Union
+from typing import Dict, Union
 
 from rdflib import Graph, URIRef
-from rdflib.namespace import NamespaceManager
+from rdflib.namespace import Namespace, NamespaceManager
+
+from ..rdf2nx.uri_converter import URItoShortID
+
+
+class CustomURI:
+    """
+    Class used for storing uri information including the namespace and shorthand ID.
+
+    TODO namespaces support NamespaceManager
+    TODO how to specify that this must accept a URIRef and namespace str?
+    TODO cast namespace to rdflib.namespace.Namespace?
+    """
+
+    uri = None
+    ns = None
+    id_ = None
+
+    def __init__(
+        self,
+        uri: Union[URIRef, str],
+        namespaces: Dict[str, Union[str, Namespace, URIRef]] = None,
+        converter: callable = URItoShortID,
+    ):
+        """
+        :param uri: the base URI
+        :param namespaces: a dictionary of prefix:namespace(s) used to match to the URI
+        :param converter: callable that accepts a URI and namespace (ns) and returns id_
+        """
+        self.uri = uri
+        if namespaces is not None:
+            for prefix, ns in namespaces.items():
+                if self.uri.startswith(ns):
+                    self.ns = ns
+                    if converter is not None:
+                        # Convert with namespace
+                        self.id_ = converter(self.uri, ns={prefix: ns})
+                    break
+
+        if self.id_ is None and converter is not None:
+            # Convert without namespace
+            self.id_ = converter(self.uri)
+        elif self.id_ is None:
+            # Use uri as id_
+            self.id_ = str(self.uri)
+
+    def __repr__(self):
+        return self.id_ if self.id_ is not None else self.uri
 
 
 class CustomURIRef:

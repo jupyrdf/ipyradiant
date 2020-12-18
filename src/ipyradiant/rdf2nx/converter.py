@@ -1,7 +1,7 @@
 # Copyright (c) 2020 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 import logging
-from typing import Callable, Dict, Union
+from typing import Callable, Dict, List, Union
 
 from networkx import MultiDiGraph
 from pandas import DataFrame
@@ -90,22 +90,24 @@ class RDF2NX:
 
     @classmethod
     def transform_nodes(
-        cls, rdf_graph: RDFGraph, strict: bool = False
+        cls, rdf_graph: RDFGraph, node_iris: List[URIRef] = None, strict: bool = False
     ) -> Dict[URIRef, dict]:
         """Returns node data for all nodes.
 
         TODO #59 & #60
 
         :param rdf_graph: the rdflib.graph.Graph containing the raw data
+        :param node_iris: an optional list of IRIs/URIs to use in place of cls.node_iris
         :param strict: boolean for Literal conversion (True = supported types only)
         :return: dictionary (indexed by node IRI) containing the node data for networkx
         """
         node_data = {}
 
-        # TODO paginate (LIMIT+OFFSET) for batch processing?
-        node_iris = cls.node_iris.run_query(rdf_graph)
+        if node_iris is None:
+            # TODO paginate (LIMIT+OFFSET) for batch processing?
+            node_iris = list(cls.node_iris.run_query(rdf_graph)["iri"])
 
-        for node_iri in node_iris["iri"]:
+        for node_iri in node_iris:
             # TODO this isn't actually used (should it be?)
             # TODO use URItoShortID?
             # Get the types for the node (must bind iri)
@@ -167,6 +169,38 @@ class RDF2NX:
         return edge_data
 
     @classmethod
+    def convert_nodes(
+        cls,
+        node_uris: List[URIRef],
+        rdf_graph: RDFGraph,
+        namespaces: Union[
+            NamespaceManager, Dict[str, Union[str, Namespace, URIRef]]
+        ] = None,
+        strict: bool = False,
+    ) -> MultiDiGraph:
+        """Converts a set of RDF nodes into a set of LPG nodes (networkx).
+
+        :param node_uris: a list of node URIs to be converted
+        :param rdf_graph: the rdflib.graph.Graph containing the raw data
+        :param namespaces: the collection of namespaces used to simplify URIs
+        :param strict: boolean for Literal conversion (True = supported types only)
+        :return: the networkx MultiDiGraph containing all collected node/edge data
+        """
+        if cls.initNs is None:
+            if namespaces is None:
+                namespaces = dict(rdf_graph.namespaces())
+            cls.initNs = dict(namespaces)
+
+        nx_graph = MultiDiGraph()
+
+        # TODO pass list of nodes to this function
+        nodes = cls.transform_nodes(rdf_graph, node_iris=node_uris, strict=strict)
+        for node_iri, node_attrs in nodes.items():
+            nx_graph.add_node(node_iri, **node_attrs)
+
+        return nx_graph
+
+    @classmethod
     def convert(
         cls,
         rdf_graph: RDFGraph,
@@ -184,7 +218,7 @@ class RDF2NX:
         """
         if cls.initNs is None:
             if namespaces is None:
-                namespaces = rdf_graph.namespaces
+                namespaces = dict(rdf_graph.namespaces())
             cls.initNs = dict(namespaces)
             assert (
                 "base" in cls.initNs

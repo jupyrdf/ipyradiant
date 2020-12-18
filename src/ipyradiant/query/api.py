@@ -4,11 +4,56 @@ import logging
 import re
 
 from pandas import DataFrame
-from rdflib import Graph
+from rdflib import Graph, URIRef
 from rdflib.plugins.sparql import prepareQuery
 
 # pattern used to identify bindings in a sparql string
 BINDING_PATTERN = re.compile(r"\?([\w]*)")
+
+
+def build_values(string: str, values: dict) -> str:
+    """
+
+    :param string: the query string to format (must have two format slots)
+    :param values: a dictionary of values to assign, with the following structure::
+
+        values = {
+            "var_1": [value_1, ..., value_n],
+            ...
+            "var_n": [value_1, ..., value_n]
+        }
+
+    Note: values can be strings, rdflib.URIRefs, or preformatted SPARQL IRIs, e.g. '<IRI>'.
+
+    :return: the formatted string with the given values
+    """
+    assert values, "Input values cannot be empty."
+    assert (
+        len(set([len(_) for _ in values.values()])) == 1
+    ), "All values must have equal length."
+    # TODO assert keys are valid for var assignment
+
+    # Convert any values that are necessary (e.g. URIRefs)
+    for var, values_list in values.items():
+        for ii, value in enumerate(values_list):
+            if type(value) is str:
+                if value.startswith("<") and value.endswith(">"):
+                    continue
+                values[var][ii] = f"<{URIRef(value)}>"
+            elif type(value) is URIRef:
+                values[var][ii] = f"<{value}>"
+
+    # Rotates values dict to be specified per instance as required by the VALUES block
+    value_vars = " ".join([f"?{value}" for value in values.keys()])
+    values_transposed = [list(i) for i in zip(*[values for values in values.values()])]
+    values_block = "\n\t    ".join(
+        [f"({' '.join([i for i in row])})" for row in values_transposed]
+    )
+
+    return string.format(
+        value_vars,
+        values_block,
+    )
 
 
 class SPARQLQueryFramer:
