@@ -4,7 +4,7 @@ import ipywidgets as W
 from rdflib import Graph
 
 from ...basic_tools.custom_uri_ref import CustomURI
-from ...basic_tools.uri_widgets import URIContainer, SelectMultipleURI
+from ...basic_tools.uri_widgets import SelectMultipleURI
 from ...query.api import SPARQLQueryFramer, build_values
 
 
@@ -58,9 +58,7 @@ class RDFTypeSelectMultiple(W.VBox):
 
     graph = T.Instance(Graph, allow_none=True)
     label = T.Instance(W.HTML)
-    container = T.Instance(URIContainer)
     select_widget = T.Instance(SelectMultipleURI)
-    select_widget_value = T.List().tag(default=[])
 
     def __init__(self, label: str = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -73,28 +71,17 @@ class RDFTypeSelectMultiple(W.VBox):
             ns = dict(self.graph.namespaces())
             types = AllTypes.run_query(self.graph)
             # TODO how to allow user specification of custom CustomURI class
-            self.container.uris = list(
-                map(
-                    lambda x: CustomURI(x, namespaces=ns), types["o"].to_list()
-                )
+            self.select_widget.pithy_uris = tuple(
+                map(lambda x: CustomURI(x, namespaces=ns), types["o"].to_list())
             )
 
     @T.default("label")
     def make_default_label(self):
         return W.HTML("<b>Available types:</b>")
 
-    @T.default("container")
-    def make_default_container(self):
-        return URIContainer(uris=[])
-
     @T.default("select_widget")
     def make_default_select_widget(self):
-        select_widget = SelectMultipleURI(
-            container=self.container,
-            rows=10,
-        )
-        T.link((select_widget, "value"), (self, "select_widget_value"))
-        return select_widget
+        return SelectMultipleURI(rows=10)
 
     @T.observe("graph")
     def update_graph(self, change):
@@ -112,9 +99,7 @@ class RDFSubjectSelectMultiple(W.VBox):
     _values = T.Instance(dict, allow_none=True).tag(default=None)
     #
     label = T.Instance(W.HTML)
-    container = T.Instance(URIContainer)
     select_widget = T.Instance(SelectMultipleURI)
-    select_widget_value = T.List().tag(default=[])
 
     def __init__(self, label: str = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -124,44 +109,38 @@ class RDFSubjectSelectMultiple(W.VBox):
 
     @T.default("label")
     def make_default_label(self):
+        # TODO update_label(label_str: str):
+        #  label should be a property that is based on label_text
         return W.HTML("<b>Available subjects:</b>")
-
-    @T.default("container")
-    def make_default_container(self):
-        return URIContainer(uris=[])
 
     @T.default("select_widget")
     def make_default_select_widget(self):
-        select_widget = SelectMultipleURI(
-            container=self.container,
-            rows=10,
-        )
-        # T.link((self, "available_subjects"), (select_widget, "options"))
-        T.link((select_widget, "value"), (self, "select_widget_value"))
-        return select_widget
+        return SelectMultipleURI(rows=10)
 
     def update_select(self):
         if self.graph is not None and self._values is not None:
             qres = self.run_query()
-            select_widget_options = []
+            sw_uris = []
             for uri, label in qres.values:
-                select_widget_options.append(
+                sw_uris.append(
                     CustomItem(
                         _repr=lambda x: f"{x.label}:   ->   {x.uri}",
                         uri=uri,
                         label=label,
                     )
                 )
-            self.container.uris = select_widget_options
+            self.select_widget.pithy_uris = tuple(sw_uris)
 
     @T.observe("graph")
     def update_graph(self, change):
-        self.update_select()
+        if change.old != change.new and change.new:
+            self.update_select()
 
     @T.observe("_values")
     def update_values(self, change):
-        self.query.values = change.new
-        self.update_select()
+        if change.old != change.new:
+            self.query.values = change.new
+            self.update_select()
 
     def run_query(self):
         assert self.query.values is not None
@@ -171,25 +150,36 @@ class RDFSubjectSelectMultiple(W.VBox):
 class GraphExploreNodeSelection(W.VBox):
     graph = T.Instance(Graph, kw={})
     type_select = T.Instance(RDFTypeSelectMultiple)
-    type_select_value = T.List().tag(default=[])
     subject_select = T.Instance(RDFSubjectSelectMultiple)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.children = tuple([self.type_select, self.subject_select])
-        T.link((self, "graph"), (self.type_select, "graph"))
-        T.link((self, "graph"), (self.subject_select, "graph"))
-        T.link((self.type_select, "select_widget_value"), (self, "type_select_value"))
+    @property
+    def selected_types(self):
+        return self.type_select.select_widget.value
+
+    @T.validate("children")
+    def validate_children(self, proposal):
+        children = proposal.value
+        if not children:
+            children = (self.type_select, self.subject_select)
+        return children
 
     @T.default("type_select")
     def make_default_type_select(self):
-        return RDFTypeSelectMultiple(self.graph)
+        type_selector = RDFTypeSelectMultiple(self.graph)
+        type_selector.select_widget.observe(self.update_subject_select_values, "value")
+        return type_selector
 
     @T.default("subject_select")
     def make_default_subject_select(self):
         return RDFSubjectSelectMultiple(self.graph)
 
-    @T.observe("type_select_value")
+    @T.observe("graph")
+    def update_subwidget_graphs(self, change):
+        if change.old != change.new and change.new:
+            self.type_select.graph = self.graph
+            self.subject_select.graph = self.graph
+
     def update_subject_select_values(self, change):
         if change.old != change.new and change.new:
-            self.subject_select._values = {"type": change.new}
+            # Note: change.new == self.type_select.select_widget.value
+            self.subject_select._values = {"type": list(change.new)}

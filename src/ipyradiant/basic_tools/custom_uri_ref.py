@@ -12,14 +12,16 @@ class CustomURI:
     """
     Class used for storing uri information including the namespace and shorthand ID.
 
+    TODO rename to PithyURI
     TODO namespaces support NamespaceManager
     TODO how to specify that this must accept a URIRef and namespace str?
     TODO cast namespace to rdflib.namespace.Namespace?
+    TODO can we make this a specialization of URIRef?
     """
 
     uri = None
     ns = None
-    id_ = None
+    id_ = None  # TODO rename pithy_uri
 
     def __init__(
         self,

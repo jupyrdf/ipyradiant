@@ -14,6 +14,7 @@ def URItoID(uri: rdflib.term.URIRef) -> str:
 def URItoShortID(uri: rdflib.term.URIRef, ns: dict = None):
     """Convert URIs to shorthand IDs using namespace information.
 
+    TODO rename to_pithy_uri
     TODO support other namespace objects (e.g. NamespaceManager)?
     """
     prefix = None

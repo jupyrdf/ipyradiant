@@ -1,69 +1,46 @@
-import ipywidgets as W
 import traitlets as T
 
-
-class URIContainer(W.widget.Widget):
-    """A container for referencing URI Classes (e.g. with custom repr) via URI."""
-    uris = T.List()
-    uri_dict = T.Dict()
-
-    def __init__(self, uris, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if uris is None:
-            raise ValueError("Input 'uris' cannot be NoneType.")
-
-        # TODO relax this requirement
-        assert len(set(map(type, uris))) < 2, "All URIs must be of the same type."
-        assert all(map(lambda x: hasattr(x, "uri"),
-                       uris)), "URI objects must have a 'uri' attr."
-
-        self.uris = uris
-
-    @T.observe("uris")
-    def update_uris(self, change):
-        self.uris = change.new
-        self.update_uri_dict()
-
-    def update_uri_dict(self):
-        self.uri_dict = dict([(uri.uri, uri) for uri in self.uris])
+import ipywidgets as W
+from rdflib import URIRef
 
 
 class SelectMultipleURI(W.SelectMultiple):
-    """TODO
+    """Widget for selecting URIs that have custom representations"""
+    pithy_uris = T.Tuple()  # tuple of uri class instances (e.g. CustomURI)
+    uri_map = T.Tuple()  # T.Tuple(T.Instance(URIRef), T.Instance(CustomURI))
 
-    object_value is the list of objects that the value (i.e. URI) came from (e.g. uri_dict.values)
-    """
-    uris = T.List()
-    uri_dict = T.Dict()
-    object_value = T.Tuple().tag(default=())
+    @T.observe("pithy_uris")
+    def update_pithy_uris(self, change):
+        if change.old != change.new:
+            if self.pithy_uris is None:
+                raise ValueError("Value 'pithy_uris' cannot be NoneType.")
+            # TODO relax below requirement?
+            assert (
+                len(set(map(type, self.pithy_uris))) < 2
+            ), "All URIs must be of the same type."
+            assert all(
+                map(lambda x: hasattr(x, "uri"), self.pithy_uris)
+            ), "URI objects must have a 'uri' attr."
 
-    def __init__(self, container: URIContainer, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.uris = container.uris
-        self.uri_dict = container.uri_dict
+            # replace uri_map
+            self.uri_map = tuple([(uri.uri, uri) for uri in self.pithy_uris])
 
-        T.link((self, "uris"), (container, "uris"))
-        T.link((self, "uri_dict"), (container, "uri_dict"))
+            # replace options
+            self.options = tuple(sorted(
+                [tup[::-1] for tup in self.uri_map],
+                key=lambda x: str(x[0])
+            ))
 
-        ordered_keys = [uri.uri for uri in self.uris]
-        self.options = sorted(
-            list(zip(self.uris, ordered_keys)),
-            key=lambda x: str(x[0])
-        )
+    def get_pithy_uri(self, uri: URIRef):
+        """Helper method to return a custom URI representation for a URIRef in the
+        uri_map.
 
-    @T.observe("uris")
-    def update_uris(self, change):
-        self.value = ()
-        self.object_value = ()
-        ordered_keys = [uri.uri for uri in self.uris]
-        self.options = sorted(
-            list(zip(self.uris, ordered_keys)),
-            key=lambda x: str(x[0])
-        )
+        TODO support multiple uris
 
-    @T.observe("value")
-    def update_object_value(self, change):
-        if not (change.new is None or len(change.new) == 0):
-            self.object_value = tuple([
-                self.uri_dict[uri] for (uri) in change.new
-            ])
+        :param uri: the rdflib URIRef for a URI in the uri_map
+        :return: the target in the uri_map (a custom URI class instance)
+        """
+        try:
+            return dict(self.uri_map)[uri]
+        except KeyError:
+            raise KeyError(f"URIRef '<{uri}>' not in uri_map.")
