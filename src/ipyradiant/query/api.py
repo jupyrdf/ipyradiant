@@ -22,6 +22,8 @@ def build_values(string: str, values: dict) -> str:
         }
     Note: values can be strings, rdflib.URIRefs, or preformatted SPARQL IRIs, e.g. '<IRI>'.
     :return: the formatted string with the given values
+
+    TODO should values be a NamedTuple with different structure to improve readability?
     """
     assert values, "Input values cannot be empty."
     assert (

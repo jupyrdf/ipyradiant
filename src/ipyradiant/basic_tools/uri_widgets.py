@@ -6,6 +6,7 @@ from rdflib import URIRef
 
 class SelectMultipleURI(W.SelectMultiple):
     """Widget for selecting URIs that have custom representations"""
+
     pithy_uris = T.Tuple()  # tuple of uri class instances (e.g. CustomURI)
     uri_map = T.Tuple()  # T.Tuple(T.Instance(URIRef), T.Instance(CustomURI))
 
@@ -26,10 +27,9 @@ class SelectMultipleURI(W.SelectMultiple):
             self.uri_map = tuple([(uri.uri, uri) for uri in self.pithy_uris])
 
             # replace options
-            self.options = tuple(sorted(
-                [tup[::-1] for tup in self.uri_map],
-                key=lambda x: str(x[0])
-            ))
+            self.options = tuple(
+                sorted([tup[::-1] for tup in self.uri_map], key=lambda x: str(x[0]))
+            )
 
     def get_pithy_uri(self, uri: URIRef):
         """Helper method to return a custom URI representation for a URIRef in the
