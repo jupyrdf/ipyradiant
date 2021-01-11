@@ -8,9 +8,15 @@ import pandas
 import rdflib
 from ipycytoscape import Edge, Node
 from ipyradiant.query.api import SPARQLQueryFramer
+from pprint import pprint
 
 
 class GetOutgoingPredicateObjects(SPARQLQueryFramer):
+    """
+    This is a SPARQLQueryFramer class used in expanding the graph, where it it will
+    use a subject and expand the graph to show all the non-literal objects of said subject.
+    """
+
     sparql = """
     SELECT DISTINCT ?s ?p ?o ?label
 
@@ -88,6 +94,7 @@ class InteractiveViewer(W.VBox):
             },
             {
                 "selector": "node[classes='selected-node']",
+                # "selector": ":active ",
                 "css": {
                     "label": "data(_label)",
                     "text-wrap": "wrap",
@@ -127,16 +134,31 @@ class InteractiveViewer(W.VBox):
                 },
             },
             {
-                "selector": "edge.directed",
-                "style": {
-                    "curve-style": "bezier",
-                    "target-arrow-shape": "triangle",
+                "selector": ":selected",
+                "css": {
+                    "background-color": "SteelBlue",
+                    "line-color": "black",
+                    "target-arrow-color": "black",
+                    "source-arrow-color": "black",
                 },
+            },
+            {
+                "selector": "edge.directed",
+                "style": {"curve-style": "bezier", "target-arrow-shape": "triangle",},
             },
             {"selector": "edge.multiple_edges", "style": {"curve-style": "bezier"}},
         ]
 
     def __init__(self, *args, **kwargs):
+        """
+        This is a class that will help for interactive graph exploration, i.e. expanding a graph
+        by starting with a selection of nodes and then expanding node by node.
+
+        :params:
+        rdf_graph: an rdflib.graph.Graph object
+        cyto_graph: an ipycytoscape.CytoscapeWidget to start with before exploration.
+        """
+
         super().__init__(*args, **kwargs)
         if kwargs is not None and "rdf_graph" in kwargs:
             self.rdf_graph = kwargs["rdf_graph"]
@@ -157,10 +179,12 @@ class InteractiveViewer(W.VBox):
         self.layout = W.Layout(width="1000px", border="solid 2px")
 
     def log_node_clicks(self, node):
-        try:
-            self.selected_node["data"]["classes"] = None
-        except:
-            pass
+        """
+        This function works with registering a click on a node. This will mark the node as selected and load
+        up the node's data. In this function is where you would want to attach a JSON click register.
+        """
+
+        node["data"]["classes"] = "selected-node"
         self.selected_node = node
         self.selected_node["data"]["classes"] = "selected-node"
         data = node["data"]
@@ -169,6 +193,10 @@ class InteractiveViewer(W.VBox):
         data.pop("_attrs", None)
 
     def expand_button_clicked(self, b):
+        """
+        This function expands a node by loading in its predicates and subjects when
+        a node is selected and the expand button is clicked.
+        """
         self.remove_button.disabled = False
         if self.selected_node is None:
             return None
@@ -179,9 +207,14 @@ class InteractiveViewer(W.VBox):
         # preds = new_data["p"].tolist()
         labels = new_data["label"].tolist()
         # add nodes
+        self.existing_node_ids = [
+            node.data["id"] for node in self.cyto_graph.graph.nodes
+        ]
         self.new_nodes = {}
         self.new_edges = {}
         for ii, x in enumerate(objs):
+            if str(x) in self.existing_node_ids:
+                continue
             self.new_nodes[ii] = Node(
                 data={
                     "id": str(x),
@@ -202,16 +235,13 @@ class InteractiveViewer(W.VBox):
         self.cyto_graph.set_layout(name="concentric")
 
     def undo_expansion(self, b):
+        """
+        This is a preliminary function for undoing expansions upon a node.
+        As of right now, a user can only undo the most recent expansion. After doing this,
+        the button will be disabled until a new expansion is made.
+        """
         self.remove_button.disabled = True
         for node in self.new_nodes:
-            try:
-                self.cyto_graph.graph.remove_node(self.new_nodes[node])
-            except ValueError:
-                print("Node already in starting graph.")
-                continue
-        for edge in self.new_edges:
-            try:
-                self.cyto_graph.graph.remove_node(self.new_edges[edge])
-            except ValueError:
-                print("Node already in starting graph.")
-                continue
+            self.cyto_graph.graph.remove_node_by_id(self.new_nodes[node].data["id"])
+
+        self.cyto_graph.set_layout(name="concentric")
