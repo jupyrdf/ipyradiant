@@ -130,7 +130,6 @@ class RDFSubjectSelectMultiple(W.VBox):
                 )
             self.select_widget.pithy_uris = tuple(sw_uris)
 
-
     @T.observe("graph")
     def update_graph(self, change):
         self.update_select()
