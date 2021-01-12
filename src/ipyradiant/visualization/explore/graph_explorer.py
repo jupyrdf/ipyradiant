@@ -85,8 +85,7 @@ class RDFTypeSelectMultiple(W.VBox):
 
     @T.observe("graph")
     def update_graph(self, change):
-        if change.old != change.new:
-            self.make_available_types()
+        self.make_available_types()
 
 
 class RDFSubjectSelectMultiple(W.VBox):
@@ -131,10 +130,10 @@ class RDFSubjectSelectMultiple(W.VBox):
                 )
             self.select_widget.pithy_uris = tuple(sw_uris)
 
+
     @T.observe("graph")
     def update_graph(self, change):
-        if change.old != change.new and change.new:
-            self.update_select()
+        self.update_select()
 
     @T.observe("_values")
     def update_values(self, change):
@@ -175,9 +174,13 @@ class GraphExploreNodeSelection(W.VBox):
 
     @T.observe("graph")
     def update_subwidget_graphs(self, change):
-        if change.old != change.new and change.new:
-            self.type_select.graph = self.graph
-            self.subject_select.graph = self.graph
+        # reset the subject select options and value
+        self.subject_select.select_widget.options = ()
+        self.subject_select.select_widget.value = ()
+        self.subject_select._values = None
+
+        self.type_select.graph = self.graph
+        self.subject_select.graph = self.graph
 
     def update_subject_select_values(self, change):
         if change.old != change.new and change.new:
