@@ -1,5 +1,6 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
+from pathlib import Path
 from typing import Dict, Union
 
 from rdflib import Graph, URIRef
@@ -13,6 +14,7 @@ class CustomURI:
     Class used for storing uri information including the namespace and shorthand ID.
 
     TODO rename to PithyURI
+    TODO extensive testing and demo notebook
     TODO namespaces support NamespaceManager
     TODO how to specify that this must accept a URIRef and namespace str?
     TODO cast namespace to rdflib.namespace.Namespace?
@@ -37,7 +39,7 @@ class CustomURI:
         self.uri = uri
         if namespaces is not None:
             for prefix, ns in namespaces.items():
-                if self.uri.startswith(ns):
+                if self.get_uri_root(self.uri) == str(ns):
                     self.ns = ns
                     if converter is not None:
                         # Convert with namespace
@@ -53,6 +55,22 @@ class CustomURI:
 
     def __repr__(self):
         return self.id_ if self.id_ is not None else self.uri
+
+    @staticmethod
+    def get_uri_root(uri: URIRef) -> str:
+        """Gets the root of a URI (everything but the fragmant, or name)
+
+        TODO should this be a universal util?
+        """
+
+        pathlike_uri = Path(uri)
+        if uri[-1] == "/":
+            return uri
+
+        if "#" in pathlike_uri.name:
+            return "#".join(uri.split("#")[0:-1]) + "#"
+        else:
+            return "/".join(uri.split("/")[0:-1]) + "/"
 
 
 class CustomURIRef:
