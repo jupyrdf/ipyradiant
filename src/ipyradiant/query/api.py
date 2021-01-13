@@ -45,7 +45,7 @@ def build_values(string: str, values: dict) -> str:
     value_vars = " ".join([f"?{value}" for value in values.keys()])
     values_transposed = [list(i) for i in zip(*[values for values in values.values()])]
     values_block = "\n\t    ".join(
-        [f"({' '.join([i for i in row])})" for row in values_transposed]
+        f"({' '.join([i for i in row])})" for row in values_transposed
     )
 
     return string.format(

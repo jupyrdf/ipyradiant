@@ -54,29 +54,13 @@ class MetaSubjectsOfType(type):
 
 
 class RDFTypeSelectMultiple(W.VBox):
-    """TODO improve docs, and rename attrs and methods?
-    Used to build a selection for available types in the graph.
-    Uses a library query. Uses graph object's namespace.
+    """Widget that contains node types present in the graph.
+    Uses a library query, and the graph object's namespace.
     """
 
     graph = T.Instance(Graph, allow_none=True)
     label = T.Instance(W.HTML)
     select_widget = T.Instance(SelectMultipleURI)
-
-    def __init__(self, label: str = None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        label = label or "Available types:"
-        self.label.value = f"<b>{label}</b>"
-        self.children = tuple([self.label, self.select_widget])
-
-    def make_available_types(self):
-        if self.graph is not None:
-            ns = dict(self.graph.namespaces())
-            types = AllTypes.run_query(self.graph)
-            # TODO how to allow user specification of custom CustomURI class
-            self.select_widget.pithy_uris = tuple(
-                map(lambda x: CustomURI(x, namespaces=ns), types["o"].to_list())
-            )
 
     @T.default("label")
     def make_default_label(self):
@@ -86,52 +70,56 @@ class RDFTypeSelectMultiple(W.VBox):
     def make_default_select_widget(self):
         return SelectMultipleURI(rows=10)
 
+    @T.validate("children")
+    def validate_children(self, proposal):
+        children = proposal.value
+        if not children:
+            children = (self.label, self.select_widget)
+        return children
+
     @T.observe("graph")
     def update_graph(self, change):
         self.make_available_types()
 
+    def make_available_types(self):
+        if self.graph is None:
+            return
+
+        ns = dict(self.graph.namespaces())
+        types = AllTypes.run_query(self.graph)
+        # TODO how to allow user specification of custom CustomURI class
+        self.select_widget.pithy_uris = tuple(
+            map(lambda x: CustomURI(x, namespaces=ns), types["o"].to_list())
+        )
+
 
 class RDFSubjectSelectMultiple(W.VBox):
+    """Widget that contains subjects in the graph based on type _values."""
+
     # Define the query class
     class SubjectsOfType(SPARQLQueryFramer, metaclass=MetaSubjectsOfType):
         values = None  # note: query will not run without values
 
     graph = T.Instance(Graph, allow_none=True).tag(default=None)
-    query = SubjectsOfType
-    _values = T.Instance(dict, allow_none=True).tag(default=None)
-    #
     label = T.Instance(W.HTML)
+    query = SubjectsOfType
     select_widget = T.Instance(SelectMultipleURI)
-
-    def __init__(self, label: str = None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        label = label or "Available subjects:"
-        self.label.value = f"<b>{label}</b>"
-        self.children = tuple([self.label, self.select_widget])
+    _values = T.Instance(dict, allow_none=True).tag(default=None)
 
     @T.default("label")
     def make_default_label(self):
-        # TODO update_label(label_str: str):
-        #  label should be a property that is based on label_text
         return W.HTML("<b>Available subjects:</b>")
 
     @T.default("select_widget")
     def make_default_select_widget(self):
         return SelectMultipleURI(rows=10)
 
-    def update_select(self):
-        if self.graph is not None and self._values is not None:
-            qres = self.run_query()
-            sw_uris = []
-            for uri, label in qres.values:
-                sw_uris.append(
-                    CustomItem(
-                        _repr=lambda x: f"{x.label}:   ->   {x.uri}",
-                        uri=uri,
-                        label=label,
-                    )
-                )
-            self.select_widget.pithy_uris = tuple(sw_uris)
+    @T.validate("children")
+    def validate_children(self, proposal):
+        children = proposal.value
+        if not children:
+            children = (self.label, self.select_widget)
+        return children
 
     @T.observe("graph")
     def update_graph(self, change):
@@ -147,11 +135,26 @@ class RDFSubjectSelectMultiple(W.VBox):
         assert self.query.values is not None
         return self.query.run_query(self.graph)
 
+    def update_select(self):
+        if None in (self.graph, self._values):
+            return
+
+        self.select_widget.pithy_uris = tuple(
+            CustomItem(
+                _repr=lambda x: f"{x.label}:   ->   {x.uri}",
+                uri=uri,
+                label=label,
+            )
+            for uri, label in self.run_query().values
+        )
+
 
 class GraphExploreNodeSelection(W.VBox):
+    """Widget that allows users to select subjects in the graph using a type filter."""
+
     graph = T.Instance(Graph, kw={})
-    type_select = T.Instance(RDFTypeSelectMultiple)
     subject_select = T.Instance(RDFSubjectSelectMultiple)
+    type_select = T.Instance(RDFTypeSelectMultiple)
 
     @property
     def selected_types(self):
@@ -166,13 +169,16 @@ class GraphExploreNodeSelection(W.VBox):
 
     @T.default("type_select")
     def make_default_type_select(self):
-        type_selector = RDFTypeSelectMultiple(self.graph)
+        type_selector = RDFTypeSelectMultiple()
+        type_selector.graph = self.graph
         type_selector.select_widget.observe(self.update_subject_select_values, "value")
         return type_selector
 
     @T.default("subject_select")
     def make_default_subject_select(self):
-        return RDFSubjectSelectMultiple(self.graph)
+        subject_selector = RDFSubjectSelectMultiple()
+        subject_selector.graph = self.graph
+        return subject_selector
 
     @T.observe("graph")
     def update_subwidget_graphs(self, change):
