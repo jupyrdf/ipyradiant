@@ -52,6 +52,7 @@ class GetOutgoingPredicateObjects(SPARQLQueryFramer):
 class InteractiveViewer(W.VBox):
     expand_button = trt.Instance(W.Button)
     remove_button = trt.Instance(W.Button)
+    remove_temp_nodes_button = trt.Instance(W.Button)
     cyto_graph = trt.Instance(ipycytoscape.CytoscapeWidget)
     selected_node = trt.Dict(allow_none=True)
     rdf_graph = trt.Instance(rdflib.graph.Graph, allow_none=True)
@@ -67,8 +68,16 @@ class InteractiveViewer(W.VBox):
     @trt.default("remove_button")
     def _create_remove_button(self):
         return W.Button(
-            description="Undo Most Recent Node Expansion",
-            layout=W.Layout(width="500px", height="40px"),
+            description="Undo Last Expansion",
+            layout=W.Layout(width="250px", height="40px"),
+            disabled=True,
+        )
+
+    @trt.default("remove_temp_nodes_button")
+    def _create_remove_temp_nodes_button(self):
+        return W.Button(
+            description="Remove Temporary Nodes",
+            layout=W.Layout(width="250px", height="40px"),
             disabled=False,
         )
 
@@ -90,20 +99,7 @@ class InteractiveViewer(W.VBox):
                     "font-size": "10",
                     "font-family": '"Gill Sans", sans-serif',
                     "color": "black",
-                },
-            },
-            {
-                "selector": "node[classes='selected-node']",
-                # "selector": ":active ",
-                "css": {
-                    "label": "data(_label)",
-                    "text-wrap": "wrap",
-                    "text-max-width": "150px",
-                    "text-valign": "center",
-                    "text-halign": "center",
-                    "font-size": "10",
-                    "font-family": '"Gill Sans", sans-serif',
-                    "background-color": "red",
+                    "background-color": "grey",
                 },
             },
             {
@@ -134,9 +130,18 @@ class InteractiveViewer(W.VBox):
                 },
             },
             {
-                "selector": ":selected",
+                "selector": "node.clicked",
                 "css": {
-                    "background-color": "SteelBlue",
+                    "background-color": "red",
+                    "line-color": "black",
+                    "target-arrow-color": "black",
+                    "source-arrow-color": "black",
+                },
+            },
+            {
+                "selector": "node.temp",
+                "css": {
+                    "background-color": "#FFB6C1",
                     "line-color": "black",
                     "target-arrow-color": "black",
                     "source-arrow-color": "black",
@@ -174,23 +179,54 @@ class InteractiveViewer(W.VBox):
         self.expand_button.on_click(self.expand_button_clicked)
         self.remove_button.on_click(self.undo_expansion)
         self.cyto_graph.on("node", "click", self.log_node_clicks)
-        self.buttons = W.HBox(children=[self.expand_button, self.remove_button])
+        self.buttons = W.HBox(
+            children=[
+                self.expand_button,
+                self.remove_button,
+                self.remove_temp_nodes_button,
+            ]
+        )
         self.children = [self.cyto_graph, self.buttons]
         self.layout = W.Layout(width="1000px", border="solid 2px")
 
-    def log_node_clicks(self, node):
+    def get_node(self, node):
         """
-        This function works with registering a click on a node. This will mark the node as selected and load
-        up the node's data. In this function is where you would want to attach a JSON click register.
+        This function is used to find a node given the id of a node copy. Used in the log_node_clicks
+        method to change the color of nodes.
         """
 
-        node["data"]["classes"] = "selected-node"
+        for node_obj in self.cyto_graph.graph.nodes:
+            if node_obj.data["id"] == node["data"]["id"]:
+                return node_obj
+        raise ValueError("Node not found in cytoscape.graph.nodes.")
+
+    def log_node_clicks(self, node):
+        """
+        This function works with registering a click on a node. This will mark the node as selected and change the color of the
+        selected node.
+        """
+
+        try:
+            node_object = self.get_node(node)
+            print(node_object.classes)
+        except ValueError:
+            #     # logger.warn
+            print("Node {} not found in cytoscape graph.".format(node["data"]["id"]))
+            return
+        try:
+            classes = set(node_object.classes.split(" "))
+        except AttributeError:
+            classes = set()
+        classes.add("clicked")
+        node_object.classes = " ".join(classes)
+        node_object.classes = "clicked"
+
+        print(node_object.classes)
         self.selected_node = node
-        self.selected_node["data"]["classes"] = "selected-node"
-        data = node["data"]
-        # TODO: replace pops with filter for private attributes
-        data.pop("_label", None)
-        data.pop("_attrs", None)
+        # data = node["data"]
+        # # TODO: replace pops with filter for private attributes
+        # data.pop("_label", None)
+        # data.pop("_attrs", None)
 
     def expand_button_clicked(self, b):
         """
@@ -219,9 +255,10 @@ class InteractiveViewer(W.VBox):
                 data={
                     "id": str(x),
                     "iri": x,
-                    "classes": "temp-node",
+                    # "classes": "temp-node",
                     "_label": labels[ii],
-                }
+                },
+                classes="temp",
             )
             self.new_edges[ii] = Edge(
                 data={
