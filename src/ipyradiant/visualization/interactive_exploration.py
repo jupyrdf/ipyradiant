@@ -8,8 +8,6 @@ import pandas
 import rdflib
 from ipycytoscape import Edge, Node
 from ipyradiant.query.api import SPARQLQueryFramer
-from pprint import pprint
-
 
 DEFAULT_CYTO_STYLE = [
     {
@@ -27,36 +25,16 @@ DEFAULT_CYTO_STYLE = [
         },
     },
     {
-        "selector": "node[classes='temp-node']",
-        "css": {
-            "label": "data(_label)",
-            "text-wrap": "wrap",
-            "text-max-width": "150px",
-            "text-valign": "center",
-            "text-halign": "center",
-            "font-size": "10",
-            "font-family": '"Gill Sans", sans-serif',
-            "background-color": "#FFB6C1",
-        },
-    },
-    {
         "selector": "edge[classes='temp-edge']",
         "css": {
             "label": "data(_label)",
-            "text-wrap": "wrap",
-            "text-max-width": "150px",
-            "text-valign": "center",
-            "text-halign": "center",
-            "font-size": "10",
-            "font-family": '"Gill Sans", sans-serif',
-            "color": "green",
             "line-color": "#a8eae5",
         },
     },
     {
         "selector": "node.clicked",
         "css": {
-            "background-color": "red",
+            "background-color": "grey",
             "line-color": "black",
             "target-arrow-color": "black",
             "source-arrow-color": "black",
@@ -73,7 +51,18 @@ DEFAULT_CYTO_STYLE = [
     },
     {
         "selector": "edge.directed",
-        "style": {"curve-style": "bezier", "target-arrow-shape": "triangle",},
+        "style": {
+            "curve-style": "bezier",
+            "target-arrow-shape": "triangle",
+            "line-color": "grey",
+        },
+    },
+    {
+        "selector": "edge.temp",
+        "style": {
+            "curve-style": "bezier",
+            "line-color": "#a8eae5",
+        },
     },
     {"selector": "edge.multiple_edges", "style": {"curve-style": "bezier"}},
 ]
@@ -119,7 +108,7 @@ class GetOutgoingPredicateObjects(SPARQLQueryFramer):
 
 class InteractiveViewer(W.VBox):
     expand_button = trt.Instance(W.Button)
-    remove_button = trt.Instance(W.Button)  # undo_button
+    undo_button = trt.Instance(W.Button)  # undo_button
     remove_temp_nodes_button = trt.Instance(W.Button)
     cyto_graph = trt.Instance(ipycytoscape.CytoscapeWidget)
     selected_node = trt.Dict(allow_none=True)
@@ -136,8 +125,8 @@ class InteractiveViewer(W.VBox):
         return button
 
     # update name to undo_button
-    @trt.default("remove_button")
-    def _create_remove_button(self):
+    @trt.default("undo_button")
+    def _create_undo_button(self):
         button = W.Button(
             description="Undo Last Expansion",
             layout=W.Layout(width="250px", height="40px"),
@@ -148,11 +137,13 @@ class InteractiveViewer(W.VBox):
 
     @trt.default("remove_temp_nodes_button")
     def _create_remove_temp_nodes_button(self):
-        return W.Button(
+        button = W.Button(
             description="Remove Temporary Nodes",
             layout=W.Layout(width="250px", height="40px"),
             disabled=False,
         )
+        button.on_click(self.remove_temp_nodes)
+        return button
 
     @trt.default("selected_node")
     def _create_default_selected_node(self):
@@ -180,6 +171,17 @@ class InteractiveViewer(W.VBox):
         self.cyto_graph.set_style(self.cyto_style)
         # on is a callback for cyto_graph instance (must be set on each instance)
         self.cyto_graph.on("node", "click", self.log_node_clicks)
+        # TODO: Why doesn't this update automatically?? Shouldn't it?
+        self.children = (
+            self.cyto_graph,
+            W.HBox(
+                children=[
+                    self.expand_button,
+                    self.undo_button,
+                    self.remove_temp_nodes_button,
+                ]
+            ),
+        )
 
     @trt.validate("children")
     def validate_children(self, proposal):
@@ -190,7 +192,7 @@ class InteractiveViewer(W.VBox):
                 W.HBox(
                     children=[
                         self.expand_button,
-                        self.remove_button,
+                        self.undo_button,
                         self.remove_temp_nodes_button,
                     ]
                 ),
@@ -221,18 +223,15 @@ class InteractiveViewer(W.VBox):
             #     # logger.warn
             print("Node {} not found in cytoscape graph.".format(node["data"]["id"]))
             return
-        try:
-            classes = set(node_object.classes.split(" "))
-        except AttributeError:
-            classes = set()
-        classes.add("clicked")
-        node_object.classes = " ".join(classes)
+
         node_object.classes = "clicked"
-        self.cyto_graph.graph.add_node(Node(data={"id": "random node"}))
-        self.cyto_graph.graph.remove_node_by_id("random node")
+
         # NOTE: Class changes won't propogate to the front end for added nodes until
         # the graph is updated.
+        # To fix this we create a random node and then quickly delete it so that the changes propogate.
         # TODO: Add logger.warning to signal this event
+        self.cyto_graph.graph.add_node(Node(data={"id": "random node"}))
+        self.cyto_graph.graph.remove_node_by_id("random node")
 
         self.cyto_graph.set_layout(name="concentric")
 
@@ -243,7 +242,7 @@ class InteractiveViewer(W.VBox):
         This function expands a node by loading in its predicates and subjects when
         a node is selected and the expand button is clicked.
         """
-        self.remove_button.disabled = False
+        self.undo_button.disabled = False
         if self.selected_node is None:
             return None
         new_data = GetOutgoingPredicateObjects.run_query(
@@ -265,7 +264,6 @@ class InteractiveViewer(W.VBox):
                 data={
                     "id": str(x),
                     "iri": x,
-                    # "classes": "temp-node",
                     "_label": labels[ii],
                 },
                 classes="temp",
@@ -274,8 +272,8 @@ class InteractiveViewer(W.VBox):
                 data={
                     "source": self.selected_node["data"]["id"],
                     "target": str(x),
-                    "classes": "temp-edge",
-                }
+                },
+                classes="temp",
             )
             self.cyto_graph.graph.add_node(self.new_nodes[ii])
             self.cyto_graph.graph.add_edge(self.new_edges[ii])
@@ -287,8 +285,29 @@ class InteractiveViewer(W.VBox):
         As of right now, a user can only undo the most recent expansion. After doing this,
         the button will be disabled until a new expansion is made.
         """
-        self.remove_button.disabled = True
+        self.undo_button.disabled = True
         for node in self.new_nodes:
             self.cyto_graph.graph.remove_node_by_id(self.new_nodes[node].data["id"])
 
         self.cyto_graph.set_layout(name="concentric")
+
+    def remove_temp_nodes(self, b):
+        """
+        This is a basic function that cycles through the graph and removes all nodes that
+        have the 'temp' style (i.e. nodes that are not starting nodes or have not been clicked on).
+        """
+        nodes_to_remove = []
+        for node in self.cyto_graph.graph.nodes:
+            if node.classes == "temp":
+                nodes_to_remove.append(node.data["id"])
+        for node in nodes_to_remove:
+            self.cyto_graph.graph.remove_node_by_id(node)
+        # change edge color
+        for edge in self.cyto_graph.graph.edges:
+            edge.classes = "directed"
+        # propogate changes to front end using hack
+        self.cyto_graph.graph.add_node(Node(data={"id": "random node"}))
+        self.cyto_graph.graph.remove_node_by_id("random node")
+
+        self.cyto_graph.set_layout(name="concentric")
+        self.undo_button.disabled = True
