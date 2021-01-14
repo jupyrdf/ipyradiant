@@ -11,6 +11,74 @@ from ipyradiant.query.api import SPARQLQueryFramer
 from pprint import pprint
 
 
+DEFAULT_CYTO_STYLE = [
+    {
+        "selector": "node",
+        "css": {
+            "label": "data(_label)",
+            "text-wrap": "wrap",
+            "text-max-width": "150px",
+            "text-valign": "center",
+            "text-halign": "center",
+            "font-size": "10",
+            "font-family": '"Gill Sans", sans-serif',
+            "color": "black",
+            "background-color": "grey",
+        },
+    },
+    {
+        "selector": "node[classes='temp-node']",
+        "css": {
+            "label": "data(_label)",
+            "text-wrap": "wrap",
+            "text-max-width": "150px",
+            "text-valign": "center",
+            "text-halign": "center",
+            "font-size": "10",
+            "font-family": '"Gill Sans", sans-serif',
+            "background-color": "#FFB6C1",
+        },
+    },
+    {
+        "selector": "edge[classes='temp-edge']",
+        "css": {
+            "label": "data(_label)",
+            "text-wrap": "wrap",
+            "text-max-width": "150px",
+            "text-valign": "center",
+            "text-halign": "center",
+            "font-size": "10",
+            "font-family": '"Gill Sans", sans-serif',
+            "color": "green",
+            "line-color": "#a8eae5",
+        },
+    },
+    {
+        "selector": "node.clicked",
+        "css": {
+            "background-color": "red",
+            "line-color": "black",
+            "target-arrow-color": "black",
+            "source-arrow-color": "black",
+        },
+    },
+    {
+        "selector": "node.temp",
+        "css": {
+            "background-color": "#FFB6C1",
+            "line-color": "black",
+            "target-arrow-color": "black",
+            "source-arrow-color": "black",
+        },
+    },
+    {
+        "selector": "edge.directed",
+        "style": {"curve-style": "bezier", "target-arrow-shape": "triangle",},
+    },
+    {"selector": "edge.multiple_edges", "style": {"curve-style": "bezier"}},
+]
+
+
 class GetOutgoingPredicateObjects(SPARQLQueryFramer):
     """
     This is a SPARQLQueryFramer class used in expanding the graph, where it it will
@@ -51,7 +119,7 @@ class GetOutgoingPredicateObjects(SPARQLQueryFramer):
 
 class InteractiveViewer(W.VBox):
     expand_button = trt.Instance(W.Button)
-    remove_button = trt.Instance(W.Button)
+    remove_button = trt.Instance(W.Button)  # undo_button
     remove_temp_nodes_button = trt.Instance(W.Button)
     cyto_graph = trt.Instance(ipycytoscape.CytoscapeWidget)
     selected_node = trt.Dict(allow_none=True)
@@ -60,18 +128,23 @@ class InteractiveViewer(W.VBox):
 
     @trt.default("expand_button")
     def _create_expand_button(self):
-        return W.Button(
+        button = W.Button(
             description="Expand Upon Selected Node",
             layout=W.Layout(width="500px", height="40px"),
         )
+        button.on_click(self.expand_button_clicked)
+        return button
 
+    # update name to undo_button
     @trt.default("remove_button")
     def _create_remove_button(self):
-        return W.Button(
+        button = W.Button(
             description="Undo Last Expansion",
             layout=W.Layout(width="250px", height="40px"),
             disabled=True,
         )
+        button.on_click(self.undo_expansion)
+        return button
 
     @trt.default("remove_temp_nodes_button")
     def _create_remove_temp_nodes_button(self):
@@ -87,107 +160,42 @@ class InteractiveViewer(W.VBox):
 
     @trt.default("cyto_style")
     def _create_cyto_style(self):
-        return [
-            {
-                "selector": "node",
-                "css": {
-                    "label": "data(_label)",
-                    "text-wrap": "wrap",
-                    "text-max-width": "150px",
-                    "text-valign": "center",
-                    "text-halign": "center",
-                    "font-size": "10",
-                    "font-family": '"Gill Sans", sans-serif',
-                    "color": "black",
-                    "background-color": "grey",
-                },
-            },
-            {
-                "selector": "node[classes='temp-node']",
-                "css": {
-                    "label": "data(_label)",
-                    "text-wrap": "wrap",
-                    "text-max-width": "150px",
-                    "text-valign": "center",
-                    "text-halign": "center",
-                    "font-size": "10",
-                    "font-family": '"Gill Sans", sans-serif',
-                    "background-color": "#FFB6C1",
-                },
-            },
-            {
-                "selector": "edge[classes='temp-edge']",
-                "css": {
-                    "label": "data(_label)",
-                    "text-wrap": "wrap",
-                    "text-max-width": "150px",
-                    "text-valign": "center",
-                    "text-halign": "center",
-                    "font-size": "10",
-                    "font-family": '"Gill Sans", sans-serif',
-                    "color": "green",
-                    "line-color": "#a8eae5",
-                },
-            },
-            {
-                "selector": "node.clicked",
-                "css": {
-                    "background-color": "red",
-                    "line-color": "black",
-                    "target-arrow-color": "black",
-                    "source-arrow-color": "black",
-                },
-            },
-            {
-                "selector": "node.temp",
-                "css": {
-                    "background-color": "#FFB6C1",
-                    "line-color": "black",
-                    "target-arrow-color": "black",
-                    "source-arrow-color": "black",
-                },
-            },
-            {
-                "selector": "edge.directed",
-                "style": {"curve-style": "bezier", "target-arrow-shape": "triangle",},
-            },
-            {"selector": "edge.multiple_edges", "style": {"curve-style": "bezier"}},
-        ]
+        return DEFAULT_CYTO_STYLE
 
-    def __init__(self, *args, **kwargs):
-        """
-        This is a class that will help for interactive graph exploration, i.e. expanding a graph
-        by starting with a selection of nodes and then expanding node by node.
+    @trt.default("rdf_graph")
+    def _create_rdf_graph(self):
+        return rdflib.Graph()
 
-        :params:
-        rdf_graph: an rdflib.graph.Graph object
-        cyto_graph: an ipycytoscape.CytoscapeWidget to start with before exploration.
-        """
+    @trt.default("cyto_graph")
+    def _create_cyto_graph(self):
+        return ipycytoscape.CytoscapeWidget()
 
-        super().__init__(*args, **kwargs)
-        if kwargs is not None and "rdf_graph" in kwargs:
-            self.rdf_graph = kwargs["rdf_graph"]
-        else:
-            print("must pass in an rdf_graph")
-        if kwargs is not None and "cyto_graph" in kwargs:
-            self.cyto_graph = kwargs["cyto_graph"]
-            self.cyto_graph.set_layout(name="concentric")
-        else:
-            print("must pass in a cyto_graph")
+    @trt.default("layout")
+    def _create_layout(self):
+        return W.Layout(width="1000px", border="solid 2px")
 
+    @trt.observe("cyto_graph")
+    def update_cyto_graph(self, change):
+        self.cyto_graph.set_layout(name="concentric")
         self.cyto_graph.set_style(self.cyto_style)
-        self.expand_button.on_click(self.expand_button_clicked)
-        self.remove_button.on_click(self.undo_expansion)
+        # on is a callback for cyto_graph instance (must be set on each instance)
         self.cyto_graph.on("node", "click", self.log_node_clicks)
-        self.buttons = W.HBox(
-            children=[
-                self.expand_button,
-                self.remove_button,
-                self.remove_temp_nodes_button,
-            ]
-        )
-        self.children = [self.cyto_graph, self.buttons]
-        self.layout = W.Layout(width="1000px", border="solid 2px")
+
+    @trt.validate("children")
+    def validate_children(self, proposal):
+        children = proposal.value
+        if not children:
+            children = (
+                self.cyto_graph,
+                W.HBox(
+                    children=[
+                        self.expand_button,
+                        self.remove_button,
+                        self.remove_temp_nodes_button,
+                    ]
+                ),
+            )
+        return children
 
     def get_node(self, node):
         """
@@ -198,6 +206,7 @@ class InteractiveViewer(W.VBox):
         for node_obj in self.cyto_graph.graph.nodes:
             if node_obj.data["id"] == node["data"]["id"]:
                 return node_obj
+        # maybe return None and log warning?
         raise ValueError("Node not found in cytoscape.graph.nodes.")
 
     def log_node_clicks(self, node):
@@ -208,7 +217,6 @@ class InteractiveViewer(W.VBox):
 
         try:
             node_object = self.get_node(node)
-            print(node_object.classes)
         except ValueError:
             #     # logger.warn
             print("Node {} not found in cytoscape graph.".format(node["data"]["id"]))
@@ -220,13 +228,15 @@ class InteractiveViewer(W.VBox):
         classes.add("clicked")
         node_object.classes = " ".join(classes)
         node_object.classes = "clicked"
+        self.cyto_graph.graph.add_node(Node(data={"id": "random node"}))
+        self.cyto_graph.graph.remove_node_by_id("random node")
+        # NOTE: Class changes won't propogate to the front end for added nodes until
+        # the graph is updated.
+        # TODO: Add logger.warning to signal this event
 
-        print(node_object.classes)
+        self.cyto_graph.set_layout(name="concentric")
+
         self.selected_node = node
-        # data = node["data"]
-        # # TODO: replace pops with filter for private attributes
-        # data.pop("_label", None)
-        # data.pop("_attrs", None)
 
     def expand_button_clicked(self, b):
         """
