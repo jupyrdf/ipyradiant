@@ -8,6 +8,7 @@ import pandas
 import rdflib
 from ipycytoscape import Edge, Node
 from ipyradiant.query.api import SPARQLQueryFramer
+from ipyradiant.rdf2nx.uri_converter import URItoID
 
 DEFAULT_CYTO_STYLE = [
     {
@@ -55,6 +56,8 @@ DEFAULT_CYTO_STYLE = [
             "curve-style": "bezier",
             "target-arrow-shape": "triangle",
             "line-color": "grey",
+            # "label": "data(iri)",
+            "font-size": "5",
         },
     },
     {
@@ -62,6 +65,8 @@ DEFAULT_CYTO_STYLE = [
         "style": {
             "curve-style": "bezier",
             "line-color": "#a8eae5",
+            # "label": "data(iri)",
+            "font-size": "5",
         },
     },
     {"selector": "edge.multiple_edges", "style": {"curve-style": "bezier"}},
@@ -119,7 +124,7 @@ class InteractiveViewer(W.VBox):
     def _create_expand_button(self):
         button = W.Button(
             description="Expand Upon Selected Node",
-            layout=W.Layout(width="500px", height="40px"),
+            layout=W.Layout(width="50%", height="40px"),
         )
         button.on_click(self.expand_button_clicked)
         return button
@@ -129,7 +134,7 @@ class InteractiveViewer(W.VBox):
     def _create_undo_button(self):
         button = W.Button(
             description="Undo Last Expansion",
-            layout=W.Layout(width="250px", height="40px"),
+            layout=W.Layout(width="25%", height="40px"),
             disabled=True,
         )
         button.on_click(self.undo_expansion)
@@ -139,7 +144,7 @@ class InteractiveViewer(W.VBox):
     def _create_remove_temp_nodes_button(self):
         button = W.Button(
             description="Remove Temporary Nodes",
-            layout=W.Layout(width="250px", height="40px"),
+            layout=W.Layout(width="25%", height="40px"),
             disabled=False,
         )
         button.on_click(self.remove_temp_nodes)
@@ -163,7 +168,7 @@ class InteractiveViewer(W.VBox):
 
     @trt.default("layout")
     def _create_layout(self):
-        return W.Layout(width="1000px", border="solid 2px")
+        return W.Layout(width="80%", border="solid 2px")
 
     @trt.observe("cyto_graph")
     def update_cyto_graph(self, change):
@@ -224,16 +229,14 @@ class InteractiveViewer(W.VBox):
             print("Node {} not found in cytoscape graph.".format(node["data"]["id"]))
             return
 
-        node_object.classes = "clicked"
-
-        # NOTE: Class changes won't propogate to the front end for added nodes until
-        # the graph is updated.
-        # To fix this we create a random node and then quickly delete it so that the changes propogate.
-        # TODO: Add logger.warning to signal this event
-        self.cyto_graph.graph.add_node(Node(data={"id": "random node"}))
-        self.cyto_graph.graph.remove_node_by_id("random node")
-
-        self.cyto_graph.set_layout(name="concentric")
+        if self.selected_node == node:
+            node_object.classes = "clicked"
+            self.cyto_graph.graph.add_node(Node(data={"id": "random node"}))
+            self.cyto_graph.graph.remove_node_by_id("random node")
+            # NOTE: Class changes won't propogate to the front end for added nodes until
+            # the graph is updated.
+            # To fix this we create a random node and then quickly delete it so that the changes propogate.
+            # TODO: Add logger.warning to signal this event
 
         self.selected_node = node
 
@@ -249,7 +252,7 @@ class InteractiveViewer(W.VBox):
             graph=self.rdf_graph, subject=self.selected_node["data"]["iri"]
         )
         objs = new_data["o"].tolist()
-        # preds = new_data["p"].tolist()
+        preds = new_data["p"].tolist()
         labels = new_data["label"].tolist()
         # add nodes
         self.existing_node_ids = [
@@ -258,24 +261,26 @@ class InteractiveViewer(W.VBox):
         self.new_nodes = {}
         self.new_edges = {}
         for ii, x in enumerate(objs):
-            if str(x) in self.existing_node_ids:
-                continue
-            self.new_nodes[ii] = Node(
-                data={
-                    "id": str(x),
-                    "iri": x,
-                    "_label": labels[ii],
-                },
-                classes="temp",
-            )
+            if str(x) not in self.existing_node_ids:
+
+                self.new_nodes[ii] = Node(
+                    data={
+                        "id": str(x),
+                        "iri": x,
+                        "_label": labels[ii] or str(x),
+                    },
+                    classes="temp",
+                )
+                self.cyto_graph.graph.add_node(self.new_nodes[ii])
             self.new_edges[ii] = Edge(
                 data={
                     "source": self.selected_node["data"]["id"],
                     "target": str(x),
+                    "iri": URItoID(preds[ii]),
                 },
                 classes="temp",
             )
-            self.cyto_graph.graph.add_node(self.new_nodes[ii])
+
             self.cyto_graph.graph.add_edge(self.new_edges[ii])
         self.cyto_graph.set_layout(name="concentric")
 
@@ -288,6 +293,12 @@ class InteractiveViewer(W.VBox):
         self.undo_button.disabled = True
         for node in self.new_nodes:
             self.cyto_graph.graph.remove_node_by_id(self.new_nodes[node].data["id"])
+        for edge in self.new_edges:
+            try:
+                self.cyto_graph.graph.remove_edge(self.new_edges[edge])
+            except ValueError:
+                # edge already removed from graph because the node was removed earlier.
+                pass
 
         self.cyto_graph.set_layout(name="concentric")
 
