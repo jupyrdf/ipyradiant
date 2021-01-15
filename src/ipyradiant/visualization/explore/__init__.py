@@ -2,6 +2,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 __all__ = [
+    "GraphExplorer",
     "GraphExploreNodeSelection",
     "RDFSubjectSelectMultiple",
     "RDFTypeSelectMultiple",
@@ -9,7 +10,7 @@ __all__ = [
 
 from .graph_explorer import (
     GraphExploreNodeSelection,
+    GraphExplorer,
     RDFSubjectSelectMultiple,
     RDFTypeSelectMultiple,
-    GraphExplorer,
 )

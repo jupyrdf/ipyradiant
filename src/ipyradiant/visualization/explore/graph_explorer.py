@@ -2,18 +2,17 @@
 # Distributed under the terms of the Modified BSD License.
 
 import traitlets as T
+from IPython.display import JSON, display
 
 import ipywidgets as W
-
-from IPython.display import display, JSON
 from ipycytoscape import CytoscapeWidget
 from networkx import Graph as NXGraph
 from rdflib import Graph as RDFGraph
 
 from ...basic_tools.custom_uri_ref import CustomURI
 from ...basic_tools.uri_widgets import SelectMultipleURI
-from ...rdf2nx import RDF2NX
 from ...query.api import SPARQLQueryFramer, build_values
+from ...rdf2nx import RDF2NX
 from ..interactive_exploration import InteractiveViewer
 
 
@@ -31,6 +30,7 @@ def make_directed_graph(nx_graph: NXGraph) -> CytoscapeWidget:
 
 class AllTypes(SPARQLQueryFramer):
     """Simple query for returning type objects"""
+
     sparql = """
     SELECT DISTINCT ?o
     WHERE {
@@ -216,6 +216,8 @@ class GraphExploreNodeSelection(W.VBox):
 
 
 class GraphExplorer(W.VBox):
+    """Widget that allows users to populate and explore a graph based on RDF data."""
+
     rdf_graph = T.Instance(RDFGraph, kw={})
     nx_graph = T.Instance(NXGraph, kw={})
     # collapse_button = T.Instance(W.Button)
@@ -231,7 +233,7 @@ class GraphExplorer(W.VBox):
             children = (
                 W.HBox([self.node_select, self.interactive_viewer]),
                 # self.collapse_button
-                self.json_output
+                self.json_output,
             )
         return children
 
@@ -259,7 +261,7 @@ class GraphExplorer(W.VBox):
     def make_default_children(self):
         return (
             W.HBox([self.collapse_button, self.node_select, self.interactive_viewer]),
-            self.json_output
+            self.json_output,
         )
 
     # TODO expand/collapse breaks the "expand upon selected node" button
@@ -288,8 +290,9 @@ class GraphExplorer(W.VBox):
     def make_nx_graph(self, change):
         sssw_value = self.node_select.subject_select.select_widget.value
         # TODO do we want the convert_nodes to add edges between the nodes?
-        self.nx_graph = RDF2NX.convert_nodes(node_uris=sssw_value,
-                                             rdf_graph=self.rdf_graph)
+        self.nx_graph = RDF2NX.convert_nodes(
+            node_uris=sssw_value, rdf_graph=self.rdf_graph
+        )
 
     def load_json(self, change):
         if change.new == change.old:
