@@ -116,7 +116,7 @@ class InteractiveViewer(W.VBox):
     undo_button = trt.Instance(W.Button)  # undo_button
     remove_temp_nodes_button = trt.Instance(W.Button)
     cyto_graph = trt.Instance(ipycytoscape.CytoscapeWidget)
-    selected_node = trt.Dict(allow_none=True)
+    selected_node = trt.Instance(ipycytoscape.Node, allow_none=True)
     rdf_graph = trt.Instance(rdflib.graph.Graph, allow_none=True)
     cyto_style = trt.List(allow_none=True)
 
@@ -172,7 +172,7 @@ class InteractiveViewer(W.VBox):
 
     @trt.observe("cyto_graph")
     def update_cyto_graph(self, change):
-        self.cyto_graph.set_layout(name="concentric")
+        self.cyto_graph.set_layout(name="cola")
         self.cyto_graph.set_style(self.cyto_style)
         # on is a callback for cyto_graph instance (must be set on each instance)
         self.cyto_graph.on("node", "click", self.log_node_clicks)
@@ -229,7 +229,7 @@ class InteractiveViewer(W.VBox):
             print("Node {} not found in cytoscape graph.".format(node["data"]["id"]))
             return
 
-        if self.selected_node == node:
+        if self.selected_node == node_object:
             node_object.classes = "clicked"
             self.cyto_graph.graph.add_node(Node(data={"id": "random node"}))
             self.cyto_graph.graph.remove_node_by_id("random node")
@@ -238,7 +238,7 @@ class InteractiveViewer(W.VBox):
             # To fix this we create a random node and then quickly delete it so that the changes propogate.
             # TODO: Add logger.warning to signal this event
 
-        self.selected_node = node
+        self.selected_node = node_object
 
     def expand_button_clicked(self, b):
         """
@@ -249,7 +249,7 @@ class InteractiveViewer(W.VBox):
         if self.selected_node is None:
             return None
         new_data = GetOutgoingPredicateObjects.run_query(
-            graph=self.rdf_graph, subject=self.selected_node["data"]["iri"]
+            graph=self.rdf_graph, subject=self.selected_node.data["iri"]
         )
         objs = new_data["o"].tolist()
         preds = new_data["p"].tolist()
@@ -274,7 +274,7 @@ class InteractiveViewer(W.VBox):
                 self.cyto_graph.graph.add_node(self.new_nodes[ii])
             self.new_edges[ii] = Edge(
                 data={
-                    "source": self.selected_node["data"]["id"],
+                    "source": self.selected_node.data["id"],
                     "target": str(x),
                     "iri": URItoID(preds[ii]),
                 },
@@ -282,7 +282,7 @@ class InteractiveViewer(W.VBox):
             )
 
             self.cyto_graph.graph.add_edge(self.new_edges[ii])
-        self.cyto_graph.set_layout(name="concentric")
+        self.cyto_graph.set_layout(name="cola")
 
     def undo_expansion(self, b):
         """
@@ -300,7 +300,7 @@ class InteractiveViewer(W.VBox):
                 # edge already removed from graph because the node was removed earlier.
                 pass
 
-        self.cyto_graph.set_layout(name="concentric")
+        self.cyto_graph.set_layout(name="cola")
 
     def remove_temp_nodes(self, b):
         """
@@ -320,5 +320,5 @@ class InteractiveViewer(W.VBox):
         self.cyto_graph.graph.add_node(Node(data={"id": "random node"}))
         self.cyto_graph.graph.remove_node_by_id("random node")
 
-        self.cyto_graph.set_layout(name="concentric")
+        self.cyto_graph.set_layout(name="cola")
         self.undo_button.disabled = True
