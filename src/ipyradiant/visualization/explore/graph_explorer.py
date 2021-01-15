@@ -274,11 +274,13 @@ class GraphExplorer(W.VBox):
 
     @T.observe("rdf_graph")
     def update_subwidget_graphs(self, change):
+        self.json_output.clear_output()
         self.node_select.graph = self.rdf_graph
         self.interactive_viewer.rdf_graph = self.rdf_graph
 
     @T.observe("nx_graph")
     def update_cytoscape_widget(self, change):
+        self.json_output.clear_output()
         self.interactive_viewer.cyto_graph = make_directed_graph(self.nx_graph)
         self.interactive_viewer.observe(self.load_json, "selected_node")
         # self.children = [self.collapse_button, self.node_select, self.interactive_viewer]
