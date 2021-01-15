@@ -226,7 +226,7 @@ class InteractiveViewer(W.VBox):
             node_object = self.get_node(node)
         except ValueError:
             #     # logger.warn
-            print("Node {} not found in cytoscape graph.".format(node["data"]["id"]))
+            print("Node {} not found in cytoscape graph.".format(node.data["id"]))
             return
 
         if self.selected_node == node_object:
@@ -237,6 +237,10 @@ class InteractiveViewer(W.VBox):
             # the graph is updated.
             # To fix this we create a random node and then quickly delete it so that the changes propogate.
             # TODO: Add logger.warning to signal this event
+        else:
+            # TODO lets also change the class for the selected_node to include a
+            #  border indicating it has been selected.
+            pass
 
         self.selected_node = node_object
 
