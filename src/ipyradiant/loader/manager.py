@@ -1,6 +1,6 @@
 """ loading widgets
 """
-# Copyright (c) 2020 ipyradiant contributors.
+# Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
 import traitlets as T
