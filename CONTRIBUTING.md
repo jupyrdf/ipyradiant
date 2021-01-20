@@ -99,19 +99,21 @@ is recommended to use `mamba` for the rather hefty re-solve of all the environme
 ```bash
 # On Unix
 export CONDA_EXE=mamba
+export CONDARC=.github/.condarc
 anaconda-project update -n dev
 anaconda-project update -n build
 anaconda-project update -n qa
-doit lint
+doit lint:prettier
 ```
 
-On Windows:
+Or...
 
 ```bat
 ::on windows
 set CONDA_EXE=mamba
+set CONDARC=.github\.condarc
 anaconda-project update -n dev
 anaconda-project update -n build
 anaconda-project update -n qa
-doit lint
+doit lint:prettier
 ```

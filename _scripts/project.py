@@ -44,6 +44,7 @@ PROJ = ROOT / "anaconda-project.yml"
 PROJ_LOCK = ROOT / "anaconda-project-lock.yml"
 VENDOR = ROOT / "vendor"
 CHANGELOG = ROOT / "CHANGELOG.md"
+CONDARC = CI / ".condarc"
 
 # tools
 PY = ["python"]

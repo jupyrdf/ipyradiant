@@ -23,6 +23,7 @@ import _scripts.utils as U
 
 os.environ.update(
     CONDA_EXE="mamba",
+    CONDARC=str(P.CONDARC),
     MAMBA_NO_BANNER="1",
     PIP_DISABLE_PIP_VERSION_CHECK="1",
     PYTHONIOENCODING="utf-8",
