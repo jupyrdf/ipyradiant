@@ -1,4 +1,4 @@
-# Copyright (c) 2020 ipyradiant contributors.
+# Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 import logging
 import re
@@ -68,10 +68,7 @@ class SPARQLQueryFramer:
 
     @classmethod
     def run_query(
-        cls,
-        graph: Graph,
-        initBindings: dict = None,
-        **initBindingsKwarg,
+        cls, graph: Graph, initBindings: dict = None, **initBindingsKwarg,
     ) -> DataFrame:
         """Runs a query with optional initBindings, and returns the results as a
           pandas.DataFrame.
