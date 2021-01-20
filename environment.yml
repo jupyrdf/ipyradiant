@@ -7,7 +7,7 @@ dependencies:
   - datashader
   - hvplot
   - importnb
-  - ipycytoscape >=1.0.3,<1.2.0
+  - ipycytoscape >=1.0.3,<1.1.0
   - ipywidgets
   - pyviz_comms <1.0.3
   - jupyterlab ==2.2.5

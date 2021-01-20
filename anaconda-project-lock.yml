@@ -19,7 +19,7 @@ env_specs:
     locked: false
   dev:
     locked: true
-    env_spec_hash: 919df4fc61c4c19fa49224ef15f15e29ab77c180
+    env_spec_hash: 7b21a2ceea206920552525191163769ccf1139a0
     platforms:
       - linux-64
       - osx-64
@@ -55,7 +55,7 @@ env_specs:
         - importlib_metadata=3.4.0=hd8ed1ab_0
         - importnb=0.7.0=pyhd8ed1ab_0
         - iniconfig=1.1.1=pyh9f0ad1d_0
-        - ipycytoscape=1.1.0=pyhd8ed1ab_0
+        - ipycytoscape=1.0.4=pyhd8ed1ab_1
         - ipython_genutils=0.2.0=py_1
         - ipywidgets=7.6.3=pyhd3deb0d_0
         - isodate=0.6.0=py_1
