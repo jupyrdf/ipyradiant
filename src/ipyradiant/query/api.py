@@ -68,7 +68,10 @@ class SPARQLQueryFramer:
 
     @classmethod
     def run_query(
-        cls, graph: Graph, initBindings: dict = None, **initBindingsKwarg,
+        cls,
+        graph: Graph,
+        initBindings: dict = None,
+        **initBindingsKwarg,
     ) -> DataFrame:
         """Runs a query with optional initBindings, and returns the results as a
           pandas.DataFrame.

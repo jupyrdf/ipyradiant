@@ -23,7 +23,10 @@ class NodeIRIs(SPARQLQueryFramer):
 
     @classmethod
     def run_query(
-        cls, graph: rdflib.graph.Graph, initBindings: dict = None, **initBindingsKwarg,
+        cls,
+        graph: rdflib.graph.Graph,
+        initBindings: dict = None,
+        **initBindingsKwarg,
     ) -> pandas.DataFrame:
         """Overwrite the super method in order to wrap with validation checks."""
         qres = super().run_query(graph, initBindings=initBindings, **initBindingsKwarg)
