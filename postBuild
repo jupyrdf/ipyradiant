@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# this runs after `environment.yml` has been installed with `mamba`
 set -eux
 
 # prepare

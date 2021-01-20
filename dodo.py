@@ -20,7 +20,12 @@ from doit.action import CmdAction
 from doit.tools import PythonInteractiveAction, config_changed
 from yaml import safe_load
 
-os.environ["PYTHONIOENCODING"] = "utf-8"
+os.environ.update(
+    CONDA_EXE="mamba",
+    MAMBA_NO_BANNER="1",
+    PIP_DISABLE_PIP_VERSION_CHECK="1",
+    PYTHONIOENCODING="utf-8",
+)
 
 DOIT_CONFIG = {
     "backend": "sqlite3",

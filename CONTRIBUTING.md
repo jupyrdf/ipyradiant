@@ -16,24 +16,24 @@
 >
 > `doit` will cowardly refuse to do anything if some of the above are not met
 
-- install [Miniconda](https://docs.conda.io/en/latest/miniconda.html) (Python 3, 64-bit)
+- install [Mambaforge](https://github.com/conda-forge/miniforge/releases)
 - install `anaconda-project` and `doit` into the `base` env
 
 ```bat
-conda install anaconda-project=0.8.4 doit=0.32
+mamba install -c conda-forge anaconda-project=0.8.4 doit=0.32
 ```
 
 or, use the same base environment as CI:
 
 ```bat
 :: windows
-conda env update --file .ci\environment.yml
+mamba env update --file .ci\environment.yml
 c:\mc3\envs\ipyradiant-base\Scripts\activate
 ```
 
 ```bash
 # unix
-conda env update --file .ci/environment.yml
+mamba env update --file .ci/environment.yml
 source ~/mc3/envs/ipyradiant-base/bin/activate
 ```
 
@@ -84,3 +84,28 @@ anaconda-project run --env-spec build twine upload dist/ipyradiant-*
 - Complete `conda-forge` tasks
 
 [radiance-si-units]: https://en.wikipedia.org/wiki/Radiance#SI_radiometry_units
+
+## Updating environments
+
+After changing any `env_spec` in `anaconda-project.yml` (and/or `environment.yml`), it
+is recommended to use `mamba` for the rather hefty re-solve of all the environments.
+
+```bash
+# On Unix
+export CONDA_EXE=mamba
+anaconda-project update -n dev
+anaconda-project update -n build
+anaconda-project update -n qa
+doit lint
+```
+
+On Windows:
+
+```bat
+::on windows
+set CONDA_EXE=mamba
+anaconda-project update -n dev
+anaconda-project update -n build
+anaconda-project update -n qa
+doit lint
+```
