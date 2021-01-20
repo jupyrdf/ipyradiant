@@ -1,12 +1,10 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
-from typing import Union
 
 import traitlets as trt
 
 import ipycytoscape
 import ipywidgets as W
-import pandas
 import rdflib
 from ipycytoscape import Edge, Node
 from ipyradiant.query.api import SPARQLQueryFramer
@@ -29,7 +27,10 @@ DEFAULT_CYTO_STYLE = [
     },
     {
         "selector": "edge[classes='temp-edge']",
-        "css": {"label": "data(_label)", "line-color": "#a8eae5",},
+        "css": {
+            "label": "data(_label)",
+            "line-color": "#a8eae5",
+        },
     },
     {
         "selector": "node.clicked",
@@ -241,7 +242,11 @@ class InteractiveViewer(W.VBox):
             if str(x) not in self.existing_node_ids:
 
                 self.new_nodes[ii] = Node(
-                    data={"id": str(x), "iri": x, "_label": labels[ii] or str(x),},
+                    data={
+                        "id": str(x),
+                        "iri": x,
+                        "_label": labels[ii] or str(x),
+                    },
                     classes="temp",
                 )
                 self.cyto_graph.graph.add_node(self.new_nodes[ii])
