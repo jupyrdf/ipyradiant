@@ -5,10 +5,9 @@
 
 import re
 
-import traitlets as T
-
 import ipywidgets as W
 import qgrid
+import traitlets as T
 from pandas import DataFrame
 from rdflib import Graph, URIRef
 

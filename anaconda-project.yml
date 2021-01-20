@@ -54,7 +54,7 @@ env_specs:
     packages:
       - black
       - flake8
-      - isort <5
+      - isort >5
       - jupyterlab ==2.2.5
       - nbformat
       - nodejs >=12,<13.0.0a0

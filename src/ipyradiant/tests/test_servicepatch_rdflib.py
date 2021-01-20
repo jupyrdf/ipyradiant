@@ -3,8 +3,9 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-import ipyradiant
 import rdflib
+
+import ipyradiant
 
 LINKEDDATA_QUERY = """
     SELECT DISTINCT ?s ?p ?o

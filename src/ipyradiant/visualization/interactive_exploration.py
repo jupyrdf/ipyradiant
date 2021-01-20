@@ -1,12 +1,15 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-import traitlets as trt
+from typing import Union
 
 import ipycytoscape
 import ipywidgets as W
+import pandas
 import rdflib
+import traitlets as trt
 from ipycytoscape import Edge, Node
+
 from ipyradiant.query.api import SPARQLQueryFramer
 from ipyradiant.rdf2nx.uri_converter import URItoID
 
@@ -75,7 +78,8 @@ DEFAULT_CYTO_STYLE = [
 
 class GetOutgoingPredicateObjects(SPARQLQueryFramer):
     """
-    Return all triples for non-Literal objects (and the optional object labels).
+    This is a SPARQLQueryFramer class used in expanding the graph, where it it will
+    use a subject and expand the graph to show all the non-literal objects of said subject.
     """
 
     sparql = """
@@ -89,21 +93,35 @@ class GetOutgoingPredicateObjects(SPARQLQueryFramer):
 
     """
 
+    @classmethod
+    def run_query(
+        cls,
+        graph: rdflib.graph.Graph,
+        subject: Union[rdflib.term.URIRef, str],
+        initBindings: dict = None,
+        **initBindingsKwarg,
+    ) -> pandas.DataFrame:
+        """Overwrite the super method in order to wrap with validation checks."""
 
-# Throughout this class, we assign the layout to self.cyto_graph_layout multiple times.
-# This is so that the graph refreshes the layout every time nodes are added or removed,
-# which provides an optimal viewing experience.
+        qres = super().run_query(
+            graph,
+            s=rdflib.term.URIRef(subject),
+            initBindings=initBindings,
+            **initBindingsKwarg,
+        )
+        # Validating with known requirements on query results
+        # TODO
+        return qres
 
 
 class InteractiveViewer(W.VBox):
     expand_button = trt.Instance(W.Button)
-    undo_button = trt.Instance(W.Button)
+    undo_button = trt.Instance(W.Button)  # undo_button
     remove_temp_nodes_button = trt.Instance(W.Button)
     cyto_graph = trt.Instance(ipycytoscape.CytoscapeWidget)
     selected_node = trt.Instance(ipycytoscape.Node, allow_none=True)
     rdf_graph = trt.Instance(rdflib.graph.Graph, allow_none=True)
     cyto_style = trt.List(allow_none=True)
-    cyto_graph_layout = trt.Unicode(default_value="cola")
 
     @trt.default("expand_button")
     def _create_expand_button(self):
@@ -114,6 +132,7 @@ class InteractiveViewer(W.VBox):
         button.on_click(self.expand_button_clicked)
         return button
 
+    # update name to undo_button
     @trt.default("undo_button")
     def _create_undo_button(self):
         button = W.Button(
@@ -152,17 +171,15 @@ class InteractiveViewer(W.VBox):
 
     @trt.default("layout")
     def _create_layout(self):
-        return W.Layout(width="80%")
+        return W.Layout(width="80%", border="solid 2px")
 
     @trt.observe("cyto_graph")
     def update_cyto_graph(self, change):
-        self.cyto_graph.set_layout(name=self.cyto_graph_layout)
+        self.cyto_graph.set_layout(name="cola")
         self.cyto_graph.set_style(self.cyto_style)
         # on is a callback for cyto_graph instance (must be set on each instance)
         self.cyto_graph.on("node", "click", self.log_node_clicks)
-        # Here we have to set the children again so that the changes propogate to the front end
-        # automatically. Ideally this would be done with traits but did not seem to work. LINK TO GITHUB ISSUE:
-        # https://github.com/jupyrdf/ipyradiant/issues/79
+        # TODO: Why doesn't this update automatically?? Shouldn't it?
         self.children = (
             self.cyto_graph,
             W.HBox(
@@ -190,35 +207,47 @@ class InteractiveViewer(W.VBox):
             )
         return children
 
-    def get_node(self, node: Node) -> Node:
+    def get_node(self, node):
         """
-        This function is used to find a node given the id of a node copy.
+        This function is used to find a node given the id of a node copy. Used in the log_node_clicks
+        method to change the color of nodes.
         """
 
         for node_obj in self.cyto_graph.graph.nodes:
             if node_obj.data["id"] == node["data"]["id"]:
                 return node_obj
-        # TODO: Make this function return None and log a warning if not node not found.
+        # maybe return None and log warning?
         raise ValueError("Node not found in cytoscape.graph.nodes.")
 
-    def log_node_clicks(self, node: Node):
+    def log_node_clicks(self, node):
         """
         This function works with registering a click on a node. This will mark the node as selected and change the color of the
         selected node.
         """
 
-        node_object = self.get_node(node)
+        try:
+            node_object = self.get_node(node)
+        except ValueError:
+            #     # logger.warn
+            print("Node {} not found in cytoscape graph.".format(node.data["id"]))
+            return
 
         if self.selected_node == node_object:
             node_object.classes = "clicked"
+            self.cyto_graph.graph.add_node(Node(data={"id": "random node"}))
+            self.cyto_graph.graph.remove_node_by_id("random node")
             # NOTE: Class changes won't propogate to the front end for added nodes until
             # the graph is updated.
             # To fix this we create a random node and then quickly delete it so that the changes propogate.
-            self.update_cytoscape_frontend()
+            # TODO: Add logger.warning to signal this event
+        else:
+            # TODO lets also change the class for the selected_node to include a
+            #  border indicating it has been selected.
+            pass
 
         self.selected_node = node_object
 
-    def expand_button_clicked(self, button):
+    def expand_button_clicked(self, b):
         """
         This function expands a node by loading in its predicates and subjects when
         a node is selected and the expand button is clicked.
@@ -227,7 +256,7 @@ class InteractiveViewer(W.VBox):
         if self.selected_node is None:
             return None
         new_data = GetOutgoingPredicateObjects.run_query(
-            graph=self.rdf_graph, s=self.selected_node.data["iri"]
+            graph=self.rdf_graph, subject=self.selected_node.data["iri"]
         )
         objs = new_data["o"].tolist()
         preds = new_data["p"].tolist()
@@ -260,9 +289,9 @@ class InteractiveViewer(W.VBox):
             )
 
             self.cyto_graph.graph.add_edge(self.new_edges[ii])
-        self.cyto_graph.set_layout(name=self.cyto_graph_layout)
+        self.cyto_graph.set_layout(name="cola")
 
-    def undo_expansion(self, button):
+    def undo_expansion(self, b):
         """
         This is a preliminary function for undoing expansions upon a node.
         As of right now, a user can only undo the most recent expansion. After doing this,
@@ -278,9 +307,9 @@ class InteractiveViewer(W.VBox):
                 # edge already removed from graph because the node was removed earlier.
                 pass
 
-        self.cyto_graph.set_layout(name=self.cyto_graph_layout)
+        self.cyto_graph.set_layout(name="cola")
 
-    def remove_temp_nodes(self, button):
+    def remove_temp_nodes(self, b):
         """
         This is a basic function that cycles through the graph and removes all nodes that
         have the 'temp' style (i.e. nodes that are not starting nodes or have not been clicked on).
@@ -295,15 +324,8 @@ class InteractiveViewer(W.VBox):
         for edge in self.cyto_graph.graph.edges:
             edge.classes = "directed"
         # propogate changes to front end using hack
-        self.update_cytoscape_frontend()
-
-        self.cyto_graph.set_layout(name=self.cyto_graph_layout)
-        self.undo_button.disabled = True
-
-    def update_cytoscape_frontend(self):
-        """
-        This function quickly adds and deletes a node to update cytoscape front end. Looking to improve
-        it for future release.
-        """
         self.cyto_graph.graph.add_node(Node(data={"id": "random node"}))
         self.cyto_graph.graph.remove_node_by_id("random node")
+
+        self.cyto_graph.set_layout(name="cola")
+        self.undo_button.disabled = True

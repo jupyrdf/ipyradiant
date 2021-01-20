@@ -2,8 +2,9 @@
 # Distributed under the terms of the Modified BSD License.
 import unittest
 
-from ipyradiant import CustomURIRef
 from rdflib import Graph, URIRef
+
+from ipyradiant import CustomURIRef
 
 
 class Testing(unittest.TestCase):

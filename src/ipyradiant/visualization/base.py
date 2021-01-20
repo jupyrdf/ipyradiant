@@ -3,11 +3,10 @@
 
 import types
 
-import traitlets as T
-
 import ipywidgets as W
 import networkx as nx
 import networkx.drawing.layout as nx_layout
+import traitlets as T
 from rdflib import Graph, URIRef
 
 

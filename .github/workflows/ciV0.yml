@@ -62,7 +62,7 @@ jobs:
       - name: build (linux/macos)
         if: ${{ matrix.os != 'windows' }}
         shell: bash -l {0}
-        run: INSTALL_ARTIFACT=sdist doit -n4 release || doit release
+        run: CONDA_EXE=mamba INSTALL_ARTIFACT=sdist doit -n4 release || doit release
 
       - name: build (windows)
         if: ${{ matrix.os == 'windows' }}
@@ -131,7 +131,7 @@ jobs:
       - name: dev (linux/macos)
         if: ${{ matrix.os != 'windows' }}
         shell: bash -l {0}
-        run: doit -n4 preflight:lab || doit preflight:lab
+        run: CONDA_EXE=mamba doit -n4 preflight:lab || doit preflight:lab
 
       - name: dev (windows)
         if: ${{ matrix.os == 'windows' }}

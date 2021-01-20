@@ -5,9 +5,8 @@
 
 import re
 
-import traitlets as T
-
 import ipywidgets as W
+import traitlets as T
 from rdflib.namespace import RDF, RDFS, XSD
 
 default_ns = {

@@ -14,11 +14,12 @@ import os
 import shutil
 import subprocess
 
+from doit.action import CmdAction
+from doit.tools import LongRunning, PythonInteractiveAction, config_changed
+from yaml import safe_load
+
 import _scripts.project as P
 import _scripts.utils as U
-from doit.action import CmdAction
-from doit.tools import PythonInteractiveAction, config_changed
-from yaml import safe_load
 
 os.environ.update(
     CONDA_EXE="mamba",
@@ -252,7 +253,7 @@ def task_lint():
             name="black",
             file_dep=[*P.ALL_PY, P.OK_ENV["qa"]],
             actions=[
-                [*P.APR_QA, "isort", "-rc", *P.ALL_PY],
+                [*P.APR_QA, "isort", *P.ALL_PY],
                 [*P.APR_QA, "black", "--quiet", *P.ALL_PY],
             ],
         ),
@@ -282,15 +283,24 @@ def task_lint():
         ),
         P.OK_PRETTIER,
     )
-    yield _ok(
-        dict(
-            name="nblint",
-            file_dep=[P.YARN_INTEGRITY, *P.EXAMPLE_IPYNB, P.OK_ENV["qa"]],
-            actions=[[*P.APR_QA, *P.PYM, "_scripts.nblint", *P.EXAMPLE_IPYNB]],
-            targets=[P.NBLINT_HASHES],
-        ),
-        P.OK_NBLINT,
-    )
+
+    def _nblint(nb, nb_ok):
+        return _ok(
+            dict(
+                name=f"""nblint:{nb.stem}""",
+                file_dep=[P.YARN_INTEGRITY, P.OK_ENV["qa"], nb],
+                actions=[
+                    LongRunning([*P.APR_QA, *P.PYM, "_scripts.nblint", nb], shell=False)
+                ],
+            ),
+            nb_ok,
+        )
+
+    all_nb_lint_ok = {nb: P.OK_NBLINT / nb.stem for nb in P.EXAMPLE_IPYNB}
+
+    for nb, nb_ok in all_nb_lint_ok.items():
+        yield _nblint(nb, nb_ok)
+
     yield _ok(
         dict(
             name="all",
@@ -300,7 +310,7 @@ def task_lint():
                 P.OK_FLAKE8,
                 P.OK_PRETTIER,
                 P.OK_PYFLAKES,
-                P.OK_NBLINT,
+                *all_nb_lint_ok.values(),
             ],
         ),
         P.OK_LINT,

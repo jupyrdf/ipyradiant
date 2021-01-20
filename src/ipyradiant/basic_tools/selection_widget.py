@@ -1,8 +1,7 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
-import traitlets as trt
-
 import ipywidgets as ipyw
+import traitlets as trt
 
 
 class MultiPanelSelect(ipyw.HBox):

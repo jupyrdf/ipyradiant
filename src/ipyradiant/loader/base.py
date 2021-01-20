@@ -2,9 +2,8 @@
 # Distributed under the terms of the Modified BSD License.
 
 
-import traitlets as T
-
 import ipywidgets as W
+import traitlets as T
 from rdflib import BNode, Graph
 
 from .util import guess_format

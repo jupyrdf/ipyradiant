@@ -37,6 +37,12 @@ mamba env update --file .ci/environment.yml
 source ~/mc3/envs/ipyradiant-base/bin/activate
 ```
 
+## See What You Can do(it)
+
+```bash
+doit list --all --status
+```
+
 ## Get To a Running Lab
 
 ```bash

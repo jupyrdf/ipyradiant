@@ -1,10 +1,8 @@
 """ linter and formatter of notebooks
 """
-# Copyright (c) 2021 ipyradiant contributors.
+# Copyright (c) 2021 Dane Freeman.
 # Distributed under the terms of the Modified BSD License.
 
-
-import json
 import shutil
 import subprocess
 import sys
@@ -14,6 +12,7 @@ from pathlib import Path
 import black
 import isort
 import nbformat
+from isort.api import sort_code_string
 
 from . import project as P
 
@@ -21,7 +20,7 @@ NODE = [shutil.which("node") or shutil.which("node.exe") or shutil.which("node.c
 
 NB_METADATA_KEYS = ["kernelspec", "language_info"]
 
-ENC = {"encoding": "utf-8"}
+ISORT_CONFIG = isort.settings.Config(settings_path=P.SETUP_CFG)
 
 
 def blacken(source):
@@ -71,7 +70,7 @@ def nblint_one(nb_node):
                 continue
             if source.startswith("%"):
                 continue
-            new = isort.SortImports(file_contents=source).output
+            new = sort_code_string(source, config=ISORT_CONFIG)
             new = blacken(new).rstrip()
             if new != source:
                 cell["source"] = new.splitlines(True)
@@ -93,39 +92,24 @@ def nb_hash(nb_text):
 
 def nblint(nb_paths):
     """lint a number of notebook paths"""
-    nb_hashes = {}
-
-    if P.NBLINT_HASHES.exists():
-        nb_hashes = json.loads(P.NBLINT_HASHES.read_text(**ENC))
-
     len_paths = len(nb_paths)
 
     for i, nb_path in enumerate(nb_paths):
-        hash_key = f"{nb_path}"
-        log_hash = nb_hashes.get(hash_key)
-        nb_text = nb_path.read_text(**ENC)
+        nb_text = nb_path.read_text(encoding="utf-8")
         pre_hash = nb_hash(nb_text)
 
-        print(f"[{i + 1} of {len_paths}] {nb_path}")
-        if log_hash == pre_hash:
-            continue
+        if len_paths > 1:
+            print(f"[{i + 1} of {len_paths}] {nb_path}", flush=True)
 
         nb_node = nblint_one(nbformat.reads(nb_text, 4))
 
-        with nb_path.open("w") as fpt:
+        with nb_path.open("w", encoding="utf-8") as fpt:
             nbformat.write(nb_node, fpt)
 
-        post_hash = nb_hash(nb_path.read_text(**ENC))
+        post_hash = nb_hash(nb_path.read_text(encoding="utf-8"))
 
         if post_hash != pre_hash:
-            print("\tformatted")
-        else:
-            print("\tno change")
-
-        nb_hashes[hash_key] = post_hash
-
-    P.NBLINT_HASHES.parent.mkdir(exist_ok=True, parents=True)
-    P.NBLINT_HASHES.write_text(json.dumps(nb_hashes, indent=2, sort_keys=True))
+            print(f"\t{nb_path.name} formatted")
 
     return 0
 
