@@ -12,7 +12,13 @@ from .basic_tools import (
 )
 from .loader import FileManager, PathLoader, UpLoader
 from .query import QueryWidget, service_patch_rdflib
-from .visualization import CytoscapeVisualizer, DatashaderVisualizer, LayoutSelector
+from .visualization import (
+    CytoscapeVisualizer,
+    DatashaderVisualizer,
+    GetOutgoingPredicateObjects,
+    InteractiveViewer,
+    LayoutSelector,
+)
 
 __all__ = [
     "__version__",
@@ -28,4 +34,6 @@ __all__ = [
     "CustomURIRef",
     "PredicateMultiselectApp",
     "collapse_predicates",
+    "InteractiveViewer",
+    "GetOutgoingPredicateObjects",
 ]
