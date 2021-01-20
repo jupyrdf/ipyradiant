@@ -73,8 +73,9 @@ env_specs:
       - datashader
       - hvplot
       - importnb
-      - ipycytoscape >=1.0.3
+      - ipycytoscape >=1.0.3,<1.2.0
       - ipywidgets
+      - pyviz_comms <1.0.3
       - jupyterlab ==2.2.5
       - networkx >=2
       - nodejs >=12,<13.0.0a0
