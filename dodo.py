@@ -200,6 +200,8 @@ def task_test():
                 *P.APR_DEV,
                 "jupyter",
                 "nbconvert",
+                "--to",
+                "html",
                 "--output-dir",
                 P.DIST_NBHTML,
                 "--execute",
