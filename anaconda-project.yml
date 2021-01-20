@@ -37,6 +37,7 @@ env_specs:
       - win-64
     channels:
       - https://conda.anaconda.org/conda-forge
+      - nodefaults
     packages:
       - conda ==4.8.3
       - pip
@@ -51,6 +52,7 @@ env_specs:
       - win-64
     channels:
       - https://conda.anaconda.org/conda-forge
+      - nodefaults
     packages:
       - black
       - flake8
@@ -69,6 +71,7 @@ env_specs:
       - win-64
     channels:
       - https://conda.anaconda.org/conda-forge
+      - nodefaults
     packages:
       - datashader
       - hvplot

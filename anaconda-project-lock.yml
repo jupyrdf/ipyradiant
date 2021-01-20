@@ -19,7 +19,7 @@ env_specs:
     locked: false
   dev:
     locked: true
-    env_spec_hash: 7b21a2ceea206920552525191163769ccf1139a0
+    env_spec_hash: e1b58f93426c55365bde30d4c55de491b508c19a
     platforms:
       - linux-64
       - osx-64
@@ -452,7 +452,7 @@ env_specs:
         - zstd=1.4.8=h4e2f164_1
   qa:
     locked: true
-    env_spec_hash: 1f0978c3f1f33c5dad81b74954123c5e8bc4b6ba
+    env_spec_hash: 6dab99a282641dea3a8b82de43187f2ba4b3c147
     platforms:
       - linux-64
       - osx-64
@@ -667,7 +667,7 @@ env_specs:
         - zeromq=4.3.3=h0e60522_3
   build:
     locked: true
-    env_spec_hash: 3032fbd5c8eb9fc367ae738e3504426eaf39f60c
+    env_spec_hash: bcd31b2b6ceae32cda53bdd935c86f9c8d4b5a4b
     platforms:
       - linux-64
       - osx-64

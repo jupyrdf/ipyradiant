@@ -2,6 +2,7 @@ name: ipyradiant
 
 channels:
   - https://conda.anaconda.org/conda-forge
+  - nodefaults
 
 dependencies:
   - datashader
