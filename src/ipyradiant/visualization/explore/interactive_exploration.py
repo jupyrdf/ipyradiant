@@ -3,6 +3,8 @@
 
 import traitlets as trt
 
+from typing import Union
+
 import ipycytoscape as cyto
 import ipywidgets as W
 import rdflib
@@ -70,6 +72,46 @@ DEFAULT_CYTO_STYLE = [
     },
     {"selector": "edge.multiple_edges", "style": {"curve-style": "bezier"}},
 ]
+
+
+def add_cyto_class(
+        element: Union[cyto.Node, cyto.Edge],
+        class_addition: str
+) -> str:
+    """Update the classes string for a cytoscape element with an addition
+
+    TODO support multiple class additions
+
+    :param element: the cytoscape Node/Edge to update classes for
+    :param class_addition: the class string to add
+    :return: the class string
+    """
+    try:
+        classes = set(element.classes.split(" "))
+    except AttributeError:
+        classes = set()
+    classes.add(class_addition)
+    return " ".join(classes)
+
+
+def remove_cyto_class(
+        element: Union[cyto.Node, cyto.Edge],
+        class_removal: str
+) -> str:
+    """Update the classes string for a cytoscape element with a removal
+
+    TODO support multiple class additions
+
+    :param element: the cytoscape Node/Edge to update classes for
+    :param class_removal: the class string to remove
+    :return: the class string
+    """
+    try:
+        classes = set(element.classes.split(" "))
+        classes.discard(class_removal)
+        return " ".join(classes)
+    except AttributeError:
+        return ""
 
 
 class GetOutgoingPredicateObjects(SPARQLQueryFramer):
@@ -220,12 +262,8 @@ class InteractiveViewer(W.VBox):
         cyto_node = self.get_node(node)
 
         if self.selected_node == cyto_node:
-            try:
-                classes = set(cyto_node.classes.split(" "))
-            except AttributeError:
-                classes = set()
-            classes.add("clicked")
-            cyto_node.classes = " ".join(classes)
+            cyto_node.classes = remove_cyto_class(cyto_node, "temp")
+            cyto_node.classes = add_cyto_class(cyto_node, "clicked")
 
             # NOTE: changes won't propagate to frontend until graph is updated
             self.update_cytoscape_frontend()
@@ -302,22 +340,31 @@ class InteractiveViewer(W.VBox):
     def remove_temp_nodes(self, button):
         """Remove all nodes that have the 'temp' style"""
 
-        [
-            self.cytoscape_widget.graph.remove_node_by_id(node.data["id"])
+        # TODO why does this not work the same as below?
+        # [
+        #     self.cytoscape_widget.graph.remove_node(node)
+        #     for node in self.cytoscape_widget.graph.nodes
+        #     if "temp" in node.classes
+        # ]
+
+        nodes_to_remove = set(
+            node
             for node in self.cytoscape_widget.graph.nodes
-            if node.classes == "temp"
-        ]
-        self.undo_button.disabled = True
+            if "temp" in node.classes
+        )
+        for node in nodes_to_remove:
+            self.cytoscape_widget.graph.remove_node(node)
 
         # change edge color
         for edge in self.cytoscape_widget.graph.edges:
-            edge.classes = "directed"
+            edge.classes = remove_cyto_class(edge, "temp")
+            edge.classes = add_cyto_class(edge, "directed")
 
         # NOTE: changes won't propagate to frontend until graph is updated
         self.update_cytoscape_frontend()
 
-        # TODO remove?
         self.cytoscape_widget.set_layout(name=self.cytoscape_widget_layout)
+        self.undo_button.disabled = True
 
     def update_cytoscape_frontend(self):
         """A temporary workaround to trigger a frontend refresh"""
