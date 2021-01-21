@@ -1,11 +1,12 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-import ipycytoscape
+from typing import Union
+
+import ipycytoscape as cyto
 import ipywidgets as W
 import rdflib
 import traitlets as trt
-from ipycytoscape import Edge, Node
 
 from ipyradiant.query.api import SPARQLQueryFramer
 from ipyradiant.rdf2nx.uri_converter import URItoID
@@ -73,6 +74,40 @@ DEFAULT_CYTO_STYLE = [
 ]
 
 
+def add_cyto_class(element: Union[cyto.Node, cyto.Edge], class_addition: str) -> str:
+    """Update the classes string for a cytoscape element with an addition
+
+    TODO support multiple class additions
+
+    :param element: the cytoscape Node/Edge to update classes for
+    :param class_addition: the class string to add
+    :return: the class string
+    """
+    try:
+        classes = set(element.classes.split(" "))
+    except AttributeError:
+        classes = set()
+    classes.add(class_addition)
+    return " ".join(classes)
+
+
+def remove_cyto_class(element: Union[cyto.Node, cyto.Edge], class_removal: str) -> str:
+    """Update the classes string for a cytoscape element with a removal
+
+    TODO support multiple class additions
+
+    :param element: the cytoscape Node/Edge to update classes for
+    :param class_removal: the class string to remove
+    :return: the class string
+    """
+    try:
+        classes = set(element.classes.split(" "))
+        classes.discard(class_removal)
+        return " ".join(classes)
+    except AttributeError:
+        return ""
+
+
 class GetOutgoingPredicateObjects(SPARQLQueryFramer):
     """
     Return all triples for non-Literal objects (and the optional object labels).
@@ -90,7 +125,7 @@ class GetOutgoingPredicateObjects(SPARQLQueryFramer):
     """
 
 
-# Throughout this class, we assign the layout to self.cyto_graph_layout multiple times.
+# Throughout we assign the layout to self.cytoscape_widget_layout multiple times.
 # This is so that the graph refreshes the layout every time nodes are added or removed,
 # which provides an optimal viewing experience.
 
@@ -99,11 +134,15 @@ class InteractiveViewer(W.VBox):
     expand_button = trt.Instance(W.Button)
     undo_button = trt.Instance(W.Button)
     remove_temp_nodes_button = trt.Instance(W.Button)
-    cyto_graph = trt.Instance(ipycytoscape.CytoscapeWidget)
-    selected_node = trt.Instance(ipycytoscape.Node, allow_none=True)
+    cytoscape_widget = trt.Instance(cyto.CytoscapeWidget)
+    selected_node = trt.Instance(cyto.Node, allow_none=True)
     rdf_graph = trt.Instance(rdflib.graph.Graph, allow_none=True)
     cyto_style = trt.List(allow_none=True)
-    cyto_graph_layout = trt.Unicode(default_value="cola")
+    cytoscape_widget_layout = trt.Unicode(default_value="cola")
+    #
+    existing_node_ids = []
+    new_nodes = {}
+    new_edges = {}
 
     @trt.default("expand_button")
     def _create_expand_button(self):
@@ -146,25 +185,30 @@ class InteractiveViewer(W.VBox):
     def _create_rdf_graph(self):
         return rdflib.Graph()
 
-    @trt.default("cyto_graph")
-    def _create_cyto_graph(self):
-        return ipycytoscape.CytoscapeWidget()
+    @trt.default("cytoscape_widget")
+    def _create_cytoscape_widget(self):
+        return cyto.CytoscapeWidget()
 
     @trt.default("layout")
     def _create_layout(self):
         return W.Layout(width="80%")
 
-    @trt.observe("cyto_graph")
-    def update_cyto_graph(self, change):
-        self.cyto_graph.set_layout(name=self.cyto_graph_layout)
-        self.cyto_graph.set_style(self.cyto_style)
-        # on is a callback for cyto_graph instance (must be set on each instance)
-        self.cyto_graph.on("node", "click", self.log_node_clicks)
-        # Here we have to set the children again so that the changes propogate to the front end
-        # automatically. Ideally this would be done with traits but did not seem to work. LINK TO GITHUB ISSUE:
+    @trt.observe("cytoscape_widget")
+    def update_cytoscape_widget(self, change):
+        """Apply settings to cytoscape graph when updating"""
+
+        if change.old == change.new:
+            return
+
+        self.cytoscape_widget.set_layout(name=self.cytoscape_widget_layout)
+        self.cytoscape_widget.set_style(self.cyto_style)
+        # on is a callback for cytoscape_widget instance (must be set on each instance)
+        self.cytoscape_widget.on("node", "click", self.log_node_clicks)
+        # Must set children again so that the changes propagate to the front end
+        # Ideally, would be done automatically with traits
         # https://github.com/jupyrdf/ipyradiant/issues/79
         self.children = (
-            self.cyto_graph,
+            self.cytoscape_widget,
             W.HBox(
                 children=[
                     self.expand_button,
@@ -176,10 +220,14 @@ class InteractiveViewer(W.VBox):
 
     @trt.validate("children")
     def validate_children(self, proposal):
+        """
+        Validate method for default children.
+        This is necessary because @trt.default does not work on children.
+        """
         children = proposal.value
         if not children:
             children = (
-                self.cyto_graph,
+                self.cytoscape_widget,
                 W.HBox(
                     children=[
                         self.expand_button,
@@ -190,39 +238,38 @@ class InteractiveViewer(W.VBox):
             )
         return children
 
-    def get_node(self, node: Node) -> Node:
-        """
-        This function is used to find a node given the id of a node copy.
-        """
+    def get_node(self, node: dict) -> cyto.Node:
+        """This function is used to find a node given the id of a node copy"""
 
-        for node_obj in self.cyto_graph.graph.nodes:
-            if node_obj.data["id"] == node["data"]["id"]:
-                return node_obj
+        for cyto_node in self.cytoscape_widget.graph.nodes:
+            if cyto_node.data["id"] == node["data"]["id"]:
+                return cyto_node
         # TODO: Make this function return None and log a warning if not node not found.
         raise ValueError("Node not found in cytoscape.graph.nodes.")
 
-    def log_node_clicks(self, node: Node):
+    def log_node_clicks(self, node: dict):
         """
-        This function works with registering a click on a node. This will mark the node as selected and change the color of the
-        selected node.
+        This function works with registering a click on a node.
+        This will mark the node as selected and change the color of the selected node.
         """
 
-        node_object = self.get_node(node)
+        cyto_node = self.get_node(node)
 
-        if self.selected_node == node_object:
-            node_object.classes = "clicked"
-            # NOTE: Class changes won't propogate to the front end for added nodes until
-            # the graph is updated.
-            # To fix this we create a random node and then quickly delete it so that the changes propogate.
+        if self.selected_node == cyto_node:
+            cyto_node.classes = remove_cyto_class(cyto_node, "temp")
+            cyto_node.classes = add_cyto_class(cyto_node, "clicked")
+
+            # NOTE: changes won't propagate to frontend until graph is updated
             self.update_cytoscape_frontend()
 
-        self.selected_node = node_object
+        self.selected_node = cyto_node
 
     def expand_button_clicked(self, button):
         """
         This function expands a node by loading in its predicates and subjects when
         a node is selected and the expand button is clicked.
         """
+
         self.undo_button.disabled = False
         if self.selected_node is None:
             return None
@@ -232,78 +279,80 @@ class InteractiveViewer(W.VBox):
         objs = new_data["o"].tolist()
         preds = new_data["p"].tolist()
         labels = new_data["label"].tolist()
-        # add nodes
         self.existing_node_ids = [
-            node.data["id"] for node in self.cyto_graph.graph.nodes
+            node.data["id"] for node in self.cytoscape_widget.graph.nodes
         ]
-        self.new_nodes = {}
-        self.new_edges = {}
-        for ii, x in enumerate(objs):
-            if str(x) not in self.existing_node_ids:
-
-                self.new_nodes[ii] = Node(
-                    data={
-                        "id": str(x),
-                        "iri": x,
-                        "_label": labels[ii] or str(x),
-                    },
-                    classes="temp",
-                )
-                self.cyto_graph.graph.add_node(self.new_nodes[ii])
-            self.new_edges[ii] = Edge(
+        self.new_nodes = {
+            idx: cyto.Node(
                 data={
-                    "source": self.selected_node.data["id"],
-                    "target": str(x),
-                    "iri": URItoID(preds[ii]),
+                    "id": str(iri),
+                    "iri": iri,
+                    "_label": labels[idx] or str(iri),
                 },
                 classes="temp",
             )
+            for idx, iri in enumerate(objs)
+            if str(iri) not in self.existing_node_ids
+        }
+        self.new_edges = {
+            idx: cyto.Edge(
+                data={
+                    "source": self.selected_node.data["id"],
+                    "target": str(iri),
+                    "iri": URItoID(preds[idx]),
+                },
+                classes="temp",
+            )
+            for idx, iri in enumerate(objs)
+        }
 
-            self.cyto_graph.graph.add_edge(self.new_edges[ii])
-        self.cyto_graph.set_layout(name=self.cyto_graph_layout)
+        self.cytoscape_widget.graph.add_nodes(self.new_nodes.values())
+        self.cytoscape_widget.graph.add_edges(self.new_edges.values())
+        self.cytoscape_widget.set_layout(name=self.cytoscape_widget_layout)
 
     def undo_expansion(self, button):
         """
-        This is a preliminary function for undoing expansions upon a node.
-        As of right now, a user can only undo the most recent expansion. After doing this,
-        the button will be disabled until a new expansion is made.
+        Preliminary function for undoing expansions upon a node.
+        As of right now, a user can only undo the most recent expansion.
+        Afterwards, the button will be disabled until a new expansion is made.
         """
+
         self.undo_button.disabled = True
         for node in self.new_nodes:
-            self.cyto_graph.graph.remove_node_by_id(self.new_nodes[node].data["id"])
+            self.cytoscape_widget.graph.remove_node_by_id(
+                self.new_nodes[node].data["id"]
+            )
         for edge in self.new_edges:
             try:
-                self.cyto_graph.graph.remove_edge(self.new_edges[edge])
+                self.cytoscape_widget.graph.remove_edge(self.new_edges[edge])
             except ValueError:
                 # edge already removed from graph because the node was removed earlier.
                 pass
 
-        self.cyto_graph.set_layout(name=self.cyto_graph_layout)
+        self.cytoscape_widget.set_layout(name=self.cytoscape_widget_layout)
 
     def remove_temp_nodes(self, button):
-        """
-        This is a basic function that cycles through the graph and removes all nodes that
-        have the 'temp' style (i.e. nodes that are not starting nodes or have not been clicked on).
-        """
-        nodes_to_remove = []
-        for node in self.cyto_graph.graph.nodes:
-            if node.classes == "temp":
-                nodes_to_remove.append(node.data["id"])
+        """Remove all nodes that have the 'temp' style"""
+
+        nodes_to_remove = {
+            node for node in self.cytoscape_widget.graph.nodes if "temp" in node.classes
+        }
         for node in nodes_to_remove:
-            self.cyto_graph.graph.remove_node_by_id(node)
+            self.cytoscape_widget.graph.remove_node(node)
+
         # change edge color
-        for edge in self.cyto_graph.graph.edges:
-            edge.classes = "directed"
-        # propogate changes to front end using hack
+        for edge in self.cytoscape_widget.graph.edges:
+            edge.classes = remove_cyto_class(edge, "temp")
+            edge.classes = add_cyto_class(edge, "directed")
+
+        # NOTE: changes won't propagate to frontend until graph is updated
         self.update_cytoscape_frontend()
 
-        self.cyto_graph.set_layout(name=self.cyto_graph_layout)
+        self.cytoscape_widget.set_layout(name=self.cytoscape_widget_layout)
         self.undo_button.disabled = True
 
     def update_cytoscape_frontend(self):
-        """
-        This function quickly adds and deletes a node to update cytoscape front end. Looking to improve
-        it for future release.
-        """
-        self.cyto_graph.graph.add_node(Node(data={"id": "random node"}))
-        self.cyto_graph.graph.remove_node_by_id("random node")
+        """A temporary workaround to trigger a frontend refresh"""
+
+        self.cytoscape_widget.graph.add_node(cyto.Node(data={"id": "random node"}))
+        self.cytoscape_widget.graph.remove_node_by_id("random node")
