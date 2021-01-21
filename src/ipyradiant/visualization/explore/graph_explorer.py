@@ -13,7 +13,7 @@ from ...basic_tools.custom_uri_ref import CustomURI
 from ...basic_tools.uri_widgets import SelectMultipleURI
 from ...query.api import SPARQLQueryFramer, build_values
 from ...rdf2nx import RDF2NX
-from ..interactive_exploration import InteractiveViewer
+from .interactive_exploration import InteractiveViewer
 
 
 def make_directed_graph(nx_graph: NXGraph) -> CytoscapeWidget:
@@ -91,6 +91,10 @@ class RDFTypeSelectMultiple(W.VBox):
 
     @T.validate("children")
     def validate_children(self, proposal):
+        """
+        Validate method for default children.
+        This is necessary because @trt.default does not work on children.
+        """
         children = proposal.value
         if not children:
             children = (self.label, self.select_widget)
@@ -135,6 +139,10 @@ class RDFSubjectSelectMultiple(W.VBox):
 
     @T.validate("children")
     def validate_children(self, proposal):
+        """
+        Validate method for default children.
+        This is necessary because @trt.default does not work on children.
+        """
         children = proposal.value
         if not children:
             children = (self.label, self.select_widget)
@@ -181,6 +189,10 @@ class GraphExploreNodeSelection(W.VBox):
 
     @T.validate("children")
     def validate_children(self, proposal):
+        """
+        Validate method for default children.
+        This is necessary because @trt.default does not work on children.
+        """
         children = proposal.value
         if not children:
             children = (self.type_select, self.subject_select)
@@ -228,6 +240,10 @@ class GraphExplorer(W.VBox):
 
     @T.validate("children")
     def validate_children(self, proposal):
+        """
+        Validate method for default children.
+        This is necessary because @trt.default does not work on children.
+        """
         children = proposal.value
         if not children:
             children = (
@@ -283,7 +299,7 @@ class GraphExplorer(W.VBox):
     @T.observe("nx_graph")
     def update_cytoscape_widget(self, change):
         self.json_output.clear_output()
-        self.interactive_viewer.cyto_graph = make_directed_graph(self.nx_graph)
+        self.interactive_viewer.cytoscape_widget = make_directed_graph(self.nx_graph)
         self.interactive_viewer.observe(self.load_json, "selected_node")
         # self.children = [self.collapse_button, self.node_select, self.interactive_viewer]
 

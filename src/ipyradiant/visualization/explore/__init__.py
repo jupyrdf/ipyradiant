@@ -2,8 +2,10 @@
 # Distributed under the terms of the Modified BSD License.
 
 __all__ = [
+    "GetOutgoingPredicateObjects",
     "GraphExplorer",
     "GraphExploreNodeSelection",
+    "InteractiveViewer",
     "RDFSubjectSelectMultiple",
     "RDFTypeSelectMultiple",
 ]
@@ -14,3 +16,4 @@ from .graph_explorer import (
     RDFSubjectSelectMultiple,
     RDFTypeSelectMultiple,
 )
+from .interactive_exploration import GetOutgoingPredicateObjects, InteractiveViewer
