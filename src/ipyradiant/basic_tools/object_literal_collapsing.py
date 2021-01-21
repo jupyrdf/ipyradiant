@@ -3,10 +3,9 @@
 import logging
 from typing import List, Union
 
-import traitlets as T
-
 import ipywidgets as W
 import networkx
+import traitlets as T
 from rdflib import Graph, URIRef
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_digraph
 from rdflib.namespace import NamespaceManager

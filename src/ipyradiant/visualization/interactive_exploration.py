@@ -1,12 +1,12 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-import traitlets as trt
-
 import ipycytoscape
 import ipywidgets as W
 import rdflib
+import traitlets as trt
 from ipycytoscape import Edge, Node
+
 from ipyradiant.query.api import SPARQLQueryFramer
 from ipyradiant.rdf2nx.uri_converter import URItoID
 

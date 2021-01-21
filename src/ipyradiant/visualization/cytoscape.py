@@ -3,9 +3,8 @@
 
 from pathlib import Path
 
-import traitlets as T
-
 import ipywidgets as W
+import traitlets as T
 from ipycytoscape import CytoscapeWidget
 from rdflib import Graph, Literal, URIRef
 from rdflib.namespace import RDF

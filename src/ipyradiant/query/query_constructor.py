@@ -3,13 +3,12 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
+import ipywidgets as W
 import traitlets as T
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers.rdf import SparqlLexer
 from pygments.styles import STYLE_MAP
-
-import ipywidgets as W
 
 from .query_form import QueryInput
 

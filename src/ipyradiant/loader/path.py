@@ -4,9 +4,8 @@
 # Distributed under the terms of the Modified BSD License.
 from pathlib import Path
 
-import traitlets as T
-
 import ipywidgets as W
+import traitlets as T
 
 from .base import BaseLoader
 from .util import SUFFIX_FORMAT_MAP
