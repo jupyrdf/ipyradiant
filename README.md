@@ -10,6 +10,12 @@ in [JupyterLab][jupyterlab].
 Powered by [ipyctoscape][ipycytoscape], [datashader][datashader], and
 [holoviews][holoviews].
 
+## JupyterLab compatibility
+
+| `jupyterlab`    | `ipycytoscape`   | `pyviz_comms` |
+| ----------------|------------------|---------------|
+| `>=1,<2`        | `>=1.0.3,<1.1.0` | `>=1,<1.0.3`  |
+
 ## Visualization Widgets
 
 `ipyradiant` includes several widgets for visualizing and interacting with RDF graphs that can be accessed
