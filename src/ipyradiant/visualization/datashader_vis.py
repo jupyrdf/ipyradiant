@@ -1,12 +1,11 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-import IPython
-import traitlets as T
-
 import holoviews as hv
+import IPython
 import ipywidgets as W
 import networkx as nx
+import traitlets as T
 from bokeh.models import HoverTool
 from holoviews import streams
 from holoviews.operation.datashader import bundle_graph

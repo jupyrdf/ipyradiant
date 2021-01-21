@@ -1,11 +1,10 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-import traitlets as T
-from IPython.display import JSON, display
-
 import ipywidgets as W
+import traitlets as T
 from ipycytoscape import CytoscapeWidget
+from IPython.display import JSON, display
 from networkx import Graph as NXGraph
 from rdflib import Graph as RDFGraph
 

@@ -1,8 +1,9 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
-from ipyradiant.rdf2nx import RDF2NX
 from rdflib import URIRef
 from rdflib.namespace import RDF
+
+from ipyradiant.rdf2nx import RDF2NX
 
 
 def test_rdf2nx(example_ns, SCHEMA, simple_rdf_graph):

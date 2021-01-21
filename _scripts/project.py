@@ -44,6 +44,7 @@ PROJ = ROOT / "anaconda-project.yml"
 PROJ_LOCK = ROOT / "anaconda-project-lock.yml"
 VENDOR = ROOT / "vendor"
 CHANGELOG = ROOT / "CHANGELOG.md"
+CONDARC = CI / ".condarc"
 
 # tools
 PY = ["python"]
@@ -118,12 +119,11 @@ OK_PREFLIGHT_KERNEL = BUILD / "preflight.kernel.ok"
 OK_PREFLIGHT_LAB = BUILD / "preflight.lab.ok"
 OK_PREFLIGHT_RELEASE = BUILD / "preflight.release.ok"
 HTML_COV_INDEX = BUILD / "htmlcov/index.html"
-NBLINT_HASHES = BUILD / "nblint.hashes"
 OK_BLACK = BUILD / "black.ok"
 OK_FLAKE8 = BUILD / "flake8.ok"
 OK_LINT = BUILD / "lint.ok"
 OK_PYFLAKES = BUILD / "pyflakes.ok"
-OK_NBLINT = BUILD / "nblint.ok"
+OK_NBLINT = BUILD / "nblint.ok.d"
 OK_PIP_INSTALL = BUILD / "pip_install.ok"
 OK_PRETTIER = BUILD / "prettier.ok"
 

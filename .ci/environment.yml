@@ -2,8 +2,7 @@ name: ipyradiant-base
 
 channels:
   - https://conda.anaconda.org/conda-forge
-  - https://conda.anaconda.org/anaconda
-  - https://conda.anaconda.org/msys2
+  - nodefaults
 
 dependencies:
   - anaconda-project =0.8.4
@@ -12,3 +11,4 @@ dependencies:
   - pip
   - python >=3.7,<3.8
   - twine
+  - mamba

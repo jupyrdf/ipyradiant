@@ -2,15 +2,15 @@ name: ipyradiant
 
 channels:
   - https://conda.anaconda.org/conda-forge
-  - https://conda.anaconda.org/anaconda
-  - https://conda.anaconda.org/msys2
+  - nodefaults
 
 dependencies:
   - datashader
   - hvplot
   - importnb
-  - ipycytoscape >=1.0.3
+  - ipycytoscape >=1.0.3,<1.1.0
   - ipywidgets
+  - pyviz_comms <1.0.3
   - jupyterlab ==2.2.5
   - networkx >=2
   - nodejs >=12,<13.0.0a0

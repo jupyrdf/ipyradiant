@@ -10,6 +10,9 @@ env:
   PYTHONUNBUFFERED: 1
   SKIP_CONDA_PREFLIGHT: 1
   INSTALL_ARTIFACT: wheel
+  CONDA_EXE: mamba
+  FORGE_BASE: https://github.com/conda-forge/miniforge/releases/download/4.9.2-5/Mambaforge-4.9.2-5
+  CACHE_EPOCH: 0
 
 jobs:
   ci:
@@ -22,6 +25,13 @@ jobs:
           - ubuntu
           - macos
           - windows
+        include:
+          - os: ubuntu
+            miniforge: Linux-x86_64.sh
+          - os: macos
+            miniforge: MacOSX-x86_64.sh
+          - os: windows
+            miniforge: Windows-x86_64.exe
     steps:
       - name: configure line endings
         run: |
@@ -34,28 +44,30 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/conda_pkgs_dir
-          key:
-            ${{ runner.os }}-conda-ci-${{ hashFiles('anaconda-project-lock.yml',
-            '.ci/environment.yml') }}
+          key: |
+            ${{ env.CACHE_EPOCH }}-${{ runner.os }}-conda-ci-${{ hashFiles('anaconda-project-lock.yml', '.ci/environment.yml') }}
           restore-keys: |
-            ${{ runner.os }}-conda-ci-
-            ${{ runner.os }}-conda-
+            ${{ env.CACHE_EPOCH }}-${{ runner.os }}-conda-ci-
+            ${{ env.CACHE_EPOCH }}-${{ runner.os }}-conda-
 
       - name: cache (yarn)
         uses: actions/cache@v1
         with:
           path: .yarn-packages
-          key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          key: |
+            ${{ env.CACHE_EPOCH }}-yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            yarn-${{ runner.os }}-
-            yarn-
+            ${{ env.CACHE_EPOCH }}-yarn-${{ runner.os }}-
+            ${{ env.CACHE_EPOCH }}-yarn-
 
       - name: env (conda)
         uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: ipyradiant-base
           auto-activate-base: false
+          condarc-file: .github/.condarc
           environment-file: .ci/environment.yml
+          installer-url: ${{ env.FORGE_BASE }}-${{ matrix.miniforge }}
           show-channel-urls: true
           use-only-tar-bz2: true
 
@@ -93,6 +105,13 @@ jobs:
           - ubuntu
           - macos
           - windows
+        include:
+          - os: ubuntu
+            miniforge: Linux-x86_64.sh
+          - os: macos
+            miniforge: MacOSX-x86_64.sh
+          - os: windows
+            miniforge: Windows-x86_64.exe
     steps:
       - name: configure line endings
         run: |
@@ -105,26 +124,30 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-conda-ui-${{ hashFiles('anaconda-project-lock.yml') }}
+          key: |
+            ${{ env.CACHE_EPOCH }}-${{ runner.os }}-conda-ui-${{ hashFiles('anaconda-project-lock.yml') }}
           restore-keys: |
-            ${{ runner.os }}-conda-ui-
-            ${{ runner.os }}-conda-
+            ${{ env.CACHE_EPOCH }}-${{ runner.os }}-conda-ui-
+            ${{ env.CACHE_EPOCH }}-${{ runner.os }}-conda-
 
       - name: cache (yarn)
         uses: actions/cache@v1
         with:
           path: .yarn-packages
-          key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          key: |
+            ${{ env.CACHE_EPOCH }}-yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            yarn-${{ runner.os }}-
-            yarn-
+            ${{ env.CACHE_EPOCH }}-yarn-${{ runner.os }}-
+            ${{ env.CACHE_EPOCH }}-yarn-
 
       - name: env (conda)
         uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: ipyradiant-base
           auto-activate-base: false
+          condarc-file: .github/.condarc
           environment-file: .ci/environment.yml
+          installer-url: ${{ env.FORGE_BASE }}-${{ matrix.miniforge }}
           show-channel-urls: true
           use-only-tar-bz2: true
 
