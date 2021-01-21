@@ -334,16 +334,9 @@ class InteractiveViewer(W.VBox):
     def remove_temp_nodes(self, button):
         """Remove all nodes that have the 'temp' style"""
 
-        # TODO why does this not work the same as below?
-        # [
-        #     self.cytoscape_widget.graph.remove_node(node)
-        #     for node in self.cytoscape_widget.graph.nodes
-        #     if "temp" in node.classes
-        # ]
-
-        nodes_to_remove = set(
+        nodes_to_remove = {
             node for node in self.cytoscape_widget.graph.nodes if "temp" in node.classes
-        )
+        }
         for node in nodes_to_remove:
             self.cytoscape_widget.graph.remove_node(node)
 
