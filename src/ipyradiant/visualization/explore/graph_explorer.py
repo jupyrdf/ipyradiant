@@ -2,16 +2,35 @@
 # Distributed under the terms of the Modified BSD License.
 
 import traitlets as T
+from IPython.display import JSON, display
 
 import ipywidgets as W
-from rdflib import Graph
+from ipycytoscape import CytoscapeWidget
+from networkx import Graph as NXGraph
+from rdflib import Graph as RDFGraph
 
 from ...basic_tools.custom_uri_ref import CustomURI
 from ...basic_tools.uri_widgets import SelectMultipleURI
 from ...query.api import SPARQLQueryFramer, build_values
+from ...rdf2nx import RDF2NX
+from ..interactive_exploration import InteractiveViewer
+
+
+def make_directed_graph(nx_graph: NXGraph) -> CytoscapeWidget:
+    """Converts a networkx graph to a cytoscape graph widget"""
+    directed = CytoscapeWidget()
+    directed.graph.add_graph_from_networkx(nx_graph, multiple_edges=True, directed=True)
+
+    for node in directed.graph.nodes:
+        # deal with cytoscape's inability to handle `:` e.g. thing:data
+        node.data["_label"] = node.data.get("rdfs:label", None)
+
+    return directed
 
 
 class AllTypes(SPARQLQueryFramer):
+    """Simple query for returning type objects"""
+
     sparql = """
     SELECT DISTINCT ?o
     WHERE {
@@ -58,7 +77,7 @@ class RDFTypeSelectMultiple(W.VBox):
     Uses a library query, and the graph object's namespace.
     """
 
-    graph = T.Instance(Graph, allow_none=True)
+    graph = T.Instance(RDFGraph, allow_none=True)
     label = T.Instance(W.HTML)
     select_widget = T.Instance(SelectMultipleURI)
 
@@ -100,7 +119,7 @@ class RDFSubjectSelectMultiple(W.VBox):
     class SubjectsOfType(SPARQLQueryFramer, metaclass=MetaSubjectsOfType):
         values = None  # note: query will not run without values
 
-    graph = T.Instance(Graph, allow_none=True).tag(default=None)
+    graph = T.Instance(RDFGraph, allow_none=True).tag(default=None)
     label = T.Instance(W.HTML)
     query = SubjectsOfType
     select_widget = T.Instance(SelectMultipleURI)
@@ -152,7 +171,7 @@ class RDFSubjectSelectMultiple(W.VBox):
 class GraphExploreNodeSelection(W.VBox):
     """Widget that allows users to select subjects in the graph using a type filter."""
 
-    graph = T.Instance(Graph, kw={})
+    graph = T.Instance(RDFGraph, kw={})
     subject_select = T.Instance(RDFSubjectSelectMultiple)
     type_select = T.Instance(RDFTypeSelectMultiple)
 
@@ -194,3 +213,94 @@ class GraphExploreNodeSelection(W.VBox):
         if change.old != change.new and change.new:
             # Note: change.new == self.type_select.select_widget.value
             self.subject_select._values = {"type": list(change.new)}
+
+
+class GraphExplorer(W.VBox):
+    """Widget that allows users to populate and explore a graph based on RDF data."""
+
+    rdf_graph = T.Instance(RDFGraph, kw={})
+    nx_graph = T.Instance(NXGraph, kw={})
+    # collapse_button = T.Instance(W.Button)
+    node_select = T.Instance(GraphExploreNodeSelection)
+    interactive_viewer = T.Instance(InteractiveViewer)
+    default_children = T.Tuple()
+    json_output = W.Output()
+
+    @T.validate("children")
+    def validate_children(self, proposal):
+        children = proposal.value
+        if not children:
+            children = (
+                W.HBox([self.node_select, self.interactive_viewer]),
+                # self.collapse_button
+                self.json_output,
+            )
+        return children
+
+    #     @T.default("collapse_button")
+    #     def make_default_collapse_button(self):
+    #         button = W.Button(
+    #             icon="fa-exchange",
+    #             layout=W.Layout(width='45px'),
+    #             tooltip="Expand/collapse node selector."
+    #         )
+    #         button.on_click(self.expand_collapse)
+    #         return button
+
+    @T.default("node_select")
+    def make_default_node_select(self):
+        node_selector = GraphExploreNodeSelection()
+        node_selector.subject_select.select_widget.observe(self.make_nx_graph, "value")
+        return node_selector
+
+    @T.default("interactive_viewer")
+    def make_default_interactive_viewer(self):
+        return InteractiveViewer()
+
+    @T.default("default_children")
+    def make_default_children(self):
+        return (
+            W.HBox([self.collapse_button, self.node_select, self.interactive_viewer]),
+            self.json_output,
+        )
+
+    # TODO expand/collapse breaks the "expand upon selected node" button
+    #     def expand_collapse(self, button):
+    #         if len(self.children[0].children) > len(self.default_children[0].children)-1:
+    #             self.children = (
+    #                 W.HBox([self.collapse_button, self.interactive_viewer]),
+    #                 self.json_output
+    #             )
+    #         else:
+    #             self.children = self.default_children
+
+    @T.observe("rdf_graph")
+    def update_subwidget_graphs(self, change):
+        self.json_output.clear_output()
+        self.node_select.graph = self.rdf_graph
+        self.interactive_viewer.rdf_graph = self.rdf_graph
+
+    @T.observe("nx_graph")
+    def update_cytoscape_widget(self, change):
+        self.json_output.clear_output()
+        self.interactive_viewer.cyto_graph = make_directed_graph(self.nx_graph)
+        self.interactive_viewer.observe(self.load_json, "selected_node")
+        # self.children = [self.collapse_button, self.node_select, self.interactive_viewer]
+
+    def make_nx_graph(self, change):
+        sssw_value = self.node_select.subject_select.select_widget.value
+        # TODO do we want the convert_nodes to add edges between the nodes?
+        self.nx_graph = RDF2NX.convert_nodes(
+            node_uris=sssw_value, rdf_graph=self.rdf_graph
+        )
+
+    def load_json(self, change):
+        if change.new == change.old:
+            return None
+
+        # must be copy to prevent changing the object
+        data = dict(change.new.data)
+        data.pop("_label", None)  # TODO just remove private and non-serializable
+        with self.json_output:
+            self.json_output.clear_output()
+            display(JSON(data))

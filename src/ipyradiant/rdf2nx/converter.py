@@ -194,6 +194,7 @@ class RDF2NX:
         nx_graph = MultiDiGraph()
 
         # TODO pass list of nodes to this function
+        # TODO add edges for these nodes
         nodes = cls.transform_nodes(rdf_graph, node_iris=node_uris, strict=strict)
         for node_iri, node_attrs in nodes.items():
             nx_graph.add_node(node_iri, **node_attrs)
