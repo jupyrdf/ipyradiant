@@ -3,11 +3,11 @@
 
 from typing import Union
 
-import traitlets as trt
-
 import ipycytoscape as cyto
 import ipywidgets as W
 import rdflib
+import traitlets as trt
+
 from ipyradiant.query.api import SPARQLQueryFramer
 from ipyradiant.rdf2nx.uri_converter import URItoID
 

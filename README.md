@@ -12,14 +12,14 @@ Powered by [ipyctoscape][ipycytoscape], [datashader][datashader], and
 
 ## JupyterLab compatibility
 
-| `jupyterlab`    | `ipycytoscape`   | `pyviz_comms` |
-| ----------------|------------------|---------------|
-| `>=1,<2`        | `>=1.0.3,<1.1.0` | `>=1,<1.0.3`  |
+| `jupyterlab` | `ipycytoscape`   | `pyviz_comms` |
+| ------------ | ---------------- | ------------- |
+| `>=1,<2`     | `>=1.0.3,<1.1.0` | `>=1,<1.0.3`  |
 
 ## Visualization Widgets
 
-`ipyradiant` includes several widgets for visualizing and interacting with RDF graphs that can be accessed
-through the examples. ![graph explorer screencast][screencast1]
+`ipyradiant` includes several widgets for visualizing and interacting with RDF graphs
+that can be accessed through the examples. ![graph explorer screencast][screencast1]
 
 ## Example Tooling Widgets
 
