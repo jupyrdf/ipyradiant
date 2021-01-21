@@ -1,8 +1,7 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
-import traitlets as T
-
 import ipywidgets as W
+import traitlets as T
 from rdflib import URIRef
 
 
