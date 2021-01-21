@@ -2,6 +2,7 @@ name: ipyradiant-base
 
 channels:
   - https://conda.anaconda.org/conda-forge
+  - nodefaults
 
 dependencies:
   - anaconda-project =0.8.4
