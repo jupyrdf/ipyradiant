@@ -1,9 +1,9 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-import traitlets as trt
-
 from typing import Union
+
+import traitlets as trt
 
 import ipycytoscape as cyto
 import ipywidgets as W
@@ -74,10 +74,7 @@ DEFAULT_CYTO_STYLE = [
 ]
 
 
-def add_cyto_class(
-        element: Union[cyto.Node, cyto.Edge],
-        class_addition: str
-) -> str:
+def add_cyto_class(element: Union[cyto.Node, cyto.Edge], class_addition: str) -> str:
     """Update the classes string for a cytoscape element with an addition
 
     TODO support multiple class additions
@@ -94,10 +91,7 @@ def add_cyto_class(
     return " ".join(classes)
 
 
-def remove_cyto_class(
-        element: Union[cyto.Node, cyto.Edge],
-        class_removal: str
-) -> str:
+def remove_cyto_class(element: Union[cyto.Node, cyto.Edge], class_removal: str) -> str:
     """Update the classes string for a cytoscape element with a removal
 
     TODO support multiple class additions
@@ -348,9 +342,7 @@ class InteractiveViewer(W.VBox):
         # ]
 
         nodes_to_remove = set(
-            node
-            for node in self.cytoscape_widget.graph.nodes
-            if "temp" in node.classes
+            node for node in self.cytoscape_widget.graph.nodes if "temp" in node.classes
         )
         for node in nodes_to_remove:
             self.cytoscape_widget.graph.remove_node(node)
