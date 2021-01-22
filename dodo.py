@@ -13,7 +13,6 @@
 import os
 import shutil
 import subprocess
-
 from hashlib import sha256
 
 from doit.action import CmdAction
@@ -227,7 +226,7 @@ def task_test():
                 "--to",
                 "html",
                 "--output-dir",
-                P.DIST_NBHTML,
+                P.BUILD_NBHTML,
                 "--execute",
                 "--ExecutePreprocessor.timeout=1200",
                 nb,
@@ -238,7 +237,7 @@ def task_test():
             name=f"nb:{nb.name}".replace(" ", "_").replace(".ipynb", ""),
             file_dep=[*P.EXAMPLE_IPYNB, *test_deps],
             actions=[_test()],
-            targets=[P.DIST_NBHTML / nb.name.replace(".ipynb", ".html")],
+            targets=[P.BUILD_NBHTML / nb.name.replace(".ipynb", ".html")],
         )
 
     for nb in P.EXAMPLE_IPYNB:

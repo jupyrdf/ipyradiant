@@ -90,7 +90,8 @@ anaconda-project run --env-spec build twine upload ipyradiant*
 
 - Check hashes on `pypi`
 - Complete `conda-forge` tasks
-  - go to [ipyradiant-feedstock](https://github.com/conda-forge/ipyradiant-feedstock) and fork
+  - go to [ipyradiant-feedstock](https://github.com/conda-forge/ipyradiant-feedstock)
+    and fork
   - update `recipe/meta.yml` (version and sha for tar)
   - submit PR to conda-forge feedstock (go through checklist). DO NOT PUSH DIRECTLY
   - wait for CI, merge and wait for CI again
