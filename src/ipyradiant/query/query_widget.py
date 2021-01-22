@@ -5,6 +5,7 @@
 
 import re
 
+import IPython as I
 import ipywidgets as W
 import traitlets as T
 from pandas import DataFrame
@@ -59,7 +60,7 @@ class QueryWidget(W.VBox):
                     collapsed_data.iat[ii, jj] = collapse_namespace(namespaces, cell)
         self.grid.clear_output()
         with self.grid:
-            IPython.display(collapsed_data)
+            I.display.display(I.display.HTML(collapsed_data.to_html(escape=False)))
 
     @T.default("graph")
     def make_default_graph(self):
@@ -67,7 +68,7 @@ class QueryWidget(W.VBox):
 
     @T.default("grid")
     def make_default_grid(self):
-        return W.Output()
+        return W.Output(layout=dict(max_height="60vh"))
 
     @T.default("run_button")
     def make_default_run_button(self):
