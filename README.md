@@ -34,14 +34,14 @@ For JupyterLab support, ensure you have the following installed:
 
 ## JupyterLab compatibility
 
-While `ipyradiant` doesn't provide any JupyterLab extensions, it depends on a
-number of them.
+While `ipyradiant` doesn't provide any JupyterLab extensions, it depends on a number of
+them.
 
-The release of JupyterLab 3 has made some version compatibility unpredictable.
-Below are some researched combinations that should work.
+The release of JupyterLab 3 has made some version compatibility unpredictable. Below are
+some researched combinations that should work.
 
 | `jupyterlab` | `ipycytoscape`   | `pyviz_comms` | `pip install`      |
-| ------------ | ---------------- | ------------- |--------------------|
+| ------------ | ---------------- | ------------- | ------------------ |
 | `>=1,<2`     | `>=1.0.3,<1.1.0` | `>=1,<1.0.3`  | `ipyradiant[lab1]` |
 | `>=2,<3`     | `>=1.0.3,<1.1.0` | `>=1,<1.0.3`  | `ipyradiant[lab2]` |
 | `>=3,<4`     | `>=1.1.0`        | `>=1.0.3`     | `ipyradiant[lab3]` |
