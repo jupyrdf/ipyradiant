@@ -5,8 +5,8 @@
 
 import re
 
+import IPython
 import ipywidgets as W
-import qgrid
 import traitlets as T
 from pandas import DataFrame
 from rdflib import Graph, URIRef
@@ -32,7 +32,7 @@ class QueryWidget(W.VBox):
     graph = T.Instance(Graph)
     run_button = T.Instance(W.Button)
     log = W.Output(layout={"border": "1px solid black"})
-    qgridw = T.Instance(qgrid.QgridWidget)
+    grid = T.Instance(W.Output)
     current_dataframe = T.Instance(DataFrame)
 
     def __init__(self, graph: Graph = None, *args, **kwargs):
@@ -40,7 +40,7 @@ class QueryWidget(W.VBox):
         if graph is not None:
             self.graph = graph
         self.query_constructor = QueryConstructor()
-        self.children = [self.query_constructor, self.run_button, self.qgridw]
+        self.children = [self.query_constructor, self.run_button, self.grid]
 
     @log.capture(clear_output=True)
     def run_query(self, button):
@@ -58,21 +58,19 @@ class QueryWidget(W.VBox):
             for jj, cell in enumerate(row):
                 if isinstance(cell, URIRef):
                     collapsed_data.iat[ii, jj] = collapse_namespace(namespaces, cell)
-        self.qgridw.df = collapsed_data
+        self.grid.clear_output()
+        with self.grid:
+            IPython.display.display(
+                IPython.display.HTML(collapsed_data.to_html(escape=False))
+            )
 
     @T.default("graph")
     def make_default_graph(self):
         return Graph()
 
-    @T.default("qgridw")
-    def make_default_qgridw(self):
-        qgridw = qgrid.show_grid(
-            DataFrame(),
-            grid_options={"editable": False},
-            column_options={"editable": False},
-            column_definitions={"index": {"width": "20"}},
-        )
-        return qgridw
+    @T.default("grid")
+    def make_default_grid(self):
+        return W.Output(layout=dict(max_height="60vh"))
 
     @T.default("run_button")
     def make_default_run_button(self):

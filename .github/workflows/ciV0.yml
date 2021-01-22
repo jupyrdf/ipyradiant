@@ -12,7 +12,7 @@ env:
   INSTALL_ARTIFACT: wheel
   CONDA_EXE: mamba
   FORGE_BASE: https://github.com/conda-forge/miniforge/releases/download/4.9.2-5/Mambaforge-4.9.2-5
-  CACHE_EPOCH: 0
+  CACHE_EPOCH: 1
 
 jobs:
   ci:
