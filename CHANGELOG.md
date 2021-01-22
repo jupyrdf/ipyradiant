@@ -1,5 +1,7 @@
 # `ipyradiant` CHANGELOG
 
+## 0.1.3
+
 ## 0.1.2 (J_e) (2021-01-21)
 
 - adds `RDF2NX` transformer for converting RDF to a networkx labelled property graph.
