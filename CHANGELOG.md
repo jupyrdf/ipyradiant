@@ -8,6 +8,7 @@
 - adds support and examples for using metaclasses with `SPARQLQueryFramer` to specify
   SPARQL VALUES
 - adds `GraphExplorer` widget for simple exploration of RDF graphs
+- removes `qgrid` as a dependency
 
 ## 0.1.1 (J_e_v) (2020-09-09)
 
