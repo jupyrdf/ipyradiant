@@ -99,7 +99,7 @@ EXAMPLE_DATASETS = [
 EXAMPLE_IPYNB = _not_checkpoint(EXAMPLES.rglob("*.ipynb"))
 EXAMPLE_PY = [*EXAMPLES.rglob("*.py")]
 PY_TESTS = PY_SRC / "tests"
-DIST_NBHTML = DIST / "nbsmoke"
+BUILD_NBHTML = BUILD / "nbsmoke"
 
 # mostly linting
 ALL_PY_SRC = [*PY_SRC.rglob("*.py")]
@@ -133,4 +133,6 @@ PY_VERSION = re.findall(r'''__version__ = "(.*)"''', VERSION_PY.read_text())[0]
 # built artifacts
 SDIST = DIST / f"ipyradiant-{PY_VERSION}.tar.gz"
 WHEEL = DIST / f"ipyradiant-{PY_VERSION}-py3-none-any.whl"
-EXAMPLE_HTML = [DIST_NBHTML / p.name.replace(".ipynb", ".html") for p in EXAMPLE_IPYNB]
+HASH_DEPS = [SDIST, WHEEL]
+SHA256SUMS = DIST / "SHA256SUMS"
+EXAMPLE_HTML = [BUILD_NBHTML / p.name.replace(".ipynb", ".html") for p in EXAMPLE_IPYNB]

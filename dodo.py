@@ -14,6 +14,8 @@ import os
 import shutil
 import subprocess
 
+from hashlib import sha256
+
 from doit.action import CmdAction
 from doit.tools import LongRunning, PythonInteractiveAction, config_changed
 from yaml import safe_load
@@ -122,7 +124,7 @@ def task_release():
                 P.OK_LINT,
                 P.OK_PIP_INSTALL,
                 P.OK_PREFLIGHT_RELEASE,
-                P.WHEEL,
+                P.SHA256SUMS,
                 P.HTML_COV_INDEX,
             ],
             actions=[_echo_ok("ready to release")],
@@ -180,6 +182,27 @@ def task_build():
             [*P.APR_BUILD, *P.PY, "setup.py", "bdist_wheel"],
         ],
         targets=[P.WHEEL, P.SDIST],
+    )
+
+    def _run_hash():
+        # mimic sha256sum CLI
+        if P.SHA256SUMS.exists():
+            P.SHA256SUMS.unlink()
+
+        lines = []
+
+        for p in P.HASH_DEPS:
+            lines += ["  ".join([sha256(p.read_bytes()).hexdigest(), p.name])]
+
+        output = "\n".join(lines)
+        print(output)
+        P.SHA256SUMS.write_text(output)
+
+    yield dict(
+        name="hash",
+        file_dep=P.HASH_DEPS,
+        targets=[P.SHA256SUMS],
+        actions=[_run_hash],
     )
 
 
