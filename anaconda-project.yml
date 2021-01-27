@@ -87,6 +87,7 @@ env_specs:
       - pyld
       - pyshacl
       - python >=3.6 # underspecified so binder does whatever's clever
+      - rdflib >=5.0
       - rdflib-jsonld
       - requests_cache
       - scikit-image
