@@ -1,12 +1,18 @@
 import ipycytoscape as cyto
 import ipywidgets as W
-import traitlets as T
-import rdflib
 import networkx as nx
+import rdflib
+import traitlets as T
 from rdflib.extras.external_graph_libs import rdflib_to_networkx_multidigraph
 
 STYLE = [
-    {"selector": "node", "css": {"color": "black", "background-color": "CadetBlue",},},
+    {
+        "selector": "node",
+        "css": {
+            "color": "black",
+            "background-color": "CadetBlue",
+        },
+    },
     {
         "selector": "edge.directed",
         "style": {
