@@ -1,3 +1,5 @@
+# Copyright (c) 2021 ipyradiant contributors.
+# Distributed under the terms of the Modified BSD License.
 import ipycytoscape as cyto
 import ipywidgets as W
 import networkx as nx
@@ -25,8 +27,18 @@ STYLE = [
 ]
 
 
-class CytoBase(cyto.CytoscapeWidget):
-    data = T.Union((T.Instance(rdflib.Graph), T.Instance(nx.MultiDiGraph)))
+class CytoscapeViewer(W.VBox):
+    layouts = T.List()
+    layout_selector = T.Instance(W.Dropdown)
+    cytoscape_widget = T.Instance(cyto.CytoscapeWidget)
+    data = T.Union(
+        (
+            T.Instance(rdflib.Graph),
+            T.Instance(nx.MultiDiGraph),
+            T.Instance(nx.DiGraph),
+            T.Instance(nx.Graph),
+        )
+    )
     cyto_layout = T.Unicode()
     cyto_style = T.List()
 
@@ -45,29 +57,11 @@ class CytoBase(cyto.CytoscapeWidget):
     @T.observe("data")
     def _update_data(self, change):
         # TODO: Clear Graph so that it isn't duplicated
-        if isinstance(self.data, nx.MultiDiGraph):
-            self.graph.add_graph_from_networkx(self.data)
+        if isinstance(self.data, nx.MultiDiGraph) or isinstance(self.data, nx.Graph):
+            self.cytoscape_widget.graph.add_graph_from_networkx(self.data)
         if isinstance(self.data, rdflib.Graph):
             nx_graph = rdflib_to_networkx_multidigraph(self.data)
-            self.graph.add_graph_from_networkx(nx_graph)
-
-    @T.observe("cyto_layout")
-    def _update_layout(self, change):
-        self.set_layout(name=self.cyto_layout)
-
-    @T.observe("cyto_style")
-    def _update_style(self, change):
-        self.set_style(self.cyto_style)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.set_style(self.cyto_style)
-
-
-class CytoscapeViewer(W.VBox):
-    layouts = T.List()
-    layout_selector = T.Instance(W.Dropdown)
-    cytoscape_widget = T.Instance(CytoBase)
+            self.cytoscape_widget.graph.add_graph_from_networkx(nx_graph)
 
     @T.default("cytoscape_widget")
     def _make_cytoscape_widget(self):
@@ -85,6 +79,14 @@ class CytoscapeViewer(W.VBox):
     def _update_layout_selector(self, change):
         self.layout_selector = self._make_layout_selector()
 
+    @T.observe("cyto_layout")
+    def _update_layout(self, change):
+        self.cytoscape_widget.set_layout(name=self.cyto_layout)
+
+    @T.observe("cyto_style")
+    def _update_style(self, change):
+        self.cytoscape_widget.set_style(self.cyto_style)
+
     @T.validate("children")
     def validate_children(self, proposal):
         """
@@ -101,4 +103,5 @@ class CytoscapeViewer(W.VBox):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        T.link((self.layout_selector, "value"), (self.cytoscape_widget, "cyto_layout"))
+        T.link((self.layout_selector, "value"), (self, "cyto_layout"))
+        self.cytoscape_widget.set_style(self.cyto_style)
