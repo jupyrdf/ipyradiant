@@ -65,7 +65,7 @@ class CytoscapeViewer(W.VBox):
 
     @T.default("cytoscape_widget")
     def _make_cytoscape_widget(self):
-        return CytoBase()
+        return cyto.CytoscapeWidget()
 
     @T.default("layouts")
     def _make_layouts(self):
