@@ -1,6 +1,5 @@
 import ipywidgets as W
 import traitlets as T
-
 from rdflib import Graph
 
 from ipyradiant.query.visualize import QueryPreview, QueryResultsGrid
@@ -15,7 +14,7 @@ class QueryWidget(W.VBox):
     query_results_grid = T.Instance(QueryResultsGrid)
     graph = T.Instance(Graph, kw={})
     run_button = T.Instance(W.Button)
-    
+
     @T.validate("children")
     def validate_children(self, proposal):
         """
@@ -29,13 +28,13 @@ class QueryWidget(W.VBox):
 
     def run_query(self, button):
         self.query_result = self.graph.query(self.query)
-            
+
     @T.default("query_results_grid")
     def make_default_query_results_grid(self):
         widget = QueryResultsGrid(namespaces=dict(self.graph.namespaces()))
         T.link((widget, "query_result"), (self, "query_result"))
         return widget
-    
+
     @T.default("query_preview")
     def make_default_query_preview(self):
         widget = QueryPreview()

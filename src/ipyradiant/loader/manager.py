@@ -40,7 +40,7 @@ class FileManager(W.HBox):
     @T.default("msg")
     def make_default_msg(self):
         return W.HTML(self.build_html())
-        
+
     @T.observe("graph_id")
     def update_msg(self, change):
         self.msg.value = self.build_html()

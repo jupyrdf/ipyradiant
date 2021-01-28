@@ -1,7 +1,6 @@
 import IPython
 import ipywidgets as W
 import traitlets as T
-
 from pandas import DataFrame
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
@@ -113,12 +112,13 @@ class QueryPreview(W.HBox):
 
 class QueryResultsGrid(W.Box):
     """A widget for viewing the result of SPARQL queries as a DataFrame grid."""
+
     grid = T.Instance(W.Output)
     log = W.Output(layout={"border": "1px solid black"})
     current_dataframe = T.Instance(DataFrame)
     namespaces = T.Instance(dict, kw={})
     query_result = T.Any()
-    
+
     @T.validate("children")
     def validate_children(self, proposal):
         """
@@ -129,7 +129,7 @@ class QueryResultsGrid(W.Box):
         if not children:
             children = (self.grid,)
         return children
-    
+
     @T.validate("query_result")
     def validate_query_result(self, proposal):
         query_result = proposal.value
@@ -138,7 +138,9 @@ class QueryResultsGrid(W.Box):
                 pass
             elif isinstance(query_result, (list, tuple)):
                 item_len = len(query_result[0])
-                assert item_len == 3, f"Unexpected number of items in query_result, {item_len}!=3"
+                assert (
+                    item_len == 3
+                ), f"Unexpected number of items in query_result, {item_len}!=3"
                 query_result = DataFrame(query_result)
             elif isinstance(query_result, SPARQLResult):
                 query_result = DataFrame(query_result)
@@ -156,13 +158,15 @@ class QueryResultsGrid(W.Box):
         for ii, row in collapsed_data.iterrows():
             for jj, cell in enumerate(row):
                 if isinstance(cell, URIRef):
-                    collapsed_data.iat[ii, jj] = collapse_namespace(self.namespaces, cell)
+                    collapsed_data.iat[ii, jj] = collapse_namespace(
+                        self.namespaces, cell
+                    )
         self.grid.clear_output()
         with self.grid:
             IPython.display.display(
                 IPython.display.HTML(collapsed_data.to_html(escape=False))
             )
-            
+
     @T.default("grid")
     def make_default_grid(self):
         return W.Output(layout=dict(max_height="60vh"))

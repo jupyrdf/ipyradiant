@@ -19,7 +19,7 @@ default_ns = {
 def collapse_namespace(namespaces, cell):
     """
     TODO prevent from collapsing a partial namespace
-    e.g. 
+    e.g.
     PREFIX ex: <https://example.org/>
     URI = https://example.org/thing/stuff
 
