@@ -520,7 +520,7 @@ env_specs:
         - icu=68.1=h58526e2_0
         - importlib-metadata=3.4.0=py37h89c1867_0
         - ipykernel=5.4.2=py37h888b3d9_0
-        - ipython=7.20.0=py37h888b3d9_0
+        - ipython=7.20.0=py37h888b3d9_1
         - jedi=0.18.0=py37h89c1867_2
         - jupyter_core=4.7.1=py37h89c1867_0
         - ld_impl_linux-64=2.35.1=hea4e1c9_2
@@ -552,7 +552,7 @@ env_specs:
         - tornado=6.1=py37h5e8e339_1
         - typed-ast=1.4.2=py37h5e8e339_0
         - xz=5.2.5=h516909a_1
-        - zeromq=4.3.3=h58526e2_3
+        - zeromq=4.3.4=h9c3ff4c_0
         - zlib=1.2.11=h516909a_1010
       osx-64:
         - appnope=0.1.2=py37hf985489_1
@@ -566,7 +566,7 @@ env_specs:
         - icu=68.1=h74dc148_0
         - importlib-metadata=3.4.0=py37hf985489_0
         - ipykernel=5.4.2=py37he01cfaa_0
-        - ipython=7.20.0=py37he01cfaa_0
+        - ipython=7.20.0=py37he01cfaa_1
         - jedi=0.18.0=py37hf985489_2
         - jupyter_core=4.7.1=py37hf985489_0
         - libcxx=11.0.1=habf9029_0
@@ -595,7 +595,7 @@ env_specs:
         - tornado=6.1=py37hf967b71_1
         - typed-ast=1.4.2=py37hf967b71_0
         - xz=5.2.5=haf1e3a3_1
-        - zeromq=4.3.3=h74dc148_3
+        - zeromq=4.3.4=h1c7c35f_0
         - zlib=1.2.11=h7795811_1010
       win-64:
         - argon2-cffi=20.1.0=py37hcc03f2d_2
@@ -608,7 +608,7 @@ env_specs:
         - cryptography=3.3.1=py37hd8e9650_1
         - importlib-metadata=3.4.0=py37h03978a9_0
         - ipykernel=5.4.2=py37h7b7c402_0
-        - ipython=7.20.0=py37heaed05f_0
+        - ipython=7.20.0=py37heaed05f_1
         - jedi=0.18.0=py37h03978a9_2
         - jupyter_core=4.7.1=py37h03978a9_0
         - libsodium=1.0.18=h8d14728_1
