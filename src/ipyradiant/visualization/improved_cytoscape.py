@@ -17,6 +17,8 @@ class CytoscapeViewer(W.VBox):
     """TODO some docs explaining the attrs"""
 
     animate = T.Bool(default_value=True)
+    # TODO specify node and edge labels separately
+    labels = T.Bool(default_value=True)
     layouts = T.List()
     layout_selector = T.Instance(W.Dropdown)
     cytoscape_widget = T.Instance(cyto.CytoscapeWidget)
@@ -38,7 +40,10 @@ class CytoscapeViewer(W.VBox):
 
     @T.default("cyto_style")
     def _make_cyto_style(self):
-        return style.DIRECTED_GRAPH
+        if self.labels:
+            return style.LABELLED_DIRECTED_GRAPH
+        else:
+            return style.DIRECTED_GRAPH
 
     # TODO validate graph and throw warning if # nodes is large?
 
@@ -70,6 +75,14 @@ class CytoscapeViewer(W.VBox):
         )
         widget.set_style(self.cyto_style)
         return widget
+
+    @T.observe("labels")
+    def _update_labels(self, change):
+        if change.old != change.new:
+            if self.labels:
+                self.cyto_style = style.LABELLED_DIRECTED_GRAPH
+            else:
+                self.cyto_style = style.DIRECTED_GRAPH
 
     @T.default("layouts")
     def _make_layouts(self):
