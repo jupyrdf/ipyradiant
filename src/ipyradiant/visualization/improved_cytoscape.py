@@ -5,16 +5,31 @@ import ipywidgets as W
 import networkx as nx
 import rdflib
 import traitlets as T
-
 from ipycytoscape.cytoscape import Graph as CytoscapeGraph
-from rdflib.extras.external_graph_libs import rdflib_to_networkx_multidigraph
 
-from ipyradiant.visualization.cytoscape import style
 from ipyradiant.rdf2nx import RDF2NX
+from ipyradiant.visualization.cytoscape import style
+
+MAX_NODES = 300
+MAX_EDGES = MAX_NODES * 3
 
 
 class CytoscapeViewer(W.VBox):
-    """TODO some docs explaining the attrs"""
+    """A simple Cytoscape graph visualizer that can render RDF and networkx graphs.
+
+    :param animate: flag for turning cytoscape animations on/off
+    :param labels: flag for turning node and edge labels on/off
+    :param layouts: list of optional layouts for the ipycytoscape.CytoscapeWidget
+    :param layout_selector: ipywidgets Dropdown for storing cytoscape layouts
+    :param cytoscape_widget: ipycytoscape.CytoscapeWidget for rendering the graph
+    :param graph: a networkx or rdflib Graph to render
+    :param cyto_layout: the selected cytoscape graph layout
+    :param cyto_style: the style used when rendering the cytoscape graph
+    :param _render_large_graphs: flag to prevent long expensive layout computations for large graphs
+    :param _rdf_label: attribute to use when discovering labels for RDF nodes (post-LPG conversion)
+    :param _nx_label: attribute to use when discovering labels for networkx nodes
+    :param _rdf_converter: converter class that transforms the input RDF graph to networkx
+    """
 
     animate = T.Bool(default_value=True)
     # TODO specify node and edge labels separately
@@ -32,10 +47,9 @@ class CytoscapeViewer(W.VBox):
     )
     cyto_layout = T.Unicode(default_value="random")
     cyto_style = T.List()
-    # Can be overwritten prior to assigning `graph` trait
+    _render_large_graphs = False
     _rdf_label = "rdfs:label"
     _nx_label = "label"
-    # Can be overwritten to change RDF->LPG behavior
     _rdf_converter: RDF2NX = RDF2NX
 
     @T.default("cyto_style")
@@ -45,7 +59,31 @@ class CytoscapeViewer(W.VBox):
         else:
             return style.DIRECTED_GRAPH
 
-    # TODO validate graph and throw warning if # nodes is large?
+    @T.validate("graph")
+    def _valid_graph(self, proposal):
+        """Validate graph by throwing error when # nodes/edges is at the limits of ipycytoscape
+
+        TODO is there a better way to determine the limits than arbitrary numbers?
+        """
+
+        graph = proposal["value"]
+        if (
+            isinstance(graph, nx.Graph)
+            and not self._render_large_graphs
+            and (len(graph.nodes) > MAX_NODES or len(graph.edges) > MAX_EDGES)
+        ):
+            raise T.TraitError(
+                f"unable to render networkx graphs with more than {MAX_NODES} nodes or {MAX_EDGES} edges."
+            )
+        elif (
+            isinstance(graph, rdflib.Graph)
+            and not self._render_large_graphs
+            and (len(graph) > MAX_EDGES + MAX_NODES)
+        ):
+            raise T.TraitError(
+                f"unable to render RDF graphs with more than {MAX_EDGES+MAX_NODES} triples."
+            )
+        return graph
 
     @T.observe("graph")
     def _update_graph(self, change):
@@ -57,12 +95,14 @@ class CytoscapeViewer(W.VBox):
             for node in self.cytoscape_widget.graph.nodes:
                 node.data["_label"] = node.data.get(self._nx_label, None)
         elif isinstance(self.graph, rdflib.Graph):
-            # Note: rdflib_to_networkx_multidigraph does not store the predicate AT ALL, 
+            # Note: rdflib_to_networkx_multidigraph does not store the predicate AT ALL,
             #  so it is basically unrecoverable (e.g. for labelling); using _rdf_converter
             nx_graph = self._rdf_converter.convert(self.graph)
             self.cytoscape_widget.graph.add_graph_from_networkx(nx_graph)
             for node in self.cytoscape_widget.graph.nodes:
-                node.data["_label"] = node.data.get(self._rdf_label, node.data.get("id", None))
+                node.data["_label"] = node.data.get(
+                    self._rdf_label, node.data.get("id", None)
+                )
 
     @T.default("cytoscape_widget")
     def _make_cytoscape_widget(self):

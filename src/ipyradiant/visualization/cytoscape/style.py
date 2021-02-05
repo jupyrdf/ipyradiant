@@ -19,7 +19,7 @@ EDGE = {
     "selector": "edge",
     "style": {
         "line-color": "grey",
-        "opacity": "0.6",
+        "line-opacity": "0.5",
     },
 }
 
@@ -29,7 +29,7 @@ LABELLED_EDGE = {
         "font-size": "12",
         "font-style": "italic",
         "line-color": "grey",
-        "line-opacity": "0.6",
+        "line-opacity": "0.5",
         "label": "data(_label)",
     },
 }
@@ -37,17 +37,12 @@ LABELLED_EDGE = {
 
 DIRECTED_EDGE = {
     "selector": "edge.directed",
-    "style": {
-        "curve-style": "bezier",
-        "target-arrow-shape": "triangle"
-    },
+    "style": {"curve-style": "bezier", "target-arrow-shape": "triangle"},
 }
 
 MULTIPLE_EDGES = {
     "selector": "edge.multiple_edges",
-    "style": {
-        "curve-style": "bezier"
-    },
+    "style": {"curve-style": "bezier"},
 }
 
 DIRECTED_GRAPH = [
