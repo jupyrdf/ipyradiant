@@ -18,7 +18,8 @@ class CytoscapeViewer(W.VBox):
     """A simple Cytoscape graph visualizer that can render RDF and networkx graphs.
 
     :param animate: flag for turning cytoscape animations on/off
-    :param labels: flag for turning node and edge labels on/off
+    :param node_labels: flag for turning node labels on/off
+    :param edge_labels: flag for turning edge labels on/off
     :param layouts: list of optional layouts for the ipycytoscape.CytoscapeWidget
     :param layout_selector: ipywidgets Dropdown for storing cytoscape layouts
     :param cytoscape_widget: ipycytoscape.CytoscapeWidget for rendering the graph
@@ -32,8 +33,8 @@ class CytoscapeViewer(W.VBox):
     """
 
     animate = T.Bool(default_value=True)
-    # TODO specify node and edge labels separately
-    labels = T.Bool(default_value=True)
+    node_labels = T.Bool(default_value=True)
+    edge_labels = T.Bool(default_value=True)
     layouts = T.List()
     layout_selector = T.Instance(W.Dropdown)
     cytoscape_widget = T.Instance(cyto.CytoscapeWidget)
@@ -52,12 +53,35 @@ class CytoscapeViewer(W.VBox):
     _nx_label = "label"
     _rdf_converter: RDF2NX = RDF2NX
 
+    def update_style(self):
+        """Update style based on class attributes."""
+        style_list = [style.DIRECTED_EDGE, style.MULTIPLE_EDGES]
+        if self.node_labels and self.edge_labels:
+            style_list = style.LABELLED_DIRECTED_GRAPH
+        elif not self.node_labels and not self.edge_labels:
+            style_list = style.DIRECTED_GRAPH
+        else:
+            if self.node_labels:
+                style_list.append(style.LABELLED_NODE)
+            else:
+                style_list.append(style.NODE)
+            if self.edge_labels:
+                style_list.append(style.LABELLED_EDGE)
+            else:
+                style_list.append(style.EDGE)
+
+        self.cyto_style = style_list
+    
+    def update_cytoscape_frontend(self):
+        """A temporary workaround to trigger a frontend refresh"""
+
+        self.cytoscape_widget.graph.add_node(cyto.Node(data={"id": "random node"}))
+        self.cytoscape_widget.graph.remove_node_by_id("random node")
+
     @T.default("cyto_style")
     def _make_cyto_style(self):
-        if self.labels:
-            return style.LABELLED_DIRECTED_GRAPH
-        else:
-            return style.DIRECTED_GRAPH
+        self.update_style()
+        return self.cyto_style
 
     @T.validate("graph")
     def _valid_graph(self, proposal):
@@ -116,13 +140,9 @@ class CytoscapeViewer(W.VBox):
         widget.set_style(self.cyto_style)
         return widget
 
-    @T.observe("labels")
+    @T.observe("node_labels", "edge_labels")
     def _update_labels(self, change):
-        if change.old != change.new:
-            if self.labels:
-                self.cyto_style = style.LABELLED_DIRECTED_GRAPH
-            else:
-                self.cyto_style = style.DIRECTED_GRAPH
+        self.update_style()
 
     @T.default("layouts")
     def _make_layouts(self):
