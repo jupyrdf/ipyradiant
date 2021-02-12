@@ -19,7 +19,7 @@ env_specs:
     locked: false
   dev:
     locked: true
-    env_spec_hash: 515cd0173cf271252528c8b442f590841adf269a
+    env_spec_hash: 3a5692c6b256101c97521f67262da72ea264656c
     platforms:
     - linux-64
     - osx-64
@@ -105,7 +105,7 @@ env_specs:
       - python-dateutil=2.8.1=py_0
       - python_abi=3.7=1_cp37m
       - pytz=2021.1=pyhd8ed1ab_0
-      - pyviz_comms=0.7.6=pyh9f0ad1d_0
+      - pyviz_comms=2.0.1=pyhd3deb0d_0
       - requests=2.25.1=pyhd3deb0d_0
       - requests_cache=0.4.13=py_0
       - send2trash=1.5.0=py_0
