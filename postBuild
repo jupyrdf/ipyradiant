@@ -10,8 +10,6 @@ python -m pip install -e . --no-cache-dir --no-deps
 
 # lab
 jupyter labextension list
-jupyter labextension install $(cat labextensions.txt) --no-build --debug
-jupyter labextension list
 jupyter lab build --debug --dev-build=False --minimize=False
 jupyter labextension list
 
