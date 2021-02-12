@@ -4,4 +4,3 @@
 @jupyter-widgets/jupyterlab-manager
 @pyviz/jupyterlab_pyviz
 jupyter-cytoscape
-qgrid2

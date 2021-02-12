@@ -65,7 +65,7 @@ pip install ipyradiant
 Install the lab extensions that `ipyradiant` depends on.
 
 ```bash
-jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-cytoscape @pyviz/jupyterlab_pyviz qgrid2
+jupyter labextension install @jupyter-widgets/jupyterlab-manager jupyter-cytoscape @pyviz/jupyterlab_pyviz
 ```
 
 > For additional information, see [CONTRIBUTING.md][contributing]
