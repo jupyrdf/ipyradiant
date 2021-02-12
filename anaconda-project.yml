@@ -78,7 +78,7 @@ env_specs:
       - importnb
       - ipycytoscape >=1.2.0
       - ipython >=7.20
-      - ipywidgets
+      - ipywidgets >=7.6,<8
       - pyviz_comms <1.0.3
       - jupyterlab >=3.0.0
       - networkx >=2
