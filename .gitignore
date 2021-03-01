@@ -15,6 +15,7 @@ __pycache__/
 build/
 dist/
 envs/
+_scripts/local/
 examples/**/*.html
 lib/
 node_modules/
