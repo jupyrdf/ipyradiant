@@ -71,7 +71,7 @@ class CytoscapeViewer(W.VBox):
                 style_list.append(style.EDGE)
 
         self.cyto_style = style_list
-    
+
     def update_cytoscape_frontend(self):
         """A temporary workaround to trigger a frontend refresh"""
 
