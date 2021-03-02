@@ -154,6 +154,7 @@ class QueryResultsGrid(W.Box):
     def run_query(self, change):
         # TODO move to validate method?
         self.current_dataframe = DataFrame(self.query_result)
+        # TODO set columns
         collapsed_data = DataFrame(self.query_result)
         for ii, row in collapsed_data.iterrows():
             for jj, cell in enumerate(row):
