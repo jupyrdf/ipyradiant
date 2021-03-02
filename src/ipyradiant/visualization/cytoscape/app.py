@@ -9,7 +9,7 @@ from ipycytoscape import CytoscapeWidget
 from rdflib import Graph, Literal, URIRef
 from rdflib.namespace import RDF
 
-from .base import VisualizerBase
+from ..base import VisualizerBase
 
 
 class CytoscapeVisualizer(VisualizerBase):

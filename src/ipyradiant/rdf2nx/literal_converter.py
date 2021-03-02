@@ -52,4 +52,6 @@ def cast_literal(value: Literal, strict: bool = False) -> Any:
         )
         return str(value)
     else:
+        if value.value is None:
+            return None
         return XSD2PY[value_datatype](value)

@@ -70,3 +70,31 @@ class NodeProperties(SPARQLQueryFramer):
       ?iri ?predicate ?value.
     }
     """
+
+
+class NodeAnnotationProperties(SPARQLQueryFramer):
+    """An example of how to return properties for a LPG node.
+    - ?iri: bound to a specific node IRI, to get the properties for that node.
+    - ?predicate: IRI for the property name (e.g. ex:hasThing) and is converted into a
+        shorter ID by means of a configured IRI->ID converter.
+    - ?value: a literal that may be converted using its lexical value.
+
+    TODO experimental, taken from https://www.w3.org/TR/rdf-schema/#ch_properties
+    """
+
+    sparql = """
+    SELECT DISTINCT ?iri ?predicate ?value
+    {
+      ?iri ?predicate ?value.
+
+      VALUES (?predicate) {
+          (rdfs:range)
+          (rdfs:domain)
+          (rdf:type)
+          (rdfs:subClassOf)
+          (rdfs:subPropertyOf)  # TODO remove this one?
+          (rdfs:label)
+          (rdfs:comment)
+      }
+    }
+    """
