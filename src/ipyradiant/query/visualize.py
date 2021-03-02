@@ -6,8 +6,7 @@ from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers.rdf import SparqlLexer
 from pygments.styles import STYLE_MAP
-from rdflib import Graph, URIRef
-from rdflib.namespace import NamespaceManager
+from rdflib import URIRef
 from rdflib.plugins.sparql.processor import SPARQLResult
 
 from ipyradiant.query.namespace_manager import collapse_namespace
