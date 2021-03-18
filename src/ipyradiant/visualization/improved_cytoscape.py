@@ -8,8 +8,6 @@ import ipywidgets as W
 import networkx as nx
 import rdflib
 import traitlets as T
-from ipycytoscape.cytoscape import Graph as CytoscapeGraph
-from ipycytoscape.cytoscape import MutableDict, MutableList
 
 from ipyradiant.rdf2nx import RDF2NX
 from ipyradiant.visualization.cytoscape import style
