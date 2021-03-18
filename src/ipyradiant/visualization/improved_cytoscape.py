@@ -1,12 +1,15 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
+from warnings import warn
+
 import ipycytoscape as cyto
 import ipywidgets as W
 import networkx as nx
 import rdflib
 import traitlets as T
 from ipycytoscape.cytoscape import Graph as CytoscapeGraph
+from ipycytoscape.cytoscape import MutableDict, MutableList
 
 from ipyradiant.rdf2nx import RDF2NX
 from ipyradiant.visualization.cytoscape import style
@@ -31,6 +34,8 @@ class CytoscapeViewer(W.VBox):
     :param _rdf_label: attribute to use when discovering labels for RDF nodes (post-LPG conversion)
     :param _nx_label: attribute to use when discovering labels for networkx nodes
     :param _rdf_converter: converter class that transforms the input RDF graph to networkx
+    :param _rdf_converter_graph: a separate rdflib.Graph used to collect additional node data
+      (i.e. the object node data of a relationship)
     """
 
     animate = T.Bool(default_value=True)
@@ -49,14 +54,20 @@ class CytoscapeViewer(W.VBox):
     )
     cyto_layout = T.Unicode(default_value="random")
     cyto_style = T.List()
+    include_missing_nodes = False
+    _log = W.Output()
     _render_large_graphs = False
     _rdf_label = "rdfs:label"
     _nx_label = "label"
-    _rdf_converter: RDF2NX = RDF2NX
+    _rdf_converter: RDF2NX = RDF2NX()
+    _rdf_converter_graph = T.Instance(rdflib.Graph, allow_none=True, default_value=None)
 
     def update_style(self):
-        """Update style based on class attributes."""
-        style_list = [style.DIRECTED_EDGE, style.MULTIPLE_EDGES]
+        """Update style based on class attributes.
+
+        TODO this is not maintainable
+        """
+        style_list = [style.NODE_CLICKED, style.DIRECTED_EDGE, style.MULTIPLE_EDGES]
         if self.node_labels and self.edge_labels:
             style_list = style.LABELLED_DIRECTED_GRAPH
         elif not self.node_labels and not self.edge_labels:
@@ -73,10 +84,12 @@ class CytoscapeViewer(W.VBox):
 
         self.cyto_style = style_list
 
-    def update_cytoscape_frontend(self):
+    def _update_cytoscape_frontend(self):
         """A temporary workaround to trigger a frontend refresh"""
 
-        self.cytoscape_widget.graph.add_node(cyto.Node(data={"id": "random node"}))
+        node = cyto.Node(data={"id": "random node"})
+        self.cytoscape_widget.graph.add_node(node)
+        node.removed = True
         self.cytoscape_widget.graph.remove_node_by_id("random node")
 
     @T.default("cyto_style")
@@ -112,8 +125,16 @@ class CytoscapeViewer(W.VBox):
 
     @T.observe("graph")
     def _update_graph(self, change):
-        # Clear graph so that data isn't duplicated
-        self.cytoscape_widget.graph = CytoscapeGraph()
+        # TODO Clear graph so that data isn't duplicated
+        #   (blocked by https://github.com/QuantStack/ipycytoscape/issues/61)
+        # Temporary workaround to clear graph by making a completely new widget
+        self.cytoscape_widget = self._make_cytoscape_widget(
+            old_widget=self.cytoscape_widget
+        )
+        warn(
+            "Clearing ipycytoscape graphs may lead to ghost nodes. This is a known issue and will be addressed in a future update."
+        )
+
         if isinstance(self.graph, nx.Graph):
             self.cytoscape_widget.graph.add_graph_from_networkx(self.graph)
             # TODO def add_label_from_nx
@@ -122,7 +143,10 @@ class CytoscapeViewer(W.VBox):
         elif isinstance(self.graph, rdflib.Graph):
             # Note: rdflib_to_networkx_multidigraph does not store the predicate AT ALL,
             #  so it is basically unrecoverable (e.g. for labelling); using _rdf_converter
-            nx_graph = self._rdf_converter.convert(self.graph)
+            # use external_graph of converter to return connected node data
+            nx_graph = self._rdf_converter.convert(
+                self.graph, external_graph=self._rdf_converter_graph
+            )
             self.cytoscape_widget.graph.add_graph_from_networkx(nx_graph)
             for node in self.cytoscape_widget.graph.nodes:
                 node.data["_label"] = node.data.get(
@@ -130,7 +154,7 @@ class CytoscapeViewer(W.VBox):
                 )
 
     @T.default("cytoscape_widget")
-    def _make_cytoscape_widget(self):
+    def _make_cytoscape_widget(self, old_widget=None):
         widget = cyto.CytoscapeWidget()
         widget.set_layout(
             animate=self.animate,
@@ -139,6 +163,16 @@ class CytoscapeViewer(W.VBox):
             maxSimulationTime=1000,
         )
         widget.set_style(self.cyto_style)
+        # TODO need to copy over node classes as well. Is this sustainable??
+        if old_widget:
+            for item, events in old_widget._interaction_handlers.items():
+                for event, dispatcher in events.items():
+                    for callback in dispatcher.callbacks:
+                        callback_owner = getattr(callback, "__self__", None)
+                        if callback_owner == old_widget:
+                            callback = getattr(widget, callback.__name__)
+                        widget.on(item, event, callback)
+
         return widget
 
     @T.observe("node_labels", "edge_labels")
@@ -175,6 +209,12 @@ class CytoscapeViewer(W.VBox):
     @T.observe("cyto_style")
     def _update_style(self, change):
         self.cytoscape_widget.set_style(self.cyto_style)
+
+    @T.observe("cytoscape_widget")
+    def _update_children(self, change):
+        if change.old == change.new:
+            return
+        self.children = (self.layout_selector, change.new)
 
     @T.validate("children")
     def validate_children(self, proposal):
