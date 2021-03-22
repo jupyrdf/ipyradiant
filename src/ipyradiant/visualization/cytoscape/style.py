@@ -9,6 +9,15 @@ NODE = {
     },
 }
 
+# TODO cannot get this class assignment to stop crashing ipycytoscape
+NODE_CLICKED = {
+    "selector": "node.clicked",
+    "style": {
+        "background-color": "CadetBlue",
+        "border-width": "2px",
+    },
+}
+
 LABELLED_NODE = {
     "selector": "node",
     "style": {
@@ -50,6 +59,7 @@ MULTIPLE_EDGES = {
 
 DIRECTED_GRAPH = [
     NODE,
+    NODE_CLICKED,
     EDGE,
     DIRECTED_EDGE,
     MULTIPLE_EDGES,
@@ -57,6 +67,7 @@ DIRECTED_GRAPH = [
 
 LABELLED_DIRECTED_GRAPH = [
     LABELLED_NODE,
+    NODE_CLICKED,
     LABELLED_EDGE,
     DIRECTED_EDGE,
     MULTIPLE_EDGES,
