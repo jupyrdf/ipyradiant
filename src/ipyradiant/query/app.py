@@ -1,11 +1,16 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
+import re
+
 import ipywidgets as W
 import traitlets as T
 from rdflib import Graph
 
 from ipyradiant.query.visualize import QueryPreview, QueryResultsGrid
+
+
+PREFIX_PATTERN = re.compile(r'PREFIX (\w+): <(.+)>')
 
 
 class QueryWidget(W.VBox):
@@ -30,11 +35,19 @@ class QueryWidget(W.VBox):
         return children
 
     def run_query(self, button):
+        # TODO do we need to throw some error/warning if prefixes clash? 
+        # initialize using namespaces defined in the graph object
+        namespaces = dict(self.graph.namespaces())
+        # add namespace prefixes defined in the query string
+        for term, ns in PREFIX_PATTERN.findall(self.query):
+            namespaces[term] = ns 
+
+        self.query_results_grid.namespaces = namespaces
         self.query_result = self.graph.query(self.query)
 
     @T.default("query_results_grid")
     def make_default_query_results_grid(self):
-        widget = QueryResultsGrid(namespaces=dict(self.graph.namespaces()))
+        widget = QueryResultsGrid()
         T.link((widget, "query_result"), (self, "query_result"))
         return widget
 

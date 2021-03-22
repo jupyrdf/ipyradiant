@@ -17,19 +17,14 @@ default_ns = {
 
 
 def collapse_namespace(namespaces, cell):
-    """
-    TODO prevent from collapsing a partial namespace
-    e.g.
-    PREFIX ex: <https://example.org/>
-    URI = https://example.org/thing/stuff
-
-    current behavior: ex:thing/stuff
-    expected behavior: no collapsing
+    """ Collapse namespaces and use hyperlink structure
     """
     uf_link = """<a href=\"{}" target=\"_blank\">{}</a>"""
 
     if isinstance(namespaces, dict):
-        namespaces = tuple(namespaces.items())
+        namespaces = list(namespaces.items())
+        # sort based on namespace length
+        namespaces.sort(key=lambda entry: len(entry[1]), reverse=True)
 
     or_statement = "|".join([uri for _, uri in namespaces])
     pattern = f"({or_statement}).*"
@@ -37,9 +32,13 @@ def collapse_namespace(namespaces, cell):
     if quick_check:
         for term, uri in namespaces:
             if cell.startswith(uri):
-                return uf_link.format(cell, str(cell).replace(uri, term + ":"))
-    else:
-        return uf_link.format(cell, cell)
+                shorthand = str(cell).replace(uri, term + ":")
+                if "/" in shorthand:
+                    # break because we don't want to collapse to a partial match
+                    break
+                return uf_link.format(cell, shorthand)
+    
+    return uf_link.format(cell, cell)
 
 
 class NamespaceManager(W.VBox):
