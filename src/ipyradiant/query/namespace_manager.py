@@ -17,13 +17,13 @@ default_ns = {
 
 
 def collapse_namespace(namespaces, cell):
-    """ Collapse namespaces and use hyperlink structure
-    """
+    """Collapse namespaces and use hyperlink structure."""
+    
     uf_link = """<a href=\"{}" target=\"_blank\">{}</a>"""
 
     if isinstance(namespaces, dict):
         namespaces = list(namespaces.items())
-        # sort based on namespace length
+        # sort based on namespace length (ensure longer ns are processed first)
         namespaces.sort(key=lambda entry: len(entry[1]), reverse=True)
 
     or_statement = "|".join([uri for _, uri in namespaces])
@@ -35,6 +35,7 @@ def collapse_namespace(namespaces, cell):
                 shorthand = str(cell).replace(uri, term + ":")
                 if "/" in shorthand:
                     # break because we don't want to collapse to a partial match
+                    # TODO remove if we want a shorthand visualization
                     break
                 return uf_link.format(cell, shorthand)
     

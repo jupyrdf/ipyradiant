@@ -36,6 +36,8 @@ class QueryWidget(W.VBox):
 
     def run_query(self, button):
         # TODO do we need to throw some error/warning if prefixes clash? 
+        # TODO should we catch some errors and display info, e.g. ParseException?
+
         # initialize using namespaces defined in the graph object
         namespaces = dict(self.graph.namespaces())
         # add namespace prefixes defined in the query string
@@ -43,6 +45,7 @@ class QueryWidget(W.VBox):
             namespaces[term] = ns 
 
         self.query_results_grid.namespaces = namespaces
+        self.query_result = None  # clear the grid
         self.query_result = self.graph.query(self.query)
 
     @T.default("query_results_grid")

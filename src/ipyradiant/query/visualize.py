@@ -137,6 +137,7 @@ class QueryResultsGrid(W.Box):
 
     @T.validate("query_result")
     def validate_query_result(self, proposal):
+        """Validate query results and update the HTML output."""
         query_result = proposal.value
         if query_result:
             if isinstance(query_result, DataFrame):
@@ -152,14 +153,12 @@ class QueryResultsGrid(W.Box):
         else:
             query_result = DataFrame()
 
-        self.observe(self.run_query, "query_result")
+        self.observe(self.process_query, "query_result")
         return query_result
 
     @log.capture(clear_output=True)
-    def run_query(self, change):
-        # need to combine graph namespaces with query namespaces
-        # TODO 
-
+    def process_query(self, change):
+        """Update HTML output with latest query results."""
         self.current_dataframe = DataFrame(self.query_result)
         collapsed_data = DataFrame(self.query_result)
         for ii, row in collapsed_data.iterrows():
