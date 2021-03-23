@@ -12,7 +12,7 @@ from pygments.styles import STYLE_MAP
 from rdflib import URIRef
 from rdflib.plugins.sparql.processor import SPARQLResult
 
-from ipyradiant.query.namespace_manager import collapse_namespace
+from .utils import collapse_namespace
 
 
 class QueryColorizer(W.VBox):
@@ -21,7 +21,7 @@ class QueryColorizer(W.VBox):
     query = T.Unicode()
     formatter_style = T.Enum(values=list(STYLE_MAP.keys()), default_value="colorful")
     style_picker = T.Instance(W.Dropdown)
-    html_output = T.Instance(W.HTML, kw={})
+    html_output = T.Instance(W.HTML)
 
     _style_defs = T.Unicode(default_value="")
     formatter: HtmlFormatter = None
@@ -35,6 +35,12 @@ class QueryColorizer(W.VBox):
             layout=W.Layout(min_height="30px"),
         )
         T.link((self, "formatter_style"), (widget, "value"))
+        return widget
+
+    @T.default("html_output")
+    def make_default_html_output(self) -> W.HTML:
+        widget = W.HTML()
+        widget.layout = {"width": "50%"}
         return widget
 
     @T.validate("children")
@@ -94,15 +100,9 @@ class QueryPreview(W.HBox):
     @T.default("query_input")
     def make_default_query_input(self) -> W.Textarea:
         widget = W.Textarea()
-        widget.layout = {
-            "display": "flex",
-            "flex_flow": "row",
-            "align_items": "stretch",
-            "width": "auto",
-            "min_width": "25%",
-            "max_width": "50%",
-        }
+        widget.layout = {"width": "50%", "resize": "none"}
         T.link((widget, "value"), (self, "query"))
+        widget.observe(self.scale_query_input, "value")
         return widget
 
     @T.default("query_view")
@@ -110,6 +110,15 @@ class QueryPreview(W.HBox):
         widget = QueryColorizer()
         T.link((widget, "query"), (self, "query"))
         return widget
+
+    def scale_query_input(self, change):
+        """Change the number of rows based on the query input.
+
+        Note: this breaks if the user manually scales the query input Textarea
+        TODO: update when Textarea resize can be disabled via css
+          tracking issue: https://github.com/jupyter-widgets/ipywidgets/issues/2586
+        """
+        self.query_input.rows = change.new.count("\n") + 1
 
 
 class QueryResultsGrid(W.Box):
@@ -120,6 +129,16 @@ class QueryResultsGrid(W.Box):
     current_dataframe = T.Instance(DataFrame)
     namespaces = T.Instance(dict, kw={})
     query_result = T.Any()
+
+    @T.default("grid")
+    def make_default_grid(self):
+        # TODO should this max_height be more intelligent?
+        return W.Output(
+            layout=dict(
+                max_height="50vh",
+                width="100%",
+            )
+        )
 
     @T.validate("children")
     def validate_children(self, proposal):
@@ -134,6 +153,7 @@ class QueryResultsGrid(W.Box):
 
     @T.validate("query_result")
     def validate_query_result(self, proposal):
+        """Validate query results and update the HTML output."""
         query_result = proposal.value
         if query_result:
             if isinstance(query_result, DataFrame):
@@ -149,14 +169,13 @@ class QueryResultsGrid(W.Box):
         else:
             query_result = DataFrame()
 
-        self.observe(self.run_query, "query_result")
+        self.observe(self.process_query, "query_result")
         return query_result
 
     @log.capture(clear_output=True)
-    def run_query(self, change):
-        # TODO move to validate method?
+    def process_query(self, change):
+        """Update HTML output with latest query results."""
         self.current_dataframe = DataFrame(self.query_result)
-        # TODO set columns
         collapsed_data = DataFrame(self.query_result)
         for ii, row in collapsed_data.iterrows():
             for jj, cell in enumerate(row):
@@ -169,7 +188,3 @@ class QueryResultsGrid(W.Box):
             IPython.display.display(
                 IPython.display.HTML(collapsed_data.to_html(escape=False))
             )
-
-    @T.default("grid")
-    def make_default_grid(self):
-        return W.Output(layout=dict(max_height="60vh"))
