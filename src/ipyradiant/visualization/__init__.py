@@ -11,7 +11,6 @@ __all__ = [
     "InteractiveViewer",
     "LayoutSelector",
     "NXBase",
-    "QueryWidget",
     "VisualizerBase",
 ]
 from .base import NXBase, VisualizerBase
@@ -19,5 +18,4 @@ from .cytoscape import CytoscapeVisualizer
 from .datashader_vis import DatashaderVisualizer
 from .explore import GetOutgoingPredicateObjects, InteractiveViewer
 from .improved_cytoscape import CytoscapeViewer
-from .query import QueryWidget
 from .tools import LayoutSelector
