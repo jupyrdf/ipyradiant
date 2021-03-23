@@ -113,12 +113,12 @@ class QueryPreview(W.HBox):
 
     def scale_query_input(self, change):
         """Change the number of rows based on the query input.
-        
+
         Note: this breaks if the user manually scales the query input Textarea
-        TODO: update when Textarea resize can be disabled via css 
+        TODO: update when Textarea resize can be disabled via css
           tracking issue: https://github.com/jupyter-widgets/ipywidgets/issues/2586
         """
-        self.query_input.rows = change.new.count('\n') + 1
+        self.query_input.rows = change.new.count("\n") + 1
 
 
 class QueryResultsGrid(W.Box):
@@ -133,10 +133,12 @@ class QueryResultsGrid(W.Box):
     @T.default("grid")
     def make_default_grid(self):
         # TODO should this max_height be more intelligent?
-        return W.Output(layout=dict(
-            max_height="50vh",
-            width="100%",
-            ))
+        return W.Output(
+            layout=dict(
+                max_height="50vh",
+                width="100%",
+            )
+        )
 
     @T.validate("children")
     def validate_children(self, proposal):

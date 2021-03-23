@@ -29,7 +29,7 @@ def service_patch_rdflib(query_str):
 
 def collapse_namespace(namespaces, cell):
     """Collapse namespaces and use hyperlink structure."""
-    
+
     uf_link = """<a href=\"{}" target=\"_blank\">{}</a>"""
 
     if isinstance(namespaces, dict):
@@ -49,5 +49,5 @@ def collapse_namespace(namespaces, cell):
                     # TODO remove if want an irregular shorthand representation
                     break
                 return uf_link.format(cell, shorthand)
-    
+
     return uf_link.format(cell, cell)
