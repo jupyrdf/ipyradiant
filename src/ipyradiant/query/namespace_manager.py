@@ -35,7 +35,7 @@ def collapse_namespace(namespaces, cell):
                 shorthand = str(cell).replace(uri, term + ":")
                 if "/" in shorthand:
                     # break because we don't want to collapse to a partial match
-                    # TODO remove if we want a shorthand visualization
+                    # TODO remove if want an irregular shorthand representation
                     break
                 return uf_link.format(cell, shorthand)
     
