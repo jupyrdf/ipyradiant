@@ -12,7 +12,7 @@ from pygments.styles import STYLE_MAP
 from rdflib import URIRef
 from rdflib.plugins.sparql.processor import SPARQLResult
 
-from ipyradiant.query.namespace_manager import collapse_namespace
+from .utils import collapse_namespace
 
 
 class QueryColorizer(W.VBox):
@@ -112,7 +112,13 @@ class QueryPreview(W.HBox):
         return widget
 
     def scale_query_input(self, change):
-        self.query_input.rows = change.new.count('\n') + 1
+        """Change the number of rows based on the query input.
+
+        Note: this breaks if the user manually scales the query input Textarea
+        TODO: update when Textarea resize can be disabled via css
+          tracking issue: https://github.com/jupyter-widgets/ipywidgets/issues/2586
+        """
+        self.query_input.rows = change.new.count("\n") + 1
 
 
 class QueryResultsGrid(W.Box):
@@ -123,6 +129,16 @@ class QueryResultsGrid(W.Box):
     current_dataframe = T.Instance(DataFrame)
     namespaces = T.Instance(dict, kw={})
     query_result = T.Any()
+
+    @T.default("grid")
+    def make_default_grid(self):
+        # TODO should this max_height be more intelligent?
+        return W.Output(
+            layout=dict(
+                max_height="50vh",
+                width="100%",
+            )
+        )
 
     @T.validate("children")
     def validate_children(self, proposal):
@@ -137,6 +153,7 @@ class QueryResultsGrid(W.Box):
 
     @T.validate("query_result")
     def validate_query_result(self, proposal):
+        """Validate query results and update the HTML output."""
         query_result = proposal.value
         if query_result:
             if isinstance(query_result, DataFrame):
@@ -152,14 +169,12 @@ class QueryResultsGrid(W.Box):
         else:
             query_result = DataFrame()
 
-        self.observe(self.run_query, "query_result")
+        self.observe(self.process_query, "query_result")
         return query_result
 
     @log.capture(clear_output=True)
-    def run_query(self, change):
-        # need to combine graph namespaces with query namespaces
-        # TODO 
-
+    def process_query(self, change):
+        """Update HTML output with latest query results."""
         self.current_dataframe = DataFrame(self.query_result)
         collapsed_data = DataFrame(self.query_result)
         for ii, row in collapsed_data.iterrows():
@@ -173,8 +188,3 @@ class QueryResultsGrid(W.Box):
             IPython.display.display(
                 IPython.display.HTML(collapsed_data.to_html(escape=False))
             )
-
-    @T.default("grid")
-    def make_default_grid(self):
-        # TODO should this max_height be more intelligent?
-        return W.Output(layout=dict(max_height="50vh"))

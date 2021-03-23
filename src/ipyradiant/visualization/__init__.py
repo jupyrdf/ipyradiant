@@ -4,14 +4,14 @@
 # Distributed under the terms of the Modified BSD License.
 
 __all__ = [
+    "CytoscapeViewer",
     "CytoscapeVisualizer",
     "DatashaderVisualizer",
-    "VisualizerBase",
+    "GetOutgoingPredicateObjects",
+    "InteractiveViewer",
     "LayoutSelector",
     "NXBase",
-    "InteractiveViewer",
-    "GetOutgoingPredicateObjects",
-    "CytoscapeViewer",
+    "VisualizerBase",
 ]
 from .base import NXBase, VisualizerBase
 from .cytoscape import CytoscapeVisualizer
