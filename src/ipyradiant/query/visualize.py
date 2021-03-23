@@ -12,7 +12,7 @@ from pygments.styles import STYLE_MAP
 from rdflib import URIRef
 from rdflib.plugins.sparql.processor import SPARQLResult
 
-from ipyradiant.query.namespace_manager import collapse_namespace
+from .utils import collapse_namespace
 
 
 class QueryColorizer(W.VBox):

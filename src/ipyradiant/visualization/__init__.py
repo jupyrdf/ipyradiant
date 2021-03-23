@@ -4,18 +4,20 @@
 # Distributed under the terms of the Modified BSD License.
 
 __all__ = [
+    "CytoscapeViewer",
     "CytoscapeVisualizer",
     "DatashaderVisualizer",
-    "VisualizerBase",
+    "GetOutgoingPredicateObjects",
+    "InteractiveViewer",
     "LayoutSelector",
     "NXBase",
-    "InteractiveViewer",
-    "GetOutgoingPredicateObjects",
-    "CytoscapeViewer",
+    "QueryWidget",
+    "VisualizerBase",
 ]
 from .base import NXBase, VisualizerBase
 from .cytoscape import CytoscapeVisualizer
 from .datashader_vis import DatashaderVisualizer
 from .explore import GetOutgoingPredicateObjects, InteractiveViewer
 from .improved_cytoscape import CytoscapeViewer
+from .query import QueryWidget
 from .tools import LayoutSelector
