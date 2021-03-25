@@ -9,8 +9,7 @@ from rdflib import Graph
 
 from ipyradiant.query.visualize import QueryPreview, QueryResultsGrid
 
-
-PREFIX_PATTERN = re.compile(r'PREFIX (\w+): <(.+)>')
+PREFIX_PATTERN = re.compile(r"PREFIX (\w+): <(.+)>")
 
 
 class QueryWidget(W.VBox):
