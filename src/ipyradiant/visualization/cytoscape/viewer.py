@@ -43,9 +43,8 @@ MANUAL_SPACING_LAYOUT = {
         "max": 2,
     },
     "random": None,
-    "cose": None
+    "cose": None,
 }
-
 
 
 class CytoscapeViewer(W.VBox):
@@ -119,9 +118,11 @@ class CytoscapeViewer(W.VBox):
         layout_name = self.cyto_layout
         layout_data = MANUAL_SPACING_LAYOUT[layout_name]
         if layout_data:
-            slope = (layout_data["max"]-layout_data["min"])/(self.spacing_slider.max-self.spacing_slider.min)
+            slope = (layout_data["max"] - layout_data["min"]) / (
+                self.spacing_slider.max - self.spacing_slider.min
+            )
             intercept = layout_data["min"]
-            spacing = slope*self.spacing_slider.value + intercept
+            spacing = slope * self.spacing_slider.value + intercept
 
             kw = {layout_data["key"]: spacing}
             self.cytoscape_widget.set_layout(name=layout_name, **kw)
@@ -129,9 +130,7 @@ class CytoscapeViewer(W.VBox):
     def _update_cytoscape_frontend(self):
         """Temporary workaround to trigger a frontend refresh"""
 
-        self.cytoscape_widget.set_style(
-            list(self.cytoscape_widget.get_style())
-        )
+        self.cytoscape_widget.set_style(list(self.cytoscape_widget.get_style()))
 
     @T.default("cyto_style")
     def _make_cyto_style(self):
@@ -234,9 +233,9 @@ class CytoscapeViewer(W.VBox):
     def _make_spacing_slider(self):
         widget = W.FloatSlider(
             description="Spacing:",
-            value=0.5, 
-            min=0.0, 
-            max=1.0, 
+            value=0.5,
+            min=0.0,
+            max=1.0,
             step=0.1,
         )
         widget.observe(self.update_spacing, "value")
@@ -267,8 +266,8 @@ class CytoscapeViewer(W.VBox):
         if change.old == change.new:
             return
         self.children = (
-            W.HBox([self.layout_selector, self.spacing_slider]), 
-            change.new
+            W.HBox([self.layout_selector, self.spacing_slider]),
+            change.new,
         )
 
     @T.validate("children")
