@@ -1,8 +1,6 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-from warnings import warn
-
 import ipycytoscape as cyto
 import ipywidgets as W
 import networkx as nx
