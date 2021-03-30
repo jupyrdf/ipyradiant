@@ -59,17 +59,17 @@ MULTIPLE_EDGES = {
 
 # Visibility
 INVISIBLE_NODE = {
-    'selector': 'node.invisible',
-    'style': {
-        'visibility': 'hidden',
-    }
+    "selector": "node.invisible",
+    "style": {
+        "visibility": "hidden",
+    },
 }
 
 INVISIBLE_EDGE = {
-    'selector': 'edge.invisible',
-    'style': {
-        'visibility': 'hidden',
-    }
+    "selector": "edge.invisible",
+    "style": {
+        "visibility": "hidden",
+    },
 }
 
 DIRECTED_GRAPH = [
