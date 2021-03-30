@@ -165,14 +165,11 @@ class CytoscapeViewer(W.VBox):
 
     @T.observe("graph")
     def _update_graph(self, change):
-        # TODO Clear graph so that data isn't duplicated
+        # TODO Clear graph instead of using temporary workaround
         #   (blocked by https://github.com/QuantStack/ipycytoscape/issues/61)
         # Temporary workaround to clear graph by making a completely new widget
         self.cytoscape_widget = self._make_cytoscape_widget(
             old_widget=self.cytoscape_widget
-        )
-        warn(
-            "Clearing ipycytoscape graphs may lead to ghost nodes. This is a known issue and will be addressed in a future update."
         )
 
         if isinstance(self.graph, nx.Graph):

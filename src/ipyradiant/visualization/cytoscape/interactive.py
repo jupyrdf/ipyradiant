@@ -136,11 +136,7 @@ class InteractiveViewer(W.VBox):
 
     @T.default("type_selector")
     def _make_default_type_selector(self):
-        widget = W.SelectMultiple(
-            layout=W.Layout(
-                border="solid 1px",
-            )
-        )
+        widget = W.SelectMultiple()
         widget.observe(self.update_classes, "value")
         return widget
 
@@ -193,9 +189,10 @@ class InteractiveViewer(W.VBox):
             description = get_desc(uri, graph.namespace_manager, count)
             select_options.append((description, uri))
 
-        # set value and options
+        # set options, value, and row counts
         self.type_selector.options = select_options
         self.type_selector.value = tuple(uri for _, uri in select_options)
+        self.type_selector.rows = len(select_options)
 
         # assign colors to css classes
         assert len(self.uri_to_string_type.keys()) <= len(
