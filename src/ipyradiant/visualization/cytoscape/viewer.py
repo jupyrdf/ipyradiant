@@ -113,6 +113,8 @@ class CytoscapeViewer(W.VBox):
         self.cyto_style = style_list
 
     def update_spacing(self, change):
+        """Update the node spacing based on known cytoscape layouts."""
+
         layout_name = self.cyto_layout
         layout_data = MANUAL_SPACING_LAYOUT[layout_name]
         if layout_data:
@@ -198,7 +200,8 @@ class CytoscapeViewer(W.VBox):
             maxSimulationTime=1000,
         )
         widget.set_style(self.cyto_style)
-        # TODO need to copy over node classes as well. Is this sustainable??
+
+        # copy handlers from the old widget
         if old_widget:
             for item, events in old_widget._interaction_handlers.items():
                 for event, dispatcher in events.items():
