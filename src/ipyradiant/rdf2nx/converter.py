@@ -152,7 +152,10 @@ class RDF2NX:
             edge_data[iri] = {
                 "source": source,
                 "target": target,
-                "attrs": {"_label": cls.converted_predicates[predicate]},
+                "attrs": {
+                    "_label": cls.converted_predicates[predicate],
+                    "predicate": predicate,
+                },
             }
 
         # Get properties for reified relations
@@ -164,7 +167,10 @@ class RDF2NX:
             edge_data[iri] = {
                 "source": source,
                 "target": target,
-                "attrs": nx_edge_properties,
+                "attrs": {
+                    "predicate": predicate,
+                    **nx_edge_properties,
+                }
             }
 
         return edge_data

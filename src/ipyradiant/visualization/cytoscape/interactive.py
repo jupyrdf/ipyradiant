@@ -73,24 +73,45 @@ class TypeCount(SPARQLQueryFramer):
     """
 
 
+class PredicateCount(SPARQLQueryFramer):
+    """Get predicates and their count.
+
+    TODO this is probably related to the RDF2NX edge query right?
+    """
+
+    sparql = """
+    SELECT DISTINCT ?predicate (COUNT(?subject) AS ?count)
+    WHERE {
+        ?subject ?predicate ?object . 
+        
+        FILTER (?predicate != rdf:type)  # probably do not want this
+        FILTER ( isIRI ( ?object ) )     # only want predicates in the LPG
+    }
+    GROUP BY ?predicate
+    """
+
+
 class InteractiveViewer(W.VBox):
-    """Graph visualization for viewing RDF graphs as LPGs. The InteractiveViewer 
-      provides a method for reducing the amount of displayed information through a 
-      multi-select widget for `rdf:type`. Users can choose which types they want to 
-      see, and the visualization will update the corresponding nodes/edges. 
+    """Graph visualization for viewing RDF graphs as LPGs. The InteractiveViewer
+      provides a method for reducing the amount of displayed information through a
+      multi-select widget for `rdf:type`. Users can choose which types they want to
+      see, and the visualization will update the corresponding nodes/edges.
 
     TODO document how users can extend the type_count_query
 
     :param graph: the rdflib.graph.Graph to display
     :param type_count_query: the query class used to collect valid rdf:types
+    :param predicate_count_query: the query class used to collect valid predicates
     """
 
     graph = T.Instance(RDFGraph, kw={})
     type_selector = T.Instance(W.SelectMultiple)
+    predicate_selector = T.Instance(W.SelectMultiple)
     viewer = T.Instance(CytoscapeViewer)
     json_output = T.Instance(W.Output, kw={})
 
     type_count_query = TypeCount
+    predicate_count_query = PredicateCount
     uri_to_string_type = {}  # map
     iri_to_node = {}  # map
 
@@ -106,26 +127,53 @@ class InteractiveViewer(W.VBox):
         """Updates the CSS classes for nodes/edges.
 
         TODO optimize so that we don't have to iterate through every node/edge
+        TODO combine both operations because otherwise it doesn't take into account changes made
         """
-        assert all([uri in self.uri_to_string_type for uri in change.new])
-        visible_iris = set(change.new)
+        # TODO collect node and edge selections for visibility
+        # TODO iterate through all nodes/edges once and update their visibility
 
-        for node in self.viewer.cytoscape_widget.graph.nodes:
-            raw_types = node.data["rdf:type"]
-            types = raw_types if type(raw_types) is tuple else (raw_types,)
-            if not any([_type in visible_iris for _type in types]):
-                node.classes = "invisible"
-            else:
-                node.classes = ""
+        if change.owner.type_ == "type":
+            # this is a change to the type selector
+            assert all([uri in self.uri_to_string_type for uri in change.new])
+            visible_iris = set(change.new)
 
-        for edge in self.viewer.cytoscape_widget.graph.edges:
-            source_node = self.iri_to_node[edge.data["source"]]
-            target_node = self.iri_to_node[edge.data["target"]]
+            for node in self.viewer.cytoscape_widget.graph.nodes:
+                raw_types = node.data["rdf:type"]
+                types = raw_types if type(raw_types) is tuple else (raw_types,)
+                if not any([_type in visible_iris for _type in types]):
+                    node.classes = "invisible"
+                else:
+                    node.classes = ""
 
-            if "invisible" in source_node.classes or "invisible" in target_node.classes:
-                edge.classes = "invisible"
-            else:
-                edge.classes = "directed"
+            for edge in self.viewer.cytoscape_widget.graph.edges:
+                source_node = self.iri_to_node[edge.data["source"]]
+                target_node = self.iri_to_node[edge.data["target"]]
+
+                if (
+                    "invisible" in source_node.classes
+                    or "invisible" in target_node.classes
+                ):
+                    edge.classes = "invisible"
+                else:
+                    edge.classes = "directed"
+        else:
+            # this is a change to the predicate selector
+            visible_iris = set(change.new)
+
+            for edge in self.viewer.cytoscape_widget.graph.edges:
+                if edge.data["predicate"] not in visible_iris:
+                    edge.classes = "invisible"
+                else:
+                    source_node = self.iri_to_node[edge.data["source"]]
+                    target_node = self.iri_to_node[edge.data["target"]]
+
+                    if (
+                        "invisible" not in source_node.classes
+                        and "invisible" not in target_node.classes
+                    ):
+                        edge.classes = "directed"
+
+                # TODO how to make edge visible, but only if it was previously visible (from node type selection)
 
         # update front-end (set_style must receive a copy)
         self.viewer.cytoscape_widget.set_style(
@@ -143,6 +191,14 @@ class InteractiveViewer(W.VBox):
     @T.default("type_selector")
     def _make_default_type_selector(self):
         widget = W.SelectMultiple()
+        widget.type_ = "type"
+        widget.observe(self.update_classes, "value")
+        return widget
+
+    @T.default("predicate_selector")
+    def _make_default_predicate_selector(self):
+        widget = W.SelectMultiple()
+        widget.type_ = "predicate"
         widget.observe(self.update_classes, "value")
         return widget
 
@@ -155,7 +211,19 @@ class InteractiveViewer(W.VBox):
         children = proposal.value
         if not children:
             children = (
-                W.HBox([self.type_selector, self.viewer]),
+                W.HBox(
+                    [
+                        W.VBox(
+                            [
+                                W.Label("Types:"),
+                                self.type_selector,
+                                W.Label("Edges:"),
+                                self.predicate_selector,
+                            ]
+                        ),
+                        self.viewer,
+                    ]
+                ),
                 self.json_output,
             )
 
@@ -175,8 +243,12 @@ class InteractiveViewer(W.VBox):
             for node in self.viewer.cytoscape_widget.graph.nodes
         }
 
-        # run query
+        # run type and predicate query
         type_count = self.type_count_query.run_query(
+            self.graph,
+        ).sort_values(by=["count"], ascending=False)
+
+        predicate_count = self.predicate_count_query.run_query(
             self.graph,
         ).sort_values(by=["count"], ascending=False)
 
@@ -189,7 +261,7 @@ class InteractiveViewer(W.VBox):
         }
         self.uri_to_string_type["multi-type"] = "multi-type"
 
-        # build options for the MultiSelect
+        # build options for the type MultiSelect
         select_options = []
         for uri, count in type_count.values:
             description = get_desc(uri, graph.namespace_manager, count)
@@ -199,6 +271,17 @@ class InteractiveViewer(W.VBox):
         self.type_selector.options = select_options
         self.type_selector.value = tuple(uri for _, uri in select_options)
         self.type_selector.rows = len(select_options)
+
+        # build options for the predicate MultiSelect
+        select_options = []
+        for uri, count in predicate_count.values:
+            description = get_desc(uri, graph.namespace_manager, count)
+            select_options.append((description, uri))
+
+        # set options, value, and row counts
+        self.predicate_selector.options = select_options
+        self.predicate_selector.value = tuple(uri for _, uri in select_options)
+        self.predicate_selector.rows = len(select_options)
 
         # assign colors to css classes
         assert len(self.uri_to_string_type.keys()) <= len(
