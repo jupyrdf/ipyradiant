@@ -74,9 +74,15 @@ class TypeCount(SPARQLQueryFramer):
 
 
 class InteractiveViewer(W.VBox):
-    """TODO
+    """Graph visualization for viewing RDF graphs as LPGs. The InteractiveViewer 
+      provides a method for reducing the amount of displayed information through a 
+      multi-select widget for `rdf:type`. Users can choose which types they want to 
+      see, and the visualization will update the corresponding nodes/edges. 
 
     TODO document how users can extend the type_count_query
+
+    :param graph: the rdflib.graph.Graph to display
+    :param type_count_query: the query class used to collect valid rdf:types
     """
 
     graph = T.Instance(RDFGraph, kw={})
@@ -158,9 +164,9 @@ class InteractiveViewer(W.VBox):
 
     @T.observe("graph")
     def update_graph(self, change):
-        """TODO"""
+        """When the graph is changed, updates the corresponding widget elements"""
         graph = change.new
-        self.viewer.graph = graph  # force update?
+        self.viewer.graph = graph  # force update now
 
         # node_iri to node (for mapping to edges)
         # TODO is there a way to enhance/use the adjacency matrix?
