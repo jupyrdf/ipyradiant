@@ -82,8 +82,8 @@ class PredicateCount(SPARQLQueryFramer):
     sparql = """
     SELECT DISTINCT ?predicate (COUNT(?subject) AS ?count)
     WHERE {
-        ?subject ?predicate ?object . 
-        
+        ?subject ?predicate ?object .
+
         FILTER (?predicate != rdf:type)  # probably do not want this
         FILTER ( isIRI ( ?object ) )     # only want predicates in the LPG
     }
