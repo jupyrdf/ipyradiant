@@ -126,54 +126,36 @@ class InteractiveViewer(W.VBox):
     def update_classes(self, change):
         """Updates the CSS classes for nodes/edges.
 
-        TODO optimize so that we don't have to iterate through every node/edge
-        TODO combine both operations because otherwise it doesn't take into account changes made
+        TODO optimize so that we don't have to iterate through every node/edge?
         """
-        # TODO collect node and edge selections for visibility
-        # TODO iterate through all nodes/edges once and update their visibility
 
-        if change.owner.type_ == "type":
-            # this is a change to the type selector
-            assert all([uri in self.uri_to_string_type for uri in change.new])
-            visible_iris = set(change.new)
+        # use selectors to determine visible nodes/edges
+        visible_node_types = set(self.type_selector.value)
+        visible_edge_types = set(self.predicate_selector.value)
 
+        # set visibility for all nodes (only needed for node changes)
+        if change.owner.type_ == "node_type":
             for node in self.viewer.cytoscape_widget.graph.nodes:
                 raw_types = node.data["rdf:type"]
                 types = raw_types if type(raw_types) is tuple else (raw_types,)
-                if not any([_type in visible_iris for _type in types]):
+                if not any([_type in visible_node_types for _type in types]):
                     node.classes = "invisible"
                 else:
                     node.classes = ""
 
-            for edge in self.viewer.cytoscape_widget.graph.edges:
-                source_node = self.iri_to_node[edge.data["source"]]
-                target_node = self.iri_to_node[edge.data["target"]]
+        # set visibility for all edges (needed for node and edge changes)
+        for edge in self.viewer.cytoscape_widget.graph.edges:
+            source_node = self.iri_to_node[edge.data["source"]]
+            target_node = self.iri_to_node[edge.data["target"]]
 
-                if (
-                    "invisible" in source_node.classes
-                    or "invisible" in target_node.classes
-                ):
-                    edge.classes = "invisible"
-                else:
-                    edge.classes = "directed"
-        else:
-            # this is a change to the predicate selector
-            visible_iris = set(change.new)
-
-            for edge in self.viewer.cytoscape_widget.graph.edges:
-                if edge.data["predicate"] not in visible_iris:
-                    edge.classes = "invisible"
-                else:
-                    source_node = self.iri_to_node[edge.data["source"]]
-                    target_node = self.iri_to_node[edge.data["target"]]
-
-                    if (
-                        "invisible" not in source_node.classes
-                        and "invisible" not in target_node.classes
-                    ):
-                        edge.classes = "directed"
-
-                # TODO how to make edge visible, but only if it was previously visible (from node type selection)
+            if edge.data["predicate"] not in visible_edge_types:
+                edge.classes = "invisible"
+            elif (
+                "invisible" in source_node.classes or "invisible" in target_node.classes
+            ):
+                edge.classes = "invisible"
+            else:
+                edge.classes = "directed"
 
         # update front-end (set_style must receive a copy)
         self.viewer.cytoscape_widget.set_style(
@@ -191,13 +173,15 @@ class InteractiveViewer(W.VBox):
     @T.default("type_selector")
     def _make_default_type_selector(self):
         widget = W.SelectMultiple()
-        widget.type_ = "type"
+        # set a type for the observer to read
+        widget.type_ = "node_type"
         widget.observe(self.update_classes, "value")
         return widget
 
     @T.default("predicate_selector")
     def _make_default_predicate_selector(self):
         widget = W.SelectMultiple()
+        # set a type for the observer to read
         widget.type_ = "predicate"
         widget.observe(self.update_classes, "value")
         return widget

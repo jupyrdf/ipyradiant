@@ -170,7 +170,7 @@ class RDF2NX:
                 "attrs": {
                     "predicate": predicate,
                     **nx_edge_properties,
-                }
+                },
             }
 
         return edge_data
