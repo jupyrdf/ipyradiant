@@ -13,7 +13,7 @@ Powered by [ipyctoscape][ipycytoscape], [datashader][datashader], and
 ## Visualization Widgets
 
 `ipyradiant` includes several widgets for visualizing and interacting with RDF graphs
-that can be accessed through the examples. ![graph explorer screencast][screencast1]
+that can be accessed through the examples. ![InteractiveViewer screencast][screencast1]
 
 ## Example Tooling Widgets
 
@@ -80,9 +80,9 @@ This work is licensed under the [BSD-3-Clause License][license].
 [widgets]: https://jupyter.org/widgets
 [rdf]: https://www.w3.org/RDF/
 [screencast1]:
-  https://user-images.githubusercontent.com/32652349/105388329-852e3080-5be4-11eb-95a2-6a6c199e619a.gif
+  https://user-images.githubusercontent.com/32652349/113428662-2daafe80-93a5-11eb-9328-f5325c0ab4df.gif
 [screencast2]:
-  https://user-images.githubusercontent.com/32652349/90517340-44148a80-e133-11ea-9ee4-add09ee2c0d4.gif
+  https://user-images.githubusercontent.com/32652349/113429085-f2f59600-93a5-11eb-90de-3dd07d3258f1.gif
 [pypi]: https://pypi.org/project/ipyradiant
 [pypi-badge]: https://img.shields.io/pypi/v/ipyradiant
 [conda-badge]: https://img.shields.io/conda/vn/conda-forge/ipyradiant
