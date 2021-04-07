@@ -8,7 +8,7 @@ import ipywidgets as W
 import rdflib
 import traitlets as trt
 
-from ipyradiant.query.api import SPARQLQueryFramer
+from ipyradiant.query.framer import SPARQLQueryFramer
 from ipyradiant.rdf2nx.uri_converter import URItoID
 
 DEFAULT_CYTO_STYLE = [

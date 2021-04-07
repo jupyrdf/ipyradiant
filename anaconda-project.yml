@@ -16,6 +16,12 @@ commands:
     windows: *labBuild
     env_spec: dev
 
+  test:pytest:
+    description: test ipyradiant package.
+    windows: cd src\ipyradiant && pytest -ra
+    unix: cd src/ipyradiant && pytest -ra
+    env_spec: dev
+
 env_specs:
   dev:
     platforms:

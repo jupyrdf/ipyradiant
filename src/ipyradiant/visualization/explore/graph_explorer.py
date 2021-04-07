@@ -11,7 +11,7 @@ from rdflib import URIRef
 
 from ...basic_tools.custom_uri_ref import CustomURI
 from ...basic_tools.uri_widgets import SelectMultipleURI, SelectURI
-from ...query.api import SPARQLQueryFramer, build_values
+from ...query.framer import SPARQLQueryFramer, build_values
 from ...rdf2nx import RDF2NX
 from .interactive_exploration import InteractiveViewer
 

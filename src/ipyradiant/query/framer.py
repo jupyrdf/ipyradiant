@@ -80,8 +80,11 @@ class SPARQLQueryFramer:
     columns = None
     query = None
 
-    # low cost trait (previous cls.sparql state)
+    # low cost traits
+    # previous cls.sparql state
     p_sparql = ""
+    # previous cls.initNs state
+    p_initNs = None
 
     @classmethod
     def print_vars(cls) -> None:
@@ -99,33 +102,36 @@ class SPARQLQueryFramer:
     @classmethod
     def print_potential_bindings(cls) -> None:
         """Utility function to print bindings in the sparql string.
-        Note, this method is regex-based, and may not be 100% accurate.
+        Note: this method is regex-based, and may not be 100% accurate.
         """
         if not cls.sparql:
             print("No sparql string set in class.")
-            return None
 
         logging.warning("Bindings are not guaranteed to be 100% accurate")
         potential_bindings = [
             str(binding) for binding in set(BINDING_PATTERN.findall(cls.sparql))
         ]
         print("Potential bindings:\n", sorted(potential_bindings))
-        return None
 
     @classmethod
     def run_query(
         cls,
         graph: Graph,
         initBindings: dict = None,
+        initNs: dict = None,
         **initBindingsKwarg,
     ) -> DataFrame:
         """Runs a query with optional initBindings, and returns the results as a
           pandas.DataFrame.
 
+        TODO throw error when duplicate bindings/namespaces collide
+        TODO resolve query if bindings or namespaces have changed
+
         :param graph: the rdflib.graph.Graph to be queried
         :param initBindings: a dictionary of bindings where the key is the variable in
             the sparql string, and the value is the URI/Literal to BIND to the variable.
         :param initBindingsKwarg: kwarg version of initBindings
+        :param initNs: kwarg version of initNs
         :return: pandas.DataFrame containing the contents of the SPARQL query
             result from rdflib
         """
@@ -133,18 +139,26 @@ class SPARQLQueryFramer:
             cls.query or cls.sparql
         ), "No rdflib Query or SPARQL string has been set for the class."
 
-        # Check if query should be updated due to stale sparql string
-        update_query = cls.p_sparql != cls.sparql
-        if not cls.query or update_query:
-            cls.query = prepareQuery(cls.sparql, initNs=cls.initNs)
-
         # note: merge method kwargs with default class bindings
         if initBindings:
             all_bindings = {**cls.classBindings, **initBindings, **initBindingsKwarg}
         else:
             all_bindings = {**cls.classBindings, **initBindingsKwarg}
 
-        result = graph.query(cls.query, initBindings=all_bindings)
+        # note: merge method kwargs with default namespace
+        if initNs:
+            initNs = {**cls.initNs, **initNs}
+        else:
+            initNs = {**cls.initNs}
+
+        # Check if query should be updated due to stale sparql string
+        update_query = cls.p_sparql != cls.sparql
+        if not cls.query or update_query or cls.initNs != cls.p_initNs:
+            cls.query = prepareQuery(cls.sparql, initNs=initNs)
+            if cls.initNs:
+                cls.p_initNs = cls.initNs
+
+        result = graph.query(cls.query, initBindings=all_bindings, initNs=initNs)
 
         if cls.columns is None:
             # Try to infer from query vars

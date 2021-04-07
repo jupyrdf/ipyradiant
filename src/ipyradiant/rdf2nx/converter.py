@@ -10,7 +10,7 @@ from rdflib import Graph as RDFGraph
 from rdflib import Literal, URIRef
 from rdflib.namespace import Namespace, NamespaceManager
 
-from ..query.api import SPARQLQueryFramer
+from ..query.framer import SPARQLQueryFramer
 from .edges import ReifiedRelations, RelationProperties, RelationTypes
 from .literal_converter import cast_literal
 from .nodes import NodeIRIs, NodeProperties, NodeTypes
