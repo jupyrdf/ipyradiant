@@ -199,6 +199,7 @@ class CytoscapeViewer(W.VBox):
             # Fast animation time for initial graph
             maxSimulationTime=1000,
         )
+        widget.layout.height = "100%"
         widget.set_style(self.cyto_style)
 
         # copy handlers from the old widget
@@ -253,6 +254,7 @@ class CytoscapeViewer(W.VBox):
             randomize=True,
             maxSimulationTime=2000,
         )
+        self.cytoscape_widget.layout.height = "100%"
         self.update_spacing(None)
 
     @T.observe("cyto_style")
