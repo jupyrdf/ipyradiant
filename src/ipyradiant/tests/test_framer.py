@@ -1,8 +1,5 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
-
-import pytest  # NOQA
-
 from ipyradiant.query.framer import SPARQLQueryFramer, build_values
 
 
@@ -17,7 +14,7 @@ class TestFrame1(SPARQLQueryFramer):
 
 class TestFrame2(SPARQLQueryFramer):
     sparql = """
-    SELECT DISTINCT ?p ?o 
+    SELECT DISTINCT ?p ?o
     WHERE {
         ns:Protagonist ?p ?o .
     }
@@ -199,7 +196,7 @@ class TestFramer:
         TODO test that the query is re-parsed when the namespace or sparql string is changed
         """
         assert (
-            TestFrame4.query == None and TestFrame4.p_sparql == ""
+            TestFrame4.query is None and TestFrame4.p_sparql == ""
         ), "Test query class was executed prior to testing."
 
         res_df = TestFrame4.run_query(simple_rdf_graph)
