@@ -229,6 +229,17 @@ class RDF2NX:
                 warn("No base namespace specified. Defaulting to example namespace")
                 cls.initNs["base"] = URIRef("https://www.example.com/RDF2NX/")
 
+        # add namespaces from cls.initNs to each of the queries
+        for query in (
+            cls.node_iris,
+            cls.node_properties,
+            cls.node_types,
+            cls.reified_relations,
+            cls.relation_properties,
+            cls.relation_types,
+        ):
+            query.initNs = {**query.initNs, **cls.initNs}
+
         nx_graph = MultiDiGraph()
 
         nodes = cls.transform_nodes(rdf_graph, strict=strict)
