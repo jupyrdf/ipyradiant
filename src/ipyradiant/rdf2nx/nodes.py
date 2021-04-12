@@ -3,7 +3,7 @@
 import pandas
 import rdflib
 
-from ..query.api import SPARQLQueryFramer
+from ..query.framer import SPARQLQueryFramer
 
 
 class NodeIRIs(SPARQLQueryFramer):

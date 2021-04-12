@@ -8,7 +8,7 @@ from rdflib.graph import Graph as RDFGraph
 from rdflib.term import URIRef
 
 from ipyradiant.basic_tools.custom_uri_ref import CustomURIRef
-from ipyradiant.query.api import SPARQLQueryFramer
+from ipyradiant.query.framer import SPARQLQueryFramer
 from ipyradiant.visualization.cytoscape import style
 from ipyradiant.visualization.cytoscape.viewer import CytoscapeViewer
 

@@ -11,7 +11,7 @@ from .basic_tools import (
     collapse_predicates,
 )
 from .loader import FileManager, PathLoader, UpLoader
-from .query import QueryWidget, service_patch_rdflib
+from .query import QueryWidget, SPARQLQueryFramer, service_patch_rdflib
 from .visualization import (
     CytoscapeViewer,
     CytoscapeVisualizer,
@@ -35,5 +35,6 @@ __all__ = [
     "PredicateMultiselectApp",
     "QueryWidget",
     "service_patch_rdflib",
+    "SPARQLQueryFramer",
     "UpLoader",
 ]
