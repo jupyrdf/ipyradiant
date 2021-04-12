@@ -1,8 +1,6 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-from warnings import warn
-
 import ipycytoscape as cyto
 import ipywidgets as W
 import networkx as nx
@@ -14,6 +12,37 @@ from ipyradiant.visualization.cytoscape import style
 
 MAX_NODES = 300
 MAX_EDGES = MAX_NODES * 3
+
+# known cytoscape.js parameters to modify node spacing
+MANUAL_SPACING_LAYOUT = {
+    "cola": {
+        "key": "edgeLength",
+        "min": 100,
+        "max": 300,
+    },
+    "dagre": {
+        "key": "spacingFactor",
+        "min": 0.2,
+        "max": 3,
+    },
+    "concentric": {
+        "key": "minNodeSpacing",
+        "min": 20,
+        "max": 100,
+    },
+    "grid": {
+        "key": "spacingFactor",
+        "min": 0.5,
+        "max": 2,
+    },
+    "circle": {
+        "key": "spacingFactor",
+        "min": 0.5,
+        "max": 2,
+    },
+    "random": None,
+    "cose": None,
+}
 
 
 class CytoscapeViewer(W.VBox):
@@ -41,6 +70,7 @@ class CytoscapeViewer(W.VBox):
     edge_labels = T.Bool(default_value=True)
     layouts = T.List()
     layout_selector = T.Instance(W.Dropdown)
+    spacing_slider = T.Instance(W.FloatSlider)
     cytoscape_widget = T.Instance(cyto.CytoscapeWidget)
     graph = T.Union(
         (
@@ -82,13 +112,25 @@ class CytoscapeViewer(W.VBox):
 
         self.cyto_style = style_list
 
-    def _update_cytoscape_frontend(self):
-        """A temporary workaround to trigger a frontend refresh"""
+    def update_spacing(self, change):
+        """Update the node spacing based on known cytoscape layouts."""
 
-        node = cyto.Node(data={"id": "random node"})
-        self.cytoscape_widget.graph.add_node(node)
-        node.removed = True
-        self.cytoscape_widget.graph.remove_node_by_id("random node")
+        layout_name = self.cyto_layout
+        layout_data = MANUAL_SPACING_LAYOUT[layout_name]
+        if layout_data:
+            slope = (layout_data["max"] - layout_data["min"]) / (
+                self.spacing_slider.max - self.spacing_slider.min
+            )
+            intercept = layout_data["min"]
+            spacing = slope * self.spacing_slider.value + intercept
+
+            kw = {layout_data["key"]: spacing}
+            self.cytoscape_widget.set_layout(name=layout_name, **kw)
+
+    def _update_cytoscape_frontend(self):
+        """Temporary workaround to trigger a frontend refresh"""
+
+        self.cytoscape_widget.set_style(list(self.cytoscape_widget.get_style()))
 
     @T.default("cyto_style")
     def _make_cyto_style(self):
@@ -123,14 +165,11 @@ class CytoscapeViewer(W.VBox):
 
     @T.observe("graph")
     def _update_graph(self, change):
-        # TODO Clear graph so that data isn't duplicated
+        # TODO Clear graph instead of using temporary workaround
         #   (blocked by https://github.com/QuantStack/ipycytoscape/issues/61)
         # Temporary workaround to clear graph by making a completely new widget
         self.cytoscape_widget = self._make_cytoscape_widget(
             old_widget=self.cytoscape_widget
-        )
-        warn(
-            "Clearing ipycytoscape graphs may lead to ghost nodes. This is a known issue and will be addressed in a future update."
         )
 
         if isinstance(self.graph, nx.Graph):
@@ -160,8 +199,10 @@ class CytoscapeViewer(W.VBox):
             # Fast animation time for initial graph
             maxSimulationTime=1000,
         )
+        widget.layout.height = "100%"
         widget.set_style(self.cyto_style)
-        # TODO need to copy over node classes as well. Is this sustainable??
+
+        # copy handlers from the old widget
         if old_widget:
             for item, events in old_widget._interaction_handlers.items():
                 for event, dispatcher in events.items():
@@ -179,14 +220,24 @@ class CytoscapeViewer(W.VBox):
 
     @T.default("layouts")
     def _make_layouts(self):
-        # TODO increase spacing on the layout?
-        # https://stackoverflow.com/questions/54015729
-        return ["circle", "cola", "concentric", "cose", "dagre", "grid", "random"]
+        return list(MANUAL_SPACING_LAYOUT.keys())
 
     @T.default("layout_selector")
     def _make_layout_selector(self):
         widget = W.Dropdown(description="Layout:", options=self.layouts)
         T.link((self, "cyto_layout"), (widget, "value"))
+        return widget
+
+    @T.default("spacing_slider")
+    def _make_spacing_slider(self):
+        widget = W.FloatSlider(
+            description="Spacing:",
+            value=0.5,
+            min=0.0,
+            max=1.0,
+            step=0.1,
+        )
+        widget.observe(self.update_spacing, "value")
         return widget
 
     @T.observe("layouts")
@@ -203,6 +254,8 @@ class CytoscapeViewer(W.VBox):
             randomize=True,
             maxSimulationTime=2000,
         )
+        self.cytoscape_widget.layout.height = "100%"
+        self.update_spacing(None)
 
     @T.observe("cyto_style")
     def _update_style(self, change):
@@ -212,7 +265,10 @@ class CytoscapeViewer(W.VBox):
     def _update_children(self, change):
         if change.old == change.new:
             return
-        self.children = (self.layout_selector, change.new)
+        self.children = (
+            W.HBox([self.layout_selector, self.spacing_slider]),
+            change.new,
+        )
 
     @T.validate("children")
     def validate_children(self, proposal):
@@ -223,7 +279,7 @@ class CytoscapeViewer(W.VBox):
         children = proposal.value
         if not children:
             children = (
-                self.layout_selector,
+                W.HBox([self.layout_selector, self.spacing_slider]),
                 self.cytoscape_widget,
             )
         return children

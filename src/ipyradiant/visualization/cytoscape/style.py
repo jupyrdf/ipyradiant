@@ -57,6 +57,21 @@ MULTIPLE_EDGES = {
     "style": {"curve-style": "bezier"},
 }
 
+# Visibility
+INVISIBLE_NODE = {
+    "selector": "node.invisible",
+    "style": {
+        "visibility": "hidden",
+    },
+}
+
+INVISIBLE_EDGE = {
+    "selector": "edge.invisible",
+    "style": {
+        "visibility": "hidden",
+    },
+}
+
 DIRECTED_GRAPH = [
     NODE,
     NODE_CLICKED,
