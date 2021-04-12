@@ -2,7 +2,6 @@
 # Distributed under the terms of the Modified BSD License.
 import logging
 from typing import Callable, Dict, List, Union
-from warnings import warn
 
 from networkx import MultiDiGraph
 from pandas import DataFrame
@@ -232,8 +231,21 @@ class RDF2NX:
                 namespaces = dict(rdf_graph.namespaces())
             cls.initNs = dict(namespaces)
             if "base" not in cls.initNs:
-                warn("No base namespace specified. Defaulting to example namespace")
+                logger.info(
+                    "No base namespace specified. Defaulting to example namespace"
+                )
                 cls.initNs["base"] = URIRef("https://www.example.com/RDF2NX/")
+
+        # add namespaces from cls.initNs to each of the queries
+        for query in (
+            cls.node_iris,
+            cls.node_properties,
+            cls.node_types,
+            cls.reified_relations,
+            cls.relation_properties,
+            cls.relation_types,
+        ):
+            query.initNs = {**query.initNs, **cls.initNs}
 
         nx_graph = MultiDiGraph()
 

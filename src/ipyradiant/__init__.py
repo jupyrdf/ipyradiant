@@ -28,6 +28,7 @@ __all__ = [
     "CytoscapeVisualizer",
     "DatashaderVisualizer",
     "FileManager",
+    "GetOutgoingPredicateObjects",
     "InteractiveViewer",
     "LayoutSelector",
     "MultiPanelSelect",
