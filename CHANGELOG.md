@@ -1,10 +1,16 @@
 # `ipyradiant` CHANGELOG
 
-## 0.1.3
+## 0.1.3 (WIP)
+
+- adds `InteractiveViewer` widget (small RDF graphs as LPG with type coloring)
+- removes `InteractiveVisualization` widget
+- removes `GraphExplorer` widget and associated code/tests
+- improves `QueryWidget` layout and namespace resolution
+- support for `jupyterlab >= 3`
 
 ## 0.1.2 (J_e) (2021-01-21)
 
-- adds `RDF2NX` transformer for converting RDF to a networkx labelled property graph.
+- adds `RDF2NX` transformer for converting RDF to a networkx labelled property graph
 - adds examples of federated queries
 - adds `pygment` for colorizing SPARQL queries in the `QueryWidget`
 - adds support and examples for using metaclasses with `SPARQLQueryFramer` to specify
