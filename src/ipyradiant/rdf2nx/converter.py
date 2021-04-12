@@ -3,8 +3,9 @@
 import logging
 from typing import Callable, Dict, List, Union
 
+import pandas as pd
+
 from networkx import MultiDiGraph
-from pandas import DataFrame
 from rdflib import Graph as RDFGraph
 from rdflib import Literal, URIRef
 from rdflib.namespace import Namespace, NamespaceManager
@@ -37,9 +38,25 @@ class RDF2NX:
     relation_properties: SPARQLQueryFramer = RelationProperties
     relation_types: SPARQLQueryFramer = RelationTypes
 
+    @staticmethod
+    def query_manager(
+        queue: Union[List[SPARQLQueryFramer], SPARQLQueryFramer],
+        rdf_graph: RDFGraph, 
+        **kwargs
+    ) -> pd.DataFrame:
+        """Executes a queue of queries."""
+        if isinstance(queue, (list, tuple)):
+            results = pd.concat(
+                [q.run_query(rdf_graph, **kwargs) for q in queue],
+                ignore_index=True,
+            )
+        else:
+            results = queue.run_query(rdf_graph, **kwargs)
+        return results
+
     @classmethod
     def process_properties(
-        cls, iri: URIRef, properties: DataFrame, strict: bool = False
+        cls, iri: URIRef, properties: pd.DataFrame, strict: bool = False
     ) -> Dict:
         """Use a DataFrame of properties to create a dictionary of data for the
           networkx object.
@@ -105,7 +122,9 @@ class RDF2NX:
 
         if node_iris is None:
             # TODO paginate (LIMIT+OFFSET) for batch processing?
-            node_iris = list(cls.node_iris.run_query(rdf_graph)["iri"])
+            node_iris = list(
+                cls.query_manager(cls.node_iris, rdf_graph)["iri"]
+            )
 
         for node_iri in node_iris:
             # TODO this isn't actually used (should it be?)
@@ -115,7 +134,11 @@ class RDF2NX:
             # type_list = tuple(map(cls.uri_to_id, types["type_"].values))
 
             # Get the properties for the node (must bind iri)
-            properties = cls.node_properties.run_query(rdf_graph, iri=node_iri)
+            properties = cls.query_manager(
+                cls.node_properties, 
+                rdf_graph,
+                iri=node_iri,
+            )
             nx_node_properties = cls.process_properties(
                 node_iri, properties, strict=strict
             )
@@ -140,7 +163,10 @@ class RDF2NX:
         # Get properties for basic relationships
         # Overwrite namespace for fictitious IRI (uses base)
         cls.relation_types.initNs = cls.initNs
-        basic_relations = cls.relation_types.run_query(rdf_graph)
+        basic_relations = cls.query_manager(
+            cls.relation_types,
+            rdf_graph,
+        )
         for iri, predicate, source, target in basic_relations.values:
             # Get simplified representation and add to class attribute
             if predicate not in cls.converted_predicates:
@@ -158,9 +184,16 @@ class RDF2NX:
             }
 
         # Get properties for reified relations
-        reified_relations = cls.reified_relations.run_query(rdf_graph)
+        reified_relations = cls.query_manager(
+            cls.reified_relations,
+            rdf_graph,
+        )
         for iri, predicate, source, target in reified_relations.values:
-            properties = cls.relation_properties.run_query(rdf_graph, iri=iri)
+            properties = cls.query_manager(
+                cls.relation_properties,
+                rdf_graph,
+                iri=iri,
+            )
             nx_edge_properties = cls.process_properties(iri, properties, strict=strict)
             # TODO add _label to edge_data?
             edge_data[iri] = {
