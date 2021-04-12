@@ -24,7 +24,7 @@ __all__ = [
     "__version__",
     "collapse_predicates",
     "CustomURIRef",
-    "CytoscapeViewer,"
+    "CytoscapeViewer",
     "CytoscapeVisualizer",
     "DatashaderVisualizer",
     "FileManager",
