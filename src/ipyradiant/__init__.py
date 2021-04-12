@@ -13,9 +13,9 @@ from .basic_tools import (
 from .loader import FileManager, PathLoader, UpLoader
 from .query import QueryWidget, SPARQLQueryFramer, service_patch_rdflib
 from .visualization import (
+    CytoscapeViewer,
     CytoscapeVisualizer,
     DatashaderVisualizer,
-    GetOutgoingPredicateObjects,
     InteractiveViewer,
     LayoutSelector,
 )
