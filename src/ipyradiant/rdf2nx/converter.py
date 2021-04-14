@@ -4,7 +4,6 @@ import logging
 from typing import Callable, Dict, List, Union
 
 import pandas as pd
-
 from networkx import MultiDiGraph
 from rdflib import Graph as RDFGraph
 from rdflib import Literal, URIRef
@@ -31,18 +30,22 @@ class RDF2NX:
     uri_to_short_id: Callable = URItoShortID
 
     # Queries
-    node_iris: SPARQLQueryFramer = NodeIRIs
-    node_properties: SPARQLQueryFramer = NodeProperties
-    node_types: SPARQLQueryFramer = NodeTypes
-    reified_relations: SPARQLQueryFramer = ReifiedRelations
-    relation_properties: SPARQLQueryFramer = RelationProperties
-    relation_types: SPARQLQueryFramer = RelationTypes
+    node_iris: Union[List[SPARQLQueryFramer], SPARQLQueryFramer] = NodeIRIs
+    node_properties: Union[List[SPARQLQueryFramer], SPARQLQueryFramer] = NodeProperties
+    node_types: Union[List[SPARQLQueryFramer], SPARQLQueryFramer] = NodeTypes
+    reified_relations: Union[
+        List[SPARQLQueryFramer], SPARQLQueryFramer
+    ] = ReifiedRelations
+    relation_properties: Union[
+        List[SPARQLQueryFramer], SPARQLQueryFramer
+    ] = RelationProperties
+    relation_types: Union[List[SPARQLQueryFramer], SPARQLQueryFramer] = RelationTypes
 
     @staticmethod
     def query_manager(
         queue: Union[List[SPARQLQueryFramer], SPARQLQueryFramer],
-        rdf_graph: RDFGraph, 
-        **kwargs
+        rdf_graph: RDFGraph,
+        **kwargs,
     ) -> pd.DataFrame:
         """Executes a queue of queries."""
         if isinstance(queue, (list, tuple)):
@@ -122,9 +125,7 @@ class RDF2NX:
 
         if node_iris is None:
             # TODO paginate (LIMIT+OFFSET) for batch processing?
-            node_iris = list(
-                cls.query_manager(cls.node_iris, rdf_graph)["iri"]
-            )
+            node_iris = list(cls.query_manager(cls.node_iris, rdf_graph)["iri"])
 
         for node_iri in node_iris:
             # TODO this isn't actually used (should it be?)
@@ -135,7 +136,7 @@ class RDF2NX:
 
             # Get the properties for the node (must bind iri)
             properties = cls.query_manager(
-                cls.node_properties, 
+                cls.node_properties,
                 rdf_graph,
                 iri=node_iri,
             )
@@ -270,7 +271,7 @@ class RDF2NX:
                 cls.initNs["base"] = URIRef("https://www.example.com/RDF2NX/")
 
         # add namespaces from cls.initNs to each of the queries
-        for query in (
+        for query_attr in (
             cls.node_iris,
             cls.node_properties,
             cls.node_types,
@@ -278,7 +279,11 @@ class RDF2NX:
             cls.relation_properties,
             cls.relation_types,
         ):
-            query.initNs = {**query.initNs, **cls.initNs}
+            if not isinstance(query_attr, (tuple, list)):
+                query_attr.initNs = {**query_attr.initNs, **cls.initNs}
+            else:
+                for query in query_attr:
+                    query.initNs = {**query.initNs, **cls.initNs}
 
         nx_graph = MultiDiGraph()
 
