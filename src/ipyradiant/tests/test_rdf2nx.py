@@ -1,17 +1,51 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
+import pytest
+
 from rdflib import URIRef
 from rdflib.namespace import RDF
 
 from ipyradiant.rdf2nx import RDF2NX
+from ipyradiant.query.framer import SPARQLQueryFramer
+
+
+class CustomNodeIRIs(SPARQLQueryFramer):
+    sparql = """
+    PREFIX ex: <https://www.example.org/test/>
+    PREFIX schema: <https://schema.org/>
+
+    SELECT DISTINCT ?iri
+    WHERE {
+        ?iri a schema:Person .
+
+        VALUES (?iri) {
+            (ex:Protagonist)
+        }
+    }
+    """
+
+
+class CustomNodeProperties(SPARQLQueryFramer):
+    sparql = """
+    PREFIX ex: <https://www.example.org/test/>
+    PREFIX schema: <https://schema.org/>
+
+    SELECT DISTINCT ?iri ?predicate ?value
+    WHERE {
+        ?iri a schema:Person ;
+            ex:hasItem/rdfs:label ?value
+
+        BIND (ex:hasItem_label AS ?predicate)
+    }
+    """
 
 
 def test_rdf2nx(example_ns, SCHEMA, simple_rdf_graph):
     """A simple test for the rdf2nx converter.
-
-    TODO expand as part of #67
+    
     TODO test strict=True
     """
+
     KNOWN_EDGE = (URIRef(example_ns.Protagonist), URIRef(example_ns.Antagonist))
     namespaces = {"schema": SCHEMA, "ex": example_ns, "base": example_ns}
     nx_graph = RDF2NX.convert(rdf_graph=simple_rdf_graph, namespaces=namespaces)
@@ -49,3 +83,31 @@ def test_rdf2nx(example_ns, SCHEMA, simple_rdf_graph):
     assert not isinstance(
         p_type, type(None)
     ), f"Failed to get rdf:type of node from node keys: {protagonist.keys()}"
+
+
+def test_rdf2nx_custom(example_ns, SCHEMA, simple_rdf_graph):
+    """A simple test for the rdf2nx converter w/ custom behavior."""
+    namespaces = {"schema": SCHEMA, "ex": example_ns, "base": example_ns}
+
+    # Note: we are replacing the default behavior
+    RDF2NX.node_iris = CustomNodeIRIs
+    RDF2NX.node_properties = CustomNodeProperties
+    
+    # Note: the expected results are only the Protagonist, and for them to have
+    #  a data attribute `ex:hasItem_label`
+
+    nx_graph = RDF2NX.convert(
+        rdf_graph=simple_rdf_graph, 
+        namespaces=namespaces
+    )
+
+    assert len(nx_graph) == 1, f"Expected just the protagonist. Got {len(nx_graph)} nodes."
+
+    expected_keys = {"iri", "ex:hasItem_label"}
+
+    protagonist_iri, protagonist_data = list(nx_graph.nodes(data=True))[0]
+
+    assert len(protagonist_data.keys()) == len(expected_keys)
+    assert all([key in expected_keys for key in protagonist_data.keys()])
+    assert isinstance(protagonist_data["ex:hasItem_label"], (tuple, list))
+    assert len(protagonist_data["ex:hasItem_label"]) > 1
