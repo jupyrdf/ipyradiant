@@ -3,7 +3,6 @@
 from uuid import uuid4
 
 import pytest
-
 from rdflib import Graph, Literal, URIRef
 from rdflib.namespace import RDF, RDFS, XSD, Namespace
 
@@ -37,14 +36,14 @@ def simple_rdf_graph(example_ns, SCHEMA) -> Graph:
 
     # Items for protagonist
     item = example_ns.Item
-    item1_iri = URIRef(item + "/1")
-    item2_iri = URIRef(item + "/2")
-    
+    item1_iri = URIRef(item + "/" + str(uuid4()))
+    item2_iri = URIRef(item + "/" + str(uuid4()))
+
     graph.add((item1_iri, RDF.type, item))
     graph.add((item1_iri, RDFS.label, Literal("All-powerful weapon")))
     graph.add((item2_iri, RDF.type, item))
     graph.add((item2_iri, RDFS.label, Literal("Immortality armor")))
-    
+
     # Relationships
     graph.add((protagonist, example_ns.counters, antagonist))
     graph.add((protagonist, example_ns.hasItem, item1_iri))

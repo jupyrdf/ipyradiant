@@ -1,15 +1,13 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
-import pytest
-
 from rdflib import URIRef
 from rdflib.namespace import RDF
 
-from ipyradiant.rdf2nx import RDF2NX
 from ipyradiant.query.framer import SPARQLQueryFramer
+from ipyradiant.rdf2nx import RDF2NX
 
 
-class CustomNodeIRIs(SPARQLQueryFramer):
+class CustomNodeIRIs1(SPARQLQueryFramer):
     sparql = """
     PREFIX ex: <https://www.example.org/test/>
     PREFIX schema: <https://schema.org/>
@@ -20,6 +18,22 @@ class CustomNodeIRIs(SPARQLQueryFramer):
 
         VALUES (?iri) {
             (ex:Protagonist)
+        }
+    }
+    """
+
+
+class CustomNodeIRIs2(SPARQLQueryFramer):
+    sparql = """
+    PREFIX ex: <https://www.example.org/test/>
+    PREFIX schema: <https://schema.org/>
+
+    SELECT DISTINCT ?iri
+    WHERE {
+        ?iri a schema:Person .
+
+        VALUES (?iri) {
+            (ex:Antagonist)
         }
     }
     """
@@ -42,7 +56,7 @@ class CustomNodeProperties(SPARQLQueryFramer):
 
 def test_rdf2nx(example_ns, SCHEMA, simple_rdf_graph):
     """A simple test for the rdf2nx converter.
-    
+
     TODO test strict=True
     """
 
@@ -90,18 +104,18 @@ def test_rdf2nx_custom(example_ns, SCHEMA, simple_rdf_graph):
     namespaces = {"schema": SCHEMA, "ex": example_ns, "base": example_ns}
 
     # Note: we are replacing the default behavior
-    RDF2NX.node_iris = CustomNodeIRIs
+    RDF2NX.node_iris = [CustomNodeIRIs1, CustomNodeIRIs2]
     RDF2NX.node_properties = CustomNodeProperties
-    
+
     # Note: the expected results are only the Protagonist, and for them to have
     #  a data attribute `ex:hasItem_label`
 
-    nx_graph = RDF2NX.convert(
-        rdf_graph=simple_rdf_graph, 
-        namespaces=namespaces
-    )
+    nx_graph = RDF2NX.convert(rdf_graph=simple_rdf_graph, namespaces=namespaces)
 
-    assert len(nx_graph) == 1, f"Expected just the protagonist. Got {len(nx_graph)} nodes."
+    expected_len = len(list(simple_rdf_graph.triples((None, RDF.type, SCHEMA.Person))))
+    assert (
+        len(nx_graph) == expected_len
+    ), f"Expected len = {expected_len}. Got {len(nx_graph)} nodes."
 
     expected_keys = {"iri", "ex:hasItem_label"}
 
