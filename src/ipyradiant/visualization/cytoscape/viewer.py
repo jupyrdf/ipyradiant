@@ -48,6 +48,7 @@ MANUAL_SPACING_LAYOUT = {
 class CytoscapeViewer(W.VBox):
     """A simple Cytoscape graph visualizer that can render RDF and networkx graphs.
 
+    :param allow_disconnected: flag for turning disconnected nodes on/off
     :param animate: flag for turning cytoscape animations on/off
     :param node_labels: flag for turning node labels on/off
     :param edge_labels: flag for turning edge labels on/off
@@ -65,12 +66,14 @@ class CytoscapeViewer(W.VBox):
       (i.e. the object node data of a relationship)
     """
 
+    allow_disconnected = T.Bool(default_value=False)
     animate = T.Bool(default_value=True)
     node_labels = T.Bool(default_value=True)
     edge_labels = T.Bool(default_value=True)
     layouts = T.List()
     layout_selector = T.Instance(W.Dropdown)
     spacing_slider = T.Instance(W.FloatSlider)
+    allow_disc_check = T.Instance(W.Checkbox)
     cytoscape_widget = T.Instance(cyto.CytoscapeWidget)
     graph = T.Union(
         (
@@ -173,17 +176,24 @@ class CytoscapeViewer(W.VBox):
         )
 
         if isinstance(self.graph, nx.Graph):
-            self.cytoscape_widget.graph.add_graph_from_networkx(self.graph)
+            # need a copy so that we don't modify the underlying graph
+            view = self.graph.copy()
+            if not self.allow_disconnected: 
+                view.remove_nodes_from(list(nx.isolates(view)))
+            self.cytoscape_widget.graph.add_graph_from_networkx(view)
             # TODO def add_label_from_nx
             for node in self.cytoscape_widget.graph.nodes:
                 node.data["_label"] = node.data.get(self._nx_label, None)
         elif isinstance(self.graph, rdflib.Graph):
+            # TODO support passing namespace dict here?
             # Note: rdflib_to_networkx_multidigraph does not store the predicate AT ALL,
             #  so it is basically unrecoverable (e.g. for labelling); using _rdf_converter
             # use external_graph of converter to return connected node data
             nx_graph = self._rdf_converter.convert(
                 self.graph, external_graph=self._rdf_converter_graph
             )
+            if not self.allow_disconnected: 
+                nx_graph.remove_nodes_from(list(nx.isolates(nx_graph)))
             self.cytoscape_widget.graph.add_graph_from_networkx(nx_graph)
             for node in self.cytoscape_widget.graph.nodes:
                 node.data["_label"] = node.data.get(
@@ -214,6 +224,11 @@ class CytoscapeViewer(W.VBox):
 
         return widget
 
+    @T.observe("allow_disconnected")
+    def _update_nx_nodes(self, change):
+        if change.old != change.new and self.graph is not None:
+            self._update_graph(None)
+
     @T.observe("node_labels", "edge_labels")
     def _update_labels(self, change):
         self.update_style()
@@ -238,6 +253,12 @@ class CytoscapeViewer(W.VBox):
             step=0.1,
         )
         widget.observe(self.update_spacing, "value")
+        return widget
+
+    @T.default("allow_disc_check")
+    def _make_default_allow_disc_check(self):
+        widget = W.Checkbox(description="Allow disconnected", indent=False)
+        T.link((widget, "value"), (self, "allow_disconnected"))
         return widget
 
     @T.observe("layouts")
@@ -266,7 +287,7 @@ class CytoscapeViewer(W.VBox):
         if change.old == change.new:
             return
         self.children = (
-            W.HBox([self.layout_selector, self.spacing_slider]),
+            W.HBox([self.layout_selector, self.spacing_slider, self.allow_disc_check]),
             change.new,
         )
 
@@ -279,7 +300,9 @@ class CytoscapeViewer(W.VBox):
         children = proposal.value
         if not children:
             children = (
-                W.HBox([self.layout_selector, self.spacing_slider]),
+                W.HBox([
+                    self.layout_selector, self.spacing_slider, self.allow_disc_check,
+                ]),
                 self.cytoscape_widget,
             )
         return children
