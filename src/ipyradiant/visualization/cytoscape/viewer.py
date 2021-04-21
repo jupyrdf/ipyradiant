@@ -178,7 +178,7 @@ class CytoscapeViewer(W.VBox):
         if isinstance(self.graph, nx.Graph):
             # need a copy so that we don't modify the underlying graph
             view = self.graph.copy()
-            if not self.allow_disconnected: 
+            if not self.allow_disconnected:
                 view.remove_nodes_from(list(nx.isolates(view)))
             self.cytoscape_widget.graph.add_graph_from_networkx(view)
             # TODO def add_label_from_nx
@@ -192,7 +192,7 @@ class CytoscapeViewer(W.VBox):
             nx_graph = self._rdf_converter.convert(
                 self.graph, external_graph=self._rdf_converter_graph
             )
-            if not self.allow_disconnected: 
+            if not self.allow_disconnected:
                 nx_graph.remove_nodes_from(list(nx.isolates(nx_graph)))
             self.cytoscape_widget.graph.add_graph_from_networkx(nx_graph)
             for node in self.cytoscape_widget.graph.nodes:
@@ -210,9 +210,8 @@ class CytoscapeViewer(W.VBox):
             maxSimulationTime=1000,
         )
         widget.layout.height = "100%"
-        widget.set_style(self.cyto_style)
 
-        # copy handlers from the old widget
+        # copy handlers/style from the old widget
         if old_widget:
             for item, events in old_widget._interaction_handlers.items():
                 for event, dispatcher in events.items():
@@ -221,6 +220,10 @@ class CytoscapeViewer(W.VBox):
                         if callback_owner == old_widget:
                             callback = getattr(widget, callback.__name__)
                         widget.on(item, event, callback)
+
+            widget.set_style(old_widget.get_style())
+        else:
+            widget.set_style(self.cyto_style)
 
         return widget
 
@@ -300,9 +303,13 @@ class CytoscapeViewer(W.VBox):
         children = proposal.value
         if not children:
             children = (
-                W.HBox([
-                    self.layout_selector, self.spacing_slider, self.allow_disc_check,
-                ]),
+                W.HBox(
+                    [
+                        self.layout_selector,
+                        self.spacing_slider,
+                        self.allow_disc_check,
+                    ]
+                ),
                 self.cytoscape_widget,
             )
         return children
