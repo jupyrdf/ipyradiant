@@ -1,11 +1,16 @@
 # `ipyradiant` CHANGELOG
 
-## 0.1.3 (WIP)
+## 0.2 (WIP)
 
 - adds `InteractiveViewer` widget (small RDF graphs as LPG with type coloring)
+- adds `CytoscapeViewer` widget (common graph visualization for RDF and LPG i.e.
+  networkx)
 - removes `InteractiveVisualization` widget
 - removes `GraphExplorer` widget and associated code/tests
 - improves `QueryWidget` layout and namespace resolution
+- improves `RDF2NX` converter by allowing multiple queries to be defined for each
+  behavior
+- improves reliability of `RDF2NX` converter via improved namespace management
 - support for `jupyterlab >= 3`
 
 ## 0.1.2 (J_e) (2021-01-21)
