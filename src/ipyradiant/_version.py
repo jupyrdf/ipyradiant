@@ -3,4 +3,4 @@
 # Copyright (c) 2021 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
