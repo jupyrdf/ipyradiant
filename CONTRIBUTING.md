@@ -74,29 +74,36 @@ doit all
 
 ## Releasing
 
+- Ensure you have credentials for `pypi` and `feedstock` (before tagging release)
 - Start a release issue with version and release name
   - Pick an unused, random radiance unit from [wikipedia][radiance-si-units]
 - After merging all PRs to `master`, download the `ipyradiant` dist artifacts after a
   successful CI run
-- Tag appropriately through the GitHub release web UI
 - Check out `master`
-- Extract and inspect the files in `./dist`.
-- Ensure you have credentials for `pypi`
+- Extract the artifacts to `./dist` and inspect the files
+- Tag appropriately through the GitHub release web UI
+  - Use the `CHANGELOG` contents for the release description
+  - Add the wheel, tar.gz and SHA files to the release artifacts
+- Validate and upload the files to `pypi`:
 
-```bash
-anaconda-project run --env-spec build twine check ipyradiant*
-anaconda-project run --env-spec build twine upload ipyradiant*
-```
+  ```bash
+  anaconda-project run --env-spec build twine check dist/ipyradiant*
+  anaconda-project run --env-spec build twine upload dist/ipyradiant*
+  ```
 
-- Check hashes on `pypi`
+> Note: If you have issues with twine (on windows), you may need to manually activate the build environment (`conda activate envs/build`) and run the twine commands.
+
+- Check hashes on `pypi` after the upload completes
 - Complete `conda-forge` tasks
   - go to [ipyradiant-feedstock](https://github.com/conda-forge/ipyradiant-feedstock)
     and fork
   - update `recipe/meta.yml` (version and sha for tar)
   - submit PR to conda-forge feedstock (go through checklist). DO NOT PUSH DIRECTLY
-  - wait for CI, merge and wait for CI again
+  - wait for CI, merge (requires write permissions) and wait for CI again
+  - once CI is done, the new package version should be visible on [conda-forge][conda-forge-ipyradiant]
 
 [radiance-si-units]: https://en.wikipedia.org/wiki/Radiance#SI_radiometry_units
+[conda-forge-ipyradiant]: https://anaconda.org/conda-forge/ipyradiant
 
 ## Updating environments
 
