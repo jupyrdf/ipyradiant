@@ -1,6 +1,10 @@
 # `ipyradiant` CHANGELOG
 
-## 0.2.0 (WIP)
+## 0.2.1 (WIP)
+
+- TODO
+
+## 0.2.0 (M_e) (2021-04-26)
 
 - adds `InteractiveViewer` widget (small RDF graphs as LPG with type coloring)
 - adds `CytoscapeViewer` widget (common graph visualization for RDF and LPG i.e.
