@@ -395,7 +395,7 @@ class InteractiveViewer(W.GridspecLayout):
         # set options, value, and row counts
         self.type_selector.options = select_options
         self.type_selector.value = tuple(uri for _, uri in select_options)
-        self.type_selector.rows = len(select_options)
+        self.type_selector.rows = len(select_options) + 1
 
         # build options for the predicate MultiSelect
         select_options = []
@@ -406,7 +406,7 @@ class InteractiveViewer(W.GridspecLayout):
         # set options, value, and row counts
         self.predicate_selector.options = select_options
         self.predicate_selector.value = tuple(uri for _, uri in select_options)
-        self.predicate_selector.rows = len(select_options)
+        self.predicate_selector.rows = len(select_options) + 1
 
         color_classes = self.assign_css_classes()
         self.apply_node_styling(change=None)
