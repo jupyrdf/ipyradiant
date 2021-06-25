@@ -91,7 +91,8 @@ doit all
   anaconda-project run --env-spec build twine upload dist/ipyradiant*
   ```
 
-> Note: If you have issues with twine (on windows), you may need to manually activate the build environment (`conda activate envs/build`) and run the twine commands.
+> Note: If you have issues with twine (on windows), you may need to manually activate
+> the build environment (`conda activate envs/build`) and run the twine commands.
 
 - Check hashes on `pypi` after the upload completes
 - Complete `conda-forge` tasks
@@ -100,7 +101,8 @@ doit all
   - update `recipe/meta.yml` (version and sha for tar)
   - submit PR to conda-forge feedstock (go through checklist). DO NOT PUSH DIRECTLY
   - wait for CI, merge (requires write permissions) and wait for CI again
-  - once CI is done, the new package version should be visible on [conda-forge][conda-forge-ipyradiant]
+  - once CI is done, the new package version should be visible on
+    [conda-forge][conda-forge-ipyradiant]
 
 [radiance-si-units]: https://en.wikipedia.org/wiki/Radiance#SI_radiometry_units
 [conda-forge-ipyradiant]: https://anaconda.org/conda-forge/ipyradiant
