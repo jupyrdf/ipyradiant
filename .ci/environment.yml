@@ -7,7 +7,7 @@ channels:
 dependencies:
   - anaconda-project
   - conda
-  - doit =0.32
+  - doit
   - pip
   - python >=3.9,<3.10
   - twine
