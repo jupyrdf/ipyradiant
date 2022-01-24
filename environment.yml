@@ -20,6 +20,7 @@ dependencies:
   - pyld
   - pyshacl
   - python >=3.6 # underspecified so binder does whatever's clever
-  - rdflib-jsonld
+  - rdflib >=6.0
   - requests_cache
   - scikit-image
+  - sparqlwrapper

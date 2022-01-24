@@ -1,6 +1,6 @@
 """ ipyradiant main file
 """
-# Copyright (c) 2021 ipyradiant contributors.
+# Copyright (c) 2022 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
 from ._version import __version__
@@ -11,7 +11,7 @@ from .basic_tools import (
     collapse_predicates,
 )
 from .loader import FileManager, PathLoader, UpLoader
-from .query import QueryWidget, SPARQLQueryFramer, service_patch_rdflib
+from .query import QueryWidget, SPARQLQueryFramer
 from .visualization import (
     CytoscapeViewer,
     CytoscapeVisualizer,
@@ -35,7 +35,6 @@ __all__ = [
     "PathLoader",
     "PredicateMultiselectApp",
     "QueryWidget",
-    "service_patch_rdflib",
     "SPARQLQueryFramer",
     "UpLoader",
 ]

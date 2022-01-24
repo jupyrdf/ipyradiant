@@ -1,6 +1,6 @@
 """ loading widgets
 """
-# Copyright (c) 2021 ipyradiant contributors.
+# Copyright (c) 2022 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
 __all__ = ["FileManager", "UpLoader", "PathLoader"]

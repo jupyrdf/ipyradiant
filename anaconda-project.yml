@@ -25,70 +25,71 @@ commands:
 env_specs:
   dev:
     platforms:
-    - linux-64
-    - osx-64
-    - win-64
+      - linux-64
+      - osx-64
+      - win-64
     inherit_from:
-    - ipyradiant
+      - ipyradiant
     packages:
-    - pytest
-    - pytest-cov
-    - python >=3.9,<3.10
+      - pytest
+      - pytest-cov
+      - python >=3.9,<3.10
 
   build:
     description: build tools
     platforms:
-    - linux-64
-    - osx-64
-    - win-64
+      - linux-64
+      - osx-64
+      - win-64
     channels:
-    - https://conda.anaconda.org/conda-forge
-    - nodefaults
+      - https://conda.anaconda.org/conda-forge
+      - nodefaults
     packages:
-    - conda
-    - pip
-    - python >=3.9,<3.10
-    - twine
+      - conda
+      - pip
+      - python >=3.9,<3.10
+      - twine
 
   qa:
     description: qa tools
     platforms:
-    - linux-64
-    - osx-64
-    - win-64
+      - linux-64
+      - osx-64
+      - win-64
     channels:
-    - https://conda.anaconda.org/conda-forge
-    - nodefaults
+      - https://conda.anaconda.org/conda-forge
+      - nodefaults
     packages:
-    - black
-    - flake8
-    - isort >=5
-    - jupyterlab >=3.0.0
-    - nbformat
-    - nodejs >=12,<13.0.0a0
-    - pyflakes
-    - python >=3.9,<3.10
+      - black
+      - flake8
+      - isort >=5
+      - jupyterlab >=3.0.0
+      - nbformat
+      - nodejs >=12,<13.0.0a0
+      - pyflakes
+      - python >=3.9,<3.10
 
   ipyradiant:
     packages:
-    - datashader
-    - hvplot
-    - importnb
-    - ipycytoscape >=1.2
-    - ipython >=7.20
-    - ipywidgets >=7.6,<8
-    - pyviz_comms
-    - jupyterlab >=3.0.0
-    - networkx >=2
-    - nodejs >=12,<13.0.0a0
-    - numpy
-    - pip
-    - pyld
-    - pyshacl
-    - python >=3.6
-    - rdflib-jsonld
-    - requests_cache
-    - scikit-image
+      - datashader
+      - hvplot
+      - importnb
+      - ipycytoscape >=1.2
+      - ipython >=7.20
+      - ipywidgets >=7.6,<8
+      - pyviz_comms
+      - jupyterlab >=3.0.0
+      - networkx >=2
+      - nodejs >=12,<13.0.0a0
+      - numpy
+      - pip
+      - pyld
+      - pyshacl
+      - python >=3.6
+      - rdflib >=6.0
+      - requests_cache
+      - scikit-image
+      - sparqlwrapper
     channels:
-    - https://conda.anaconda.org/conda-forge
-    - nodefaults
+      - https://conda.anaconda.org/conda-forge
+      - nodefaults
