@@ -369,6 +369,10 @@ class InteractiveViewer(W.GridspecLayout):
 
         # force update now  TODO remove?
         self.viewer.graph = self._nx_graph
+        for node in self.viewer.cytoscape_widget.graph.nodes:
+            node.data["_label"] = node.data.get(
+                self.viewer._rdf_label, node.data.get("id", None)
+            )
 
         # needed for type/predicate count methods
         self.update_iri_map()
