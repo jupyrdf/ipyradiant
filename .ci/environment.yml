@@ -5,10 +5,10 @@ channels:
   - nodefaults
 
 dependencies:
-  - anaconda-project =0.8.4
-  - conda >=4.8,<4.9
-  - doit =0.32
+  - anaconda-project
+  - conda
+  - doit
   - pip
-  - python >=3.7,<3.8
+  - python >=3.9,<3.10
   - twine
   - mamba

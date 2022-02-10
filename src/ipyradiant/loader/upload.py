@@ -1,13 +1,13 @@
 """ file uploader widget
 """
-# Copyright (c) 2021 ipyradiant contributors.
+# Copyright (c) 2022 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 
 import ipywidgets as W
 import traitlets as T
+from rdflib.util import SUFFIX_FORMAT_MAP
 
 from .base import BaseLoader
-from .util import SUFFIX_FORMAT_MAP
 
 
 class UpLoader(W.HBox, BaseLoader):

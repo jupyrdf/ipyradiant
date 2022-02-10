@@ -1,4 +1,4 @@
-# Copyright (c) 2021 ipyradiant contributors.
+# Copyright (c) 2022 ipyradiant contributors.
 # Distributed under the terms of the Modified BSD License.
 import logging
 from typing import Callable, Dict, List, Union
