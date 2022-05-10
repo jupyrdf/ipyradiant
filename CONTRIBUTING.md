@@ -20,7 +20,7 @@
 - install `anaconda-project` and `doit` into the `base` env
 
 ```bat
-mamba install -c conda-forge anaconda-project=0.8.4 doit=0.32
+mamba install -c conda-forge anaconda-project=0.8.4 doit=0.36
 ```
 
 or, use the same base environment as CI:
