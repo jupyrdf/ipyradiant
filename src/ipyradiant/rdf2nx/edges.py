@@ -25,7 +25,7 @@ class RelationTypes(SPARQLQueryFramer):
           # Plain relations, non-reified
             ?source ?predicate ?target.
 
-            FILTER ( isIRI ( ?target ) ).  # prevent bad things
+            FILTER ( !isLiteral( ?target ) ).  # prevent bad things
 
             # Plain relations must get their fictitious IRI from constructs like this.
             # Using the triple components ensures a unique IRI identifying the triple.

@@ -125,7 +125,8 @@ class RDF2NX:
 
         if node_iris is None:
             # TODO paginate (LIMIT+OFFSET) for batch processing?
-            node_iris = list(cls.query_manager(cls.node_iris, rdf_graph)["iri"])
+            # node_iris = list(cls.query_manager(cls.node_iris, rdf_graph)["iri"])
+            node_iris = list(rdf_graph.subjects())
 
         for node_iri in node_iris:
             # TODO this isn't actually used (should it be?)
