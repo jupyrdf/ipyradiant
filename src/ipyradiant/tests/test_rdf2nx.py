@@ -104,7 +104,10 @@ def test_rdf2nx_custom(example_ns, SCHEMA, simple_rdf_graph):
     namespaces = {"schema": SCHEMA, "ex": example_ns, "base": example_ns}
 
     # Note: we are replacing the default behavior
-    RDF2NX.node_iris = [CustomNodeIRIs1, CustomNodeIRIs2]
+    RDF2NX.node_iris = [
+        CustomNodeIRIs1,
+        CustomNodeIRIs2,
+    ]
     RDF2NX.node_properties = CustomNodeProperties
 
     # Note: the expected results are only the Protagonist, and for them to have
