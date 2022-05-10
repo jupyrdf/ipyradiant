@@ -7,8 +7,8 @@ from IPython.display import JSON, display
 from networkx import Graph as NXGraph
 from pandas import DataFrame
 from rdflib.graph import Graph as RDFGraph
-from rdflib.term import URIRef
 from rdflib.namespace import OWL
+from rdflib.term import URIRef
 
 from ipyradiant.basic_tools.custom_uri_ref import CustomURIRef
 from ipyradiant.rdf2nx.converter import RDF2NX
@@ -251,7 +251,9 @@ class InteractiveViewer(W.GridspecLayout):
         if change_type in {"node_type", "both"}:
             for node in self.viewer.cytoscape_widget.graph.nodes:
                 # TODO improve coloring after this
-                raw_types = node.data.get("rdf:type") or node.data.get("rdfs:subClassOf")
+                raw_types = node.data.get("rdf:type") or node.data.get(
+                    "rdfs:subClassOf"
+                )
                 types = raw_types if type(raw_types) is tuple else (raw_types,)
                 if not any([_type in visible_node_types for _type in types]):
                     node.classes = "invisible"
@@ -287,9 +289,7 @@ class InteractiveViewer(W.GridspecLayout):
         # TODO add types instead of replacing once we figure out how to make partial matches of css classes in ipycytoscape
         for node in self.viewer.cytoscape_widget.graph.nodes:
             node_types = (
-                node.data.get("rdf:type") or 
-                node.data.get("rdfs:subClassOf") or 
-                []
+                node.data.get("rdf:type") or node.data.get("rdfs:subClassOf") or []
             )
             if type(node_types) == URIRef:
                 node_types = (node_types,)
@@ -297,7 +297,9 @@ class InteractiveViewer(W.GridspecLayout):
             # Remove instance type for coloring
             node_types_pruned = set(node_types)
             node_types_pruned.discard(OWL.NamedIndividual)
-            node_types = tuple(node_types_pruned,)
+            node_types = tuple(
+                node_types_pruned,
+            )
 
             if len(node_types) == 1:
                 # assign specific class to node
@@ -402,8 +404,9 @@ class InteractiveViewer(W.GridspecLayout):
             uri: str(CustomURIRef(uri, namespaces=rdf_graph.namespace_manager)).replace(
                 ":", "-"
             )
-            if type(uri) is URIRef else str(uri)
-            for uri in type_count.type_ 
+            if type(uri) is URIRef
+            else str(uri)
+            for uri in type_count.type_
         }
         self.uri_to_string_type["multi-type"] = "multi-type"
 
