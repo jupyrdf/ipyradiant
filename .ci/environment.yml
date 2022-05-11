@@ -6,7 +6,7 @@ channels:
 dependencies:
   - anaconda-project
   - conda
-  - doit =0.32
+  - doit
   - pip
   - pip:
     - git+https://github.com/jvesely/cloudpickle.git
