@@ -9,7 +9,7 @@ dependencies:
   - doit >=0.36
   - pip
   - pip:
-    - git+https://github.com/jvesely/cloudpickle.git@master
+    - git+https://github.com/jvesely/cloudpickle.git
   - python >=3.9,<3.10
   - twine
   - mamba
