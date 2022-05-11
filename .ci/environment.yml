@@ -2,14 +2,15 @@ name: ipyradiant-base
 
 channels:
   - https://conda.anaconda.org/conda-forge
+  - nodefaults
 
 dependencies:
-  - anaconda-project
-  - conda
+  - anaconda-project =0.8.4
+  - conda >=4.12
   - doit
   - pip
   - pip:
-    - git+https://github.com/jvesely/cloudpickle.git
+    - git+https://github.com/jvesely/cloudpickle.git@master
   - python >=3.9,<3.10
   - twine
   - mamba
