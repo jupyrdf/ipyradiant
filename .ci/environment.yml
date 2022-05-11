@@ -5,12 +5,12 @@ channels:
   - nodefaults
 
 dependencies:
-  - anaconda-project =0.8.4
-  - conda >=4.12
+  - anaconda-project =0.10.2
+  - conda =4.11.0
   - doit
   - pip
   - pip:
     - git+https://github.com/jvesely/cloudpickle.git@master
   - python >=3.9,<3.10
   - twine
-  - mamba
+  - mamba =0.21.0
