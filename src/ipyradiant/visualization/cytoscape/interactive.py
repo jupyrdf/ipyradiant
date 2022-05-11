@@ -7,6 +7,7 @@ from IPython.display import JSON, display
 from networkx import Graph as NXGraph
 from pandas import DataFrame
 from rdflib.graph import Graph as RDFGraph
+from rdflib.namespace import OWL
 from rdflib.term import URIRef
 
 from ipyradiant.basic_tools.custom_uri_ref import CustomURIRef
@@ -56,6 +57,9 @@ def get_color_list_css(color_list):
 
 def get_desc(uri, namespaces, count=None):
     """Get a shorthand way to describe a URI and its counts."""
+    if type(uri) is not URIRef:
+        # just return the string
+        return str(uri)
 
     shorthand = str(CustomURIRef(uri, namespaces=namespaces))
     if count:
@@ -67,9 +71,11 @@ def get_type_counts(klass, graph: NXGraph) -> DataFrame:
     type_dict = {}
     for node, data in graph.nodes(data=True):
         # node_type can be a list (make all list)
-        type_attr = data.get("rdf:type")
+        type_attr = data.get("rdf:type") or data.get("rdfs:subClassOf")
         if not type_attr:
-            raise ValueError(f"Node has no 'rdf:type': {data.keys()}")
+            # TODO logging
+            # raise ValueError(f"Node has no 'rdf:type': {data.keys()}")
+            type_attr = "Blank Node"
 
         if not isinstance(type_attr, (list, tuple)):
             node_types = [
@@ -189,7 +195,7 @@ class InteractiveViewer(W.GridspecLayout):
         color_list = COLOR_LIST.copy()
         n_to_add = len(self.uri_to_string_type.keys()) - len(color_list)
         if n_to_add > 0 and self.allow_large_graphs:
-            color_list.extend([(255, 255, 255)] * n_to_add)
+            color_list.extend([(220, 220, 220)] * n_to_add)
         elif n_to_add > 0:
             raise ValueError(
                 f"Cannot render more than {len(COLOR_LIST)} visually distinct colors."
@@ -244,7 +250,10 @@ class InteractiveViewer(W.GridspecLayout):
 
         if change_type in {"node_type", "both"}:
             for node in self.viewer.cytoscape_widget.graph.nodes:
-                raw_types = node.data["rdf:type"]
+                # TODO improve coloring after this
+                raw_types = node.data.get("rdf:type") or node.data.get(
+                    "rdfs:subClassOf"
+                )
                 types = raw_types if type(raw_types) is tuple else (raw_types,)
                 if not any([_type in visible_node_types for _type in types]):
                     node.classes = "invisible"
@@ -279,9 +288,18 @@ class InteractiveViewer(W.GridspecLayout):
         # assign CSS classes to nodes based on their rdf:type
         # TODO add types instead of replacing once we figure out how to make partial matches of css classes in ipycytoscape
         for node in self.viewer.cytoscape_widget.graph.nodes:
-            node_types = node.data.get("rdf:type", [])
+            node_types = (
+                node.data.get("rdf:type") or node.data.get("rdfs:subClassOf") or []
+            )
             if type(node_types) == URIRef:
                 node_types = (node_types,)
+
+            # Remove instance type for coloring
+            node_types_pruned = set(node_types)
+            node_types_pruned.discard(OWL.NamedIndividual)
+            node_types = tuple(
+                node_types_pruned,
+            )
 
             if len(node_types) == 1:
                 # assign specific class to node
@@ -386,6 +404,8 @@ class InteractiveViewer(W.GridspecLayout):
             uri: str(CustomURIRef(uri, namespaces=rdf_graph.namespace_manager)).replace(
                 ":", "-"
             )
+            if type(uri) is URIRef
+            else str(uri)
             for uri in type_count.type_
         }
         self.uri_to_string_type["multi-type"] = "multi-type"
