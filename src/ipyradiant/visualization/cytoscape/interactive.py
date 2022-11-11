@@ -189,7 +189,7 @@ class InteractiveViewer(W.GridspecLayout):
         color_list = COLOR_LIST.copy()
         n_to_add = len(self.uri_to_string_type.keys()) - len(color_list)
         if n_to_add > 0 and self.allow_large_graphs:
-            color_list.extend([(255, 255, 255)] * n_to_add)
+            color_list.extend([(0, 0, 0)] * n_to_add)
         elif n_to_add > 0:
             raise ValueError(
                 f"Cannot render more than {len(COLOR_LIST)} visually distinct colors."

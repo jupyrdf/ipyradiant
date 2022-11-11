@@ -10,7 +10,7 @@ from .basic_tools import (
     PredicateMultiselectApp,
     collapse_predicates,
 )
-from .loader import FileManager, PathLoader, UpLoader
+from .loader import FileManager, FileLoader, PathLoader, UpLoader
 from .query import QueryWidget, SPARQLQueryFramer
 from .visualization import (
     CytoscapeViewer,
@@ -28,6 +28,7 @@ __all__ = [
     "CytoscapeVisualizer",
     "DatashaderVisualizer",
     "FileManager",
+    "FileLoader",
     "GetOutgoingPredicateObjects",
     "InteractiveViewer",
     "LayoutSelector",
