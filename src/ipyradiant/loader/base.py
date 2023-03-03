@@ -36,10 +36,9 @@ class BaseLoader(W.Widget):
         TODO: support multiple graphs as a ConjunctiveGraph
         """
         g = Graph()
-
-        for file_name, data in change.new.items():
-            file_format = guess_format(file_name)
-            g.parse(data=data["content"], format=file_format)
+        if self.file_upload_value:
+            file_format = guess_format(self.file_upload_value["name"])
+            g.parse(data=self.file_upload_value["content"].tobytes(), format=file_format)
 
         self.graph = g
         self.graph_id = g.identifier

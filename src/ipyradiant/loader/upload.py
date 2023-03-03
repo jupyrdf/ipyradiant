@@ -20,7 +20,7 @@ class UpLoader(W.HBox, BaseLoader):
         super().__init__(*args, **kwargs)
         self.children = tuple([self.label, self.file_upload])
         T.link((self, "description"), (self.label, "value"))
-        T.dlink((self.file_upload, "value"), (self, "file_upload_value"))
+        T.dlink((self.file_upload, "value"), (self, "file_upload_value"), lambda x:x[0] if len(x) else {})
 
     @T.default("label")
     def make_default_label(self):

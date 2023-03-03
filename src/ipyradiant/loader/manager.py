@@ -14,7 +14,7 @@ from .upload import UpLoader
 class FileManager(W.HBox):
     """Wraps a file selector with graph info."""
 
-    loader = T.Instance(BaseLoader, default_value=UpLoader())
+    loader = T.Instance(BaseLoader)
     graph = T.Instance(Graph, kw={})
     graph_id = T.Instance(BNode)
     msg = T.Instance(W.HTML)
@@ -25,6 +25,12 @@ class FileManager(W.HBox):
             return "<i>No graph loaded.</i>"
         else:
             return f"<i>Loaded graph with {len(self.loader.graph)} triples.</i>"
+
+    @T.default("loader")
+    def default_loader(self):
+        self.loader = UpLoader()
+        self.update_loader()
+        return self.loader
 
     @T.validate("children")
     def validate_children(self, proposal):
@@ -42,10 +48,10 @@ class FileManager(W.HBox):
         return W.HTML(self.build_html())
 
     @T.observe("graph_id")
-    def update_msg(self, change):
+    def update_msg(self, change=None):
         self.msg.value = self.build_html()
 
     @T.observe("loader")
-    def update_loader(self, change):
+    def update_loader(self, change=None):
         T.link((self.loader, "graph"), (self, "graph"))
         T.link((self.loader, "graph_id"), (self, "graph_id"))
